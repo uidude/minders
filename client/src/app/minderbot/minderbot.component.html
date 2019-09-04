@@ -1,0 +1,53 @@
+<!--
+ Copyright 2019 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="help">
+  <div class="mdl-card mdl-shadow--2dp">
+    <div class="mdl-card__supporting-text" style="width:initial">
+      <div style="float:right; width:80px; text-align:center">
+        <div>
+          <i id="mic"
+             [ngClass]="{'material-icons': true, 'mic': true, 'mic-active': voice.isRecording}">mic</i>
+        </div>
+        <div *ngIf="voice.isRecording" style="color:#E00000"><b>RECORDING</b></div>
+      </div>
+
+      <p>Minderbot provides assistant-style interaction with the app.</p>
+
+      <p> Minderbot is in an extremely experimental state right now, and currently only
+        responds to two commands:</p>
+
+      <ul>
+        <li>"Remind me to (TEXT OF YOUR MINDER)"</li>
+        <li>"Exit"</li>
+      </ul>
+
+      <p>
+        <a href="javascript:void(0)"
+           style="-webkit-user-select:none;cursor:default"
+           (click)="startMinderbot()">Restart Minderbot</a>
+      </p>
+  </div>
+</div>
+
+<!-- HTML that gets pulled into navigation UI -->
+<div class="minderbot-nav-template hidden-nav-template">
+  <div id="topbar" class="nav-title list-page-title mdl-layout-title">
+    <minderpad-nav path="/minderbot"></minderpad-nav>
+    <span class="topbar">Minderbot</span>
+  </div>
+</div>
+

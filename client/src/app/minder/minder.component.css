@@ -1,0 +1,88 @@
+/**
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.title {
+  font-weight: bold;
+  font-size: 25px;
+  line-height: initial;
+  padding: 8vmin;
+}
+
+.priority {
+  color: #757575;
+  text-align: center;
+  font-size: 18px;
+  padding: 14px 6px 12px 6px;
+}
+
+.title-element {
+  border: 1px solid #F9F9F9;
+  cursor: default;
+  padding: 8px;
+  color: #555;
+  min-height: 58px;
+}
+
+.not-dialog-button {
+  font-family: Roboto;
+  padding: 0 12px;
+  font-size: 1em;
+  padding: 0.5em;
+  margin: 0.5em;
+  width: 7em;
+}
+
+.dialog-button {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  width: 7em;
+}
+
+.mdl-dialog__actions {
+  padding: 0;
+  margin-top: -10px;
+}
+
+.dialog-content {
+  text-align: center;
+  column-count: 2;
+  max-width: 250px;
+  margin: auto;
+}
+
+.mdl-dialog__title {
+  padding: 20px 16px 0;
+  font-size: 1.75rem;
+}
+
+
+.forward {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/keyboard_arrow_right_grey600_24dp.png) no-repeat;
+  background-position: center;
+  width: initial;
+  min-width: 30px;
+  height: 30px;
+  margin: 8px;
+}
+
+.back {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/keyboard_arrow_left_grey600_24dp.png) no-repeat;
+  background-position: center;
+  width: initial;
+  min-width: 30px;
+  height: 30px;
+  margin: 8px;
+}

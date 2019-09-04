@@ -1,0 +1,39 @@
+<!--
+ Copyright 2019 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<!-- Add minder list FAB -->
+<button (click)="openDialog()" class="fab mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+  <i class="material-icons">add</i>
+</button>
+
+<!--Add minder dialog -->
+<dialog id="new-list-dialog" class="mdl-dialog" style="width:300px">
+  <form (submit)="addPad(title)">
+    <div class="mdl-dialog__title">Add pad</div>
+
+    <div style="padding-left:24px;padding-right:24px;padding-top:12px;">
+      <div class="mdl-textfield mdl-js-textfield" style="width:100%;">
+        <input name="title" class="mdl-textfield__input" type="text" id="title" [(ngModel)]="title" autocomplete="off">
+        <label class="mdl-textfield__label" for="title">Name</label>
+      </div>
+    </div>
+
+    <div class="mdl-dialog__actions">
+      <button class="mdl-button close">Add</button>
+      <button type="button" class="mdl-button close" (click)="addDialog.close()">Cancel</button>
+    </div>
+  </form>
+</dialog>

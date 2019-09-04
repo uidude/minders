@@ -1,0 +1,230 @@
+/**
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.action-buttons {
+  margin: 1em;
+  padding-top: 1em;
+  font-size: 0px;
+  margin-right: 18px;
+  margin-top: 20px;
+  float:right;
+}
+
+.left-action-icons {
+  float:left;
+  margin-left:14px;
+  margin-top:25px;
+  cursor:default;
+}
+
+.action-icon {
+  font-size:28px;
+  color:rgb(140,159,254);
+  cursor:default;
+}
+
+.action-button {
+  /* Note: important not to have any HTML between action buttons */
+  margin-left: 16px;
+  /* box-shadow: 2px 4px 8px #999; */
+}
+
+.hidden-nav-element, .hidden-nav-template {
+  display: none;
+}
+
+.snooze {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/snooze_grey600_24dp.png) no-repeat;
+  background-position: center;
+  width: initial;
+  min-width: 50px;
+}
+
+.waiting {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/hourglass_empty_grey600_24dp.png) no-repeat;
+  background-position: center;
+  width: initial;
+  min-width: 50px;
+}
+
+.done {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/done_grey600_24dp.png) no-repeat;
+  background-position: center;
+  width: initial;
+  min-width: 50px;
+}
+
+.current {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/visibility_grey600_24dp.png) no-repeat;
+  background-position: center;
+  width: initial;
+  min-width: 50px;
+}
+
+.obsolete {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/not_interested_grey600_24dp.png) no-repeat;
+  background-position: center;
+  width: initial;
+  min-width: 50px;
+}
+
+.soon {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/visibility_off_grey600_24dp.png) no-repeat;
+  background-position: center;
+  width: initial;
+  min-width: 50px;
+}
+
+.new {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/fiber_new_grey600_24dp.png) no-repeat;
+  background-position: center;
+  width: initial;
+  min-width: 50px;
+}
+
+.bump {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/vertical_align_top_grey600_24dp.png) no-repeat;
+  background-position: center;
+  width: initial;
+  min-width: 50px;
+}
+
+.urgent {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/star_border_grey600_24dp.png) no-repeat;
+  background-position: center;
+  width: initial;
+  min-width: 50px;
+}
+
+.minder-icon {
+  background: url(https://www.gstatic.com/images/icons/material/system/1x/reminder_googblue_24dp.png) no-repeat;
+  background-position: center;
+  width: 20px;
+  height: 24px;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 14px;
+}
+
+.minder-title {
+  color: #666666;
+  padding-left: 8px;
+}
+
+.nav-menu-title {
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: 700;
+}
+
+dt {
+  margin-left: 16px;
+  margin-bottom: 11px;
+  color: #666666 !important;
+}
+
+.nav-menu-link {
+  padding: 12px 0px 12px 28px !important;
+  cursor: default;
+  font-size: 16px;
+}
+
+.nav-menu-sublink {
+  padding: 11px 0px 11px 32px !important;
+  cursor: default;
+}
+
+.nav-menu-item {
+  width: 8.5em;
+  font-size: 16px;
+  left: 0;
+  right: initial;
+  padding-left: 24px;
+}
+
+.menu-item {
+  width: 8.5em;
+  font-size: 16px;
+  left: 0;
+  right: initial;
+  padding-left: 24px;
+}
+
+@media (hover: hover) {
+  .hover:hover {
+    text-decoration: underline;
+  }
+}
+
+.fab {
+  box-shadow: 2px 4px 8px #999;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+}
+
+.fab-holder {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 48px;
+  height: 48px;
+  z-index: 300;
+  padding: 18px;
+}
+
+#help {
+  display: none;
+}
+
+
+#help, .help {
+  margin-left: 36px;
+  margin-right: 36px;
+  margin-top: 32px;
+  margin-bottom: 32px;
+  clear: both;
+  font-family: Roboto Condensed;
+}
+
+.mdl-card__supporting-text {
+  font-size: 18px;
+  line-height: 26px;
+  padding: 16px 24px 16px 24px;
+}
+
+.mdl-card__title {
+  padding: 24px 24px 8px 24px;
+}
+
+
+.mdl-card {
+  width: inherit;
+  font-size: 40px;
+}
+
+.mdl-card__supporting-text p, .mdl-card__supporting-text li {
+  font-size:18px;
+  line-height:28px;
+}
+
+.mdl-card__supporting-text li {
+  padding-top:6px;
+}
+
+.topbar {
+  cursor:default;
+  font-variant:small-caps;
+}

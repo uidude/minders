@@ -1,0 +1,78 @@
+<!--
+ Copyright 2019 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<ng-container *ngIf="minderView && !loading">
+  <table id="minder-table" cellspacing="0" width="100%" style="cursor:default">
+    <tr *ngFor="let minder of minderView.minders"
+        (click)="nav.navigate('/minder', {id: minder.id})">
+      <td>
+        <div style="vertical-align:middle;padding-left:13px;">
+          <i class="material-icons" style="margin-top:2px;color:#CCC">{{icons[minder.priority]}}</i>
+        </div>
+      </td>
+      <td style="width:100%;" class="minder-row">{{minder.title}}</td>
+    </tr>
+  </table>
+
+  <div class="help" *ngIf="minderView.minders.length == 0">
+    <div class="mdl-card mdl-shadow--2dp">
+      <div class="mdl-card__supporting-text" style="width:initial">
+        <p>Click the + button below to add a Minder.</p>
+
+        <p>By default Minders are created as "New" and show up in "To review".
+          You won't see them in "In focus" unless you edit them or
+          create the Minder as In focus or Starred.</p>
+
+        <p>If you just created a Minder Pad, we populated it with an initial Minder—you can go
+          to "To review" to see it.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add minder FAB -->
+  <div class="fab-holder" (click)="nav.navigate('/add')">
+    <button class="fab mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+      <i class="material-icons">add</i>
+    </button>
+  </div>
+</ng-container>
+
+<div *ngIf="loading" style="padding:20px">Loading, please wait...</div>
+
+
+<!-- HTML that gets pulled into navigation UI -->
+<div class="list-nav-template hidden-nav-template">
+  <div id="topbar" class="nav-title list-page-title mdl-layout-title">
+    <minderpad-nav></minderpad-nav>
+
+    <span class="topbar" id="minder-views-menu">
+      <span *ngIf="minderView">{{minderView.title}}</span>
+    </span>
+    <!-- Drop down menu to pick miviewnder pad -->
+    <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+        for="minder-views-menu">
+      <li *ngFor="let view of views" class="menu-item mdl-menu__item"
+          (click)="switchToView(view.id)">{{view.title}}</li>
+    </ul>
+
+  </div>
+  <div class="nav-title list-page-title todo-count" id="todo-count">{{minderView ? minderView.minders.length : 0}}</div>
+  <div (click)="nav.navigate('/view', {view: 'done-today'})"
+       class="nav-icon material-icons mdl-badge mdl-badge--overlap" id="todone-count"
+       [attr.data-badge]="doneCount">done
+  </div>
+</div>
+

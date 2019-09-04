@@ -1,0 +1,54 @@
+<!--
+ Copyright 2019 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="help">
+  <div class="mdl-card mdl-shadow--2dp">
+    <div class="mdl-card__supporting-text" style="width:initial">
+
+      <p>Minders is a personal project to track todos that I use daily. I’m opening it up to a
+        handful of trusted friends to see if it can help you as well.</p>
+
+      <p>The app evolved from a spreadsheet-based workflow to track todos that I was using
+        because no todo list apps ever worked for me. The web UI focuses on a few key flows:
+        adding Minders quickly, showing the Minders that are “In focus” and you might work on now,
+        and reviewing the other Minders to decide whether to pull any In focus.</p>
+
+      <p>If you’re wondering why both the app and the todos are called “Minders” (and
+        “todo” and “task” are nowhere to be seen)...  for now you’ll have to conjecture.
+        Soon I’ll add an About section with more detail on the evolution of the app and the
+        terminology.</p>
+
+      <p>Click on login button below to try out the app. You’ll be prompted to authorize the app to
+        create a Google spreadsheet to hold your Minders.</p>
+
+      <p>Hope this is helpful in organizing your daily work!</p>
+
+      <p *ngIf="nav.isMobile && !nav.isWebApp">
+        <b>Note: Minders works best on Android when launched from your home screen. You can use
+          "Add to Home Screen" in the Chrome settings menu to add a home screen launcher.</b>
+      </p>
+  </div>
+  <div class="mdl-card__actions mdl-card--border" style="text-align:center;">
+    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+       style="font-size:18px" href="/lists">Login to Minders</a>
+  </div>
+</div>
+
+<div class="welcome-nav-template hidden-nav-template">
+  <div id="topbar" class="nav-title list-page-title mdl-layout-title">
+    <span class="topbar">Welcome to Minders!</span>
+  </div>
+</div>

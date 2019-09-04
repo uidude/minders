@@ -1,0 +1,63 @@
+/**
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+th, td {
+  text-align: left;
+  line-height: normal
+}
+
+tr:nth-child(even) {
+  background-color: #F2F2F2;
+  color: #333;
+}
+
+tr:nth-child(odd) {
+  color: #555;
+}
+
+.todo-count {
+  margin-left: 10px;
+  background-color: rgb(153, 108, 213);
+  justify-content: center;
+  display: flex;
+  width: 28px;
+  height: 26px;
+  align-items: center;
+  border-radius: 50%;
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.mdl-dialog__actions {
+  padding: 0px
+}
+
+.mdl-dialog__title {
+  padding: 16px
+}
+
+.minder-row {
+  padding: 18px 9px 18px 9px;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.nav-icon {
+  margin-top: 2px;
+  cursor:default;
+}

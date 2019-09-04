@@ -1,0 +1,25 @@
+{
+  "short_name": "Marvin",
+  "name": "Your friendly Minder robot",
+  "icons": [
+    {
+      "src": "assets/mindericon.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/mindericon_144.png",
+      "sizes": "144X144",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/mindericon_192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "display": "standalone",
+  "theme_color": "#673ab7",
+  "background_color": "#673ab7",
+  "start_url": "/minderbot"
+}

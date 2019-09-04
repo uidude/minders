@@ -1,0 +1,63 @@
+<!--
+ Copyright 2019 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<form id="addtaskform" (submit)="setStateAndSubmit('-new')" autocomplete="off">
+  <div class="mdl-textfield mdl-js-textfield" style="width:95%; margin:10px ">
+    <i class="mic material-icons" (click)="listenForTitle()">mic</i>
+    <input name="title" class="mdl-textfield__input" type="text" id="title" [(ngModel)]="title">
+    <label class="mdl-textfield__label" for="title">Remind me to ...</label>
+  </div>
+
+  <input type="hidden" name="page" value="newTodo">
+  <div>
+    <help-button></help-button>
+    <div class="action-buttons">
+      <input type="hidden" id="priority-field" name="priority" value="-new">
+
+      <button *ngFor="let state of buttonStates"
+              actionButton="{{state}}"
+              (click)="setStateAndSubmit(state)"></button>
+      <button type="button"
+              id="priority-button"
+              class="priority-button mdl-button mdl-js-button mdl-button--icon">
+        <i class="material-icons">more_vert</i>
+      </button>
+
+
+      <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect"
+          for="priority-button">
+        <li *ngFor="let state of menuStates"
+            class="mdl-menu__item menu-item"
+            (click)="setStateAndSubmit(state)">{{stateLabels[state]}}
+        </li>
+      </ul>
+    </div>
+  </div>
+</form>
+
+<div style="clear:both"></div>
+
+<div id="help">
+  <app-legend></app-legend>
+</div>
+
+
+<div class="add-nav-template hidden-nav-template">
+  <div id="topbar" class="nav-title list-page-title mdl-layout-title">
+    <minderpad-nav></minderpad-nav>
+     <span class="topbar">Add</span>
+  </div>
+</div>
