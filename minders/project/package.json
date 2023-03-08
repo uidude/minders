@@ -1,0 +1,39 @@
+{
+  "name": "faves-template",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "ios": "expo start -i",
+    "web": "expo start -w",
+    "build:web": "expo export:web",
+    "admin": "CLIENT=admin expo start --web",
+    "build:admin": "CLIENT=admin expo export:web"
+  },
+  "dependencies": {
+    "@npe-toolkit-shell": "file:../../npe-toolkit/shell/latest"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
+    "@npe-toolkit-tools": "file:../../npe-toolkit/tools"
+  },
+  "resolutions": {
+    "**/@babel/core": "^7.17.5",
+    "**/chokidar": "^3.1.4",
+    "**/@expo/dev-server": "0.1.120",
+    "//": "Resolutions below here are to address NPM package vulnerabiliies",
+    "**/selfsigned": "^2.0.0",
+    "**/immer": "^9.0.6",
+    "**/qs": "^6.7.3",
+    "**/loader-utils": "^2.0.4",
+    "**/browserslist": "^4.16.5",
+    "**/minimatch": "^3.0.5",
+    "**/shell-quote": "^1.7.3"
+  },
+  "localDependencies": {
+    "@toolkit": "../../npe-toolkit/lib",
+    "@app/admin": "../admin",
+    "@app/common": "../common",
+    "@app": "../client"
+  },
+  "private": true
+}
