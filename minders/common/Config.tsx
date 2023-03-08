@@ -22,13 +22,13 @@ try {
  * https://console.firebase.google.com/project/YOUR_PROJECT/settings/general/, under "Web apps"
  */
 export const FIREBASE_CONFIG: FirebaseConfig = localConf['firebase'] ?? {
-  apiKey: 'fill-me-in',
-  authDomain: 'fill-me-in',
-  projectId: 'fill-me-in',
-  storageBucket: 'fill-me-in',
-  messagingSenderId: 'fill-me-in',
-  appId: 'fill-me-in',
-  measurementId: 'fill-me-in',
+  apiKey: 'AIzaSyBPg-GJwR4N63turpv1G3tfUjYkXtu1GCA',
+  authDomain: 'minders-2d5bf.firebaseapp.com',
+  projectId: 'minders-2d5bf',
+  storageBucket: 'minders-2d5bf.appspot.com',
+  messagingSenderId: '729397867154',
+  appId: '1:729397867154:web:3f82a3e71427edd01dec4b',
+  measurementId: 'G-T7BP96L0C5',
   namespace: 'minders',
   emulators: {
     functions: {
@@ -46,5 +46,6 @@ export const FIREBASE_CONFIG: FirebaseConfig = localConf['firebase'] ?? {
  */
 export const GOOGLE_LOGIN_CONFIG = localConf['google-login'] ?? {
   iosClientId: 'fill-me-in',
-  webClientId: 'fill-me-in',
+  webClientId:
+    '729397867154-rbsrjlb7cvm3jfcq04gei4j730qo4jtc.apps.googleusercontent.com',
 };
