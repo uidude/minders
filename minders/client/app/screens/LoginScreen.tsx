@@ -17,7 +17,7 @@ const LOGIN_SCREEN_CONFIG: SimpleLoginScreenConfig = {
   title: 'Welcome to minders',
   subtitle:
     'This is a Simple Login Screen. \nEdit app/screens/LoginScreen.tsx to edit this!',
-  authTypes: ['google'],
+  authTypes: ['google', 'phone'],
   home: 'AllThingsScreen',
 };
 
