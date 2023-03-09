@@ -1,17 +1,19 @@
-// @flow
+/**
+ * @format
+ */
 import * as React from 'react';
-import {Appbar, IconButton} from 'react-native-paper';
+import {ViewStyle} from 'react-native';
+import {IconButton} from 'react-native-paper';
 import type {Action, HandlerRef} from './Actions';
 import {actionHandlerComponent} from './Actions';
-import type {ViewStyleProp} from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 // TODO: Consider passing in ID
 export default function ActionButton(props: {
-  action: Action,
-  size?: number,
-  style?: ViewStyleProp,
-  color?: string,
-  type?: React.ComponentType<any>,
+  action: Action;
+  size?: number;
+  style?: ViewStyle;
+  color?: string;
+  type?: React.ComponentType<any>;
 }) {
   const {action, size = 18, style, type, color} = props;
   const ButtonType = type || IconButton;

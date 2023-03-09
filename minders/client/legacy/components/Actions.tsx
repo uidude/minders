@@ -1,32 +1,28 @@
-// @flow
+/**
+ * @format
+ */
 import * as React from 'react';
-import {useContext, type Ref} from 'react';
-import {BinaryAlert} from './Alert';
-import {IconButton} from 'react-native-paper';
-import * as Facebook from 'expo-facebook';
-import firebase from 'firebase/app';
-import OutlinerContext, {
-  OutlinerEnvironment,
-  useOutlineState,
-  useOutliner,
-} from './OutlinerContext';
-import Outliner, {getChildren} from '../model/outliner';
+import {useContext} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import {Opt} from '@toolkit/core/util/Types';
+import {getChildren} from '../model/outliner';
 import type {OutlineItem} from '../model/outliner';
+import {BinaryAlert} from './Alert';
 import Auth from './Auth';
+import OutlinerContext, {useOutlineState, useOutliner} from './OutlinerContext';
 import {Shortcuts, useShortcut} from './Shortcuts';
 import {batch} from './Useful';
 import {WaitDialog} from './WaitDialog';
-import {useNavigation} from '@react-navigation/native';
 
 export type Handler = () => Promise<void> | void;
-export type HandlerRef = {current?: ?Handler};
+export type HandlerRef = {current?: Opt<Handler>};
 
 export type Action = {
-  id: string,
-  icon: string,
-  label: string,
-  key?: string | string[],
-  handle: () => Handler,
+  id: string;
+  icon: string;
+  label: string;
+  key?: string | string[];
+  handle: () => Handler;
 };
 
 export function useAction(action: Action): Handler {
@@ -144,9 +140,9 @@ export const Delete: Action = {
       setTimeout(
         () =>
           BinaryAlert('Are you sure you want to delete this item?', null, () =>
-            context.getOutliner().deleteItem(item)
+            context.getOutliner().deleteItem(item),
           ),
-        0
+        0,
       );
     };
   },

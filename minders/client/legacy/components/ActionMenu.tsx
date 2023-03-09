@@ -1,21 +1,22 @@
-// @flow
+/**
+ * @format
+ */
 import * as React from 'react';
+import {ViewStyle} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {IconButton, Menu} from 'react-native-paper';
-import type {Action, Handler, HandlerRef} from './Actions';
+import type {Action, HandlerRef} from './Actions';
 import {actionHandlerComponent} from './Actions';
-import type {ViewStyleProp} from 'react-native/Libraries/StyleSheet/StyleSheet';
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
-import OutlinerContext, {OutlinerEnvironment} from './OutlinerContext';
 
-type Trigger = (onPress: () => void) => React.Node;
+type Trigger = (onPress: () => void) => React.ReactNode;
 
 export function VerticalDots(props: {
-  size?: number,
-  style?: ViewStyleProp,
-  type?: React.ComponentType<any>,
-  color?: string,
-  onPress: () => void,
-}): React.Node {
+  size?: number;
+  style?: ViewStyle;
+  type?: React.ComponentType<any>;
+  color?: string;
+  onPress: () => void;
+}) {
   const {size = 18, style, type, color, onPress} = props;
   const ButtonType = type || IconButton;
   return (
@@ -24,7 +25,6 @@ export function VerticalDots(props: {
       style={[styles.iconButton, style]}
       onPress={onPress}
       size={size}
-      type={type}
       color={color}
     />
   );
@@ -32,15 +32,16 @@ export function VerticalDots(props: {
 
 // TODO: Consider passing in ID
 export default function ActionMenu(props: {
-  actions: Array<Action>,
-  children?: React$Node,
-  anchor: Trigger,
+  actions: Array<Action>;
+  children?: React.ReactNode;
+  anchor: Trigger;
 }) {
   const {actions, anchor} = props;
   const [menuVisible, setMenuVisible] = React.useState(false);
 
   function menuItemSelected(index: number): void {
-    handlers[index].current && handlers[index].current();
+    const handler = handlers[index].current;
+    handler && handler();
     setMenuVisible(false);
   }
 
@@ -73,8 +74,7 @@ export default function ActionMenu(props: {
         onDismiss={closeMenu}
         style={styles.menu}
         contentStyle={styles.menuContent}
-        anchor={anchorEl}
-      >
+        anchor={anchorEl}>
         {menuVisible &&
           actions.map((action, index) => (
             <Menu.Item
