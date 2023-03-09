@@ -50,6 +50,7 @@ import MyFavesScreen from '@app/app/screens/MyFavesScreen';
 import SettingsScreen from '@app/app/screens/SettingsScreen';
 import StartupScreen from '@app/app/screens/StartupScreen';
 import {FIREBASE_CONFIG, GOOGLE_LOGIN_CONFIG} from '@app/common/Config';
+import OldApp from './legacy/App';
 import {APP_CONFIG, APP_INFO, NOTIF_CHANNELS_CONTEXT} from './lib/Config';
 
 //
@@ -152,6 +153,7 @@ const APP_CONTEXT = [
 ];
 
 export default function App() {
+  return <OldApp />;
   registerAppConfig(APP_CONFIG);
   initializeFirebase(FIREBASE_CONFIG);
   IdentityService.addProvider(fbAuthProvider());
