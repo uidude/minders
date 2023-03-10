@@ -8,12 +8,13 @@ import * as React from 'react';
 import {ActivityIndicator, View} from 'react-native';
 import {ScrollView, StyleSheet, Text} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
-// Can we import view from paper?s
 import {Appbar} from 'react-native-paper';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {canLoggingInFix} from '@toolkit/core/api/Auth';
 import TriState from '@toolkit/core/client/TriState';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
+import {useNav} from '@toolkit/ui/screen/Nav';
+import LoginScreen from '@app/app/screens/LoginScreen';
 import {getItemUi, pathTo} from '../model/outliner';
 import type {
   OutlineItemVisibilityFilter,
@@ -127,7 +128,7 @@ export default function OutlineFrame(props: LayoutProps) {
   const loadingView = loading ?? SpinnerLoading;
   const route = useRoute();
   const reactNav = useNavigation<any>();
-  const nav: Nav = useNavigation();
+  const nav = useNav();
   const navStyle = style?.nav ?? 'full';
   const navType = style?.type ?? 'std';
   const key = route.key;
@@ -136,7 +137,7 @@ export default function OutlineFrame(props: LayoutProps) {
     // If you can fix the error by logging back in, redirect to login
     if (canLoggingInFix(err)) {
       reactNav.setOptions({animationEnabled: false});
-      setTimeout(() => nav.reset('LoginScreen'), 0);
+      setTimeout(() => nav.reset(LoginScreen), 0);
     }
     return false;
   }
