@@ -29,7 +29,7 @@ import PhoneVerification from '@toolkit/screens/login/PhoneVerification';
 import {NotificationSettingsScreen} from '@toolkit/screens/settings/NotificationSettings';
 import {BLACK_AND_WHITE} from '@toolkit/ui/QuickThemes';
 import {Icon, registerIconPack} from '@toolkit/ui/components/Icon';
-import {NavItem, tabLayout} from '@toolkit/ui/layout/TabLayout';
+import {NavItem} from '@toolkit/ui/layout/DrawerLayout';
 import {Routes} from '@toolkit/ui/screen/Nav';
 import WebViewScreen from '@toolkit/ui/screen/WebScreen';
 import 'expo-dev-client';
@@ -43,14 +43,18 @@ import {initializeFirebase} from '@toolkit/providers/firebase/Config';
 import {usePaperComponents} from '@toolkit/ui/components/Paper';
 import AuthConfig from '@app/app/AuthConfig';
 import AboutScreen from '@app/app/screens/AboutScreen';
-import AllThingsScreen from '@app/app/screens/AllThingsScreen';
-import CreateNewThingScreen from '@app/app/screens/CreateThingScreen';
 import LoginScreen from '@app/app/screens/LoginScreen';
-import MyFavesScreen from '@app/app/screens/MyFavesScreen';
 import SettingsScreen from '@app/app/screens/SettingsScreen';
 import StartupScreen from '@app/app/screens/StartupScreen';
 import {FIREBASE_CONFIG, GOOGLE_LOGIN_CONFIG} from '@app/common/Config';
-import OldApp from './legacy/App';
+import {MessagingTool} from './legacy/components/Messaging';
+import OutlineFrame from './legacy/components/OutlineFrame';
+import OutlineList from './legacy/components/OutlineList';
+import OutlineMover from './legacy/components/OutlineMover';
+import OutlineTop from './legacy/components/OutlineTop';
+import {ShortcutTool} from './legacy/components/Shortcuts';
+import {UsingUiTools} from './legacy/components/UiTools';
+import {WaitDialogTool} from './legacy/components/WaitDialog';
 import {APP_CONFIG, APP_INFO, NOTIF_CHANNELS_CONTEXT} from './lib/Config';
 
 //
@@ -95,6 +99,26 @@ patchReactNativeWebViewCrash();
 
 filterHandledExceptions();
 
+export const Outline = OutlineTop; //outlineScreen(OutlineTop);
+export const List = OutlineList; //outlineScreen(OutlineList);
+export const Mover = OutlineMover; //outlineScreen(OutlineMover);
+
+// @ts-ignore
+Outline.title = 'Outline';
+// @ts-ignore
+List.title = 'List';
+
+// TODO: Move this some place useful
+function fixOutlineCss() {
+  var style = document.createElement('style');
+  style.setAttribute('type', 'text/css');
+  style.appendChild(document.createTextNode('input:focus {outline: none;}'));
+  document.getElementsByTagName('head')[0].appendChild(style);
+  /*
+  input:focus {outline: none;}*/
+}
+fixOutlineCss();
+
 // TODO: Hack to hide header to avoid double back buttons.
 // Fix this by converting these to Screens
 // @ts-ignore
@@ -104,41 +128,17 @@ PhoneVerification.style = {nav: 'none'};
 const ROUTES: Routes = {
   StartupScreen,
   LoginScreen,
-  MyFavesScreen,
-  AllThingsScreen,
   SettingsScreen,
-  CreateNewThingScreen,
   PhoneInput,
   PhoneVerification,
   WebViewScreen,
   AboutScreen,
   NotificationSettingsScreen,
+  outline: Outline,
+  list: List,
+  mover: Mover,
 };
 const Stack = createStackNavigator();
-
-const TABS: NavItem[] = [
-  {
-    icon: 'ion:images-outline',
-    title: 'All Things',
-    screen: AllThingsScreen,
-    route: 'AllThingsScreen',
-  },
-  {
-    icon: 'ion:heart-outline',
-    title: 'Faves',
-    screen: MyFavesScreen,
-    route: 'MyFavesScreen',
-  },
-];
-
-const HEADER_RIGHT: NavItem[] = [
-  {
-    icon: 'ion:settings-outline',
-    title: 'Settings',
-    screen: SettingsScreen,
-    route: 'SettingsScreen',
-  },
-];
 
 // Set this to true to enable logging to Firebase Analytics
 const USE_FIREBASE_ANALYTICS = false;
@@ -153,7 +153,6 @@ const APP_CONTEXT = [
 ];
 
 export default function App() {
-  return <OldApp />;
   registerAppConfig(APP_CONFIG);
   initializeFirebase(FIREBASE_CONFIG);
   IdentityService.addProvider(fbAuthProvider());
@@ -164,11 +163,7 @@ export default function App() {
 
   const {navScreens, linkingScreens} = useReactNavScreens(
     ROUTES,
-    tabLayout({
-      tabs: TABS,
-      headerRight: HEADER_RIGHT,
-      loginScreen: LoginScreen,
-    }),
+    OutlineFrame,
     Stack.Screen,
   );
 
@@ -181,22 +176,24 @@ export default function App() {
   return (
     <AppContextProvider ctx={APP_CONTEXT}>
       <PaperProvider theme={BLACK_AND_WHITE} settings={{icon: Icon}}>
-        <AuthConfig>
-          <View style={S.background}>
-            <SafeAreaProvider style={S.container}>
-              <SimpleUserMessaging style={S.messaging} />
-              <NavigationContainer linking={linking}>
-                <StatusBar style="auto" />
-                <NavContext routes={ROUTES} />
-                <Stack.Navigator
-                  screenOptions={{headerShown: false}}
-                  initialRouteName="StartupScreen">
-                  {navScreens}
-                </Stack.Navigator>
-              </NavigationContainer>
-            </SafeAreaProvider>
-          </View>
-        </AuthConfig>
+        <UsingUiTools tools={[MessagingTool, ShortcutTool, WaitDialogTool]}>
+          <AuthConfig>
+            <View style={S.background}>
+              <SafeAreaProvider style={S.container}>
+                <SimpleUserMessaging style={S.messaging} />
+                <NavigationContainer linking={linking}>
+                  <StatusBar style="auto" />
+                  <NavContext routes={ROUTES} />
+                  <Stack.Navigator
+                    screenOptions={{headerShown: false}}
+                    initialRouteName="StartupScreen">
+                    {navScreens}
+                  </Stack.Navigator>
+                </NavigationContainer>
+              </SafeAreaProvider>
+            </View>
+          </AuthConfig>
+        </UsingUiTools>
       </PaperProvider>
     </AppContextProvider>
   );

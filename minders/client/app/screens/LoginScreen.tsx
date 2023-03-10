@@ -18,7 +18,7 @@ const LOGIN_SCREEN_CONFIG: SimpleLoginScreenConfig = {
   subtitle:
     'This is a Simple Login Screen. \nEdit app/screens/LoginScreen.tsx to edit this!',
   authTypes: ['google', 'phone'],
-  home: 'AllThingsScreen',
+  home: 'outline',
 };
 
 const LoginScreen: Screen<{}> = simpleLoginScreen(LOGIN_SCREEN_CONFIG);

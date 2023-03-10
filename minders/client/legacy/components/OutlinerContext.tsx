@@ -59,7 +59,6 @@ const outlineStore: OutlineStore = new OutlineStore();
 let outlineInitialized: boolean = false;
 
 function initializeOutline(): Promise<void> {
-  firebase.initializeApp(FIREBASE_CONFIG);
   outlineInitialized = true;
   return outlineStore.load();
 }
@@ -79,8 +78,11 @@ export class OutlinerEnvironment {
   }
 
   // Throws the promise if not loaded - this interoperates with
-  // React Suspend
+  // React Suspense
   getOutliner(): Outliner {
+    // Does nothing when called the 2nd+ time
+    this.init();
+
     if (outlineStore.loading) {
       throw outlineStore.loadPromise;
     }

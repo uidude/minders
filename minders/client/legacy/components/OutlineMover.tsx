@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {IconButton, Subheading} from 'react-native-paper';
+import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
 import {getChildren, isParent, type OutlineItem} from '../model/outliner';
 import {useOutlineState, useOutliner} from './OutlinerContext';
@@ -39,6 +40,7 @@ function canOpen(item: OutlineItem, focus: OutlineItem) {
 }
 
 const OutlineMover = () => {
+  requireLoggedInUser();
   const outliner = useOutliner();
   const nav = useNavigation();
   const [outlineState] = useOutlineState();

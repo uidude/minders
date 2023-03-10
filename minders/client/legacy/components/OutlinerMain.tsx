@@ -21,12 +21,13 @@ import OutlineMover from './OutlineMover';
 import OutlineTop from './OutlineTop';
 import {useOutlineStore, useOutliner} from './OutlinerContext';
 
+// NOTE: This whole file can probably be deleted
 export type Nav = any;
 
 const Stack = createStackNavigator();
 
 // Note: This must be called in the global scope
-const outlineScreen = (Component: React.ComponentType<{}>) => {
+export const outlineScreen = (Component: React.ComponentType<{}>) => {
   // Only render most recent screens
   // TODO: Hook this
   const outlineScreenComponent = () => {

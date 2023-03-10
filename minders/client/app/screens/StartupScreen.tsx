@@ -14,9 +14,9 @@ import Constants from 'expo-constants';
 import {useAuth} from '@toolkit/core/api/Auth';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
+import {Top} from '@app/App';
 import {FIREBASE_CONFIG} from '@app/common/Config';
 import AppIcon from '../../assets/splash.png';
-import AllThingsScreen from './AllThingsScreen';
 
 /**
  * Checks that new apps have been initiatlized sufficiently so that they can run.
@@ -59,7 +59,7 @@ const StartupScreen: Screen<{}> = () => {
   async function waitForInitialization() {
     if (appChecks.passed) {
       await auth.getLoggedInUser();
-      nav.reset(AllThingsScreen);
+      nav.reset(Top);
     }
   }
 

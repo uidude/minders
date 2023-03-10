@@ -14,6 +14,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
 import * as OutlineState from '../model/OutlineState';
 import {
@@ -191,6 +192,7 @@ function stableishList(newItems: OutlineItem[], oldItems: OutlineItem[]) {
 }
 
 export default function OutlineList(props: {}) {
+  requireLoggedInUser();
   const outliner = useOutliner();
 
   const [outlineState] = useOutlineState();

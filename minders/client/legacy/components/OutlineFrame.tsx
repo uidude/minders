@@ -5,11 +5,15 @@
 // TODO: Add keyboard shrtcuts
 
 import * as React from 'react';
-import {View} from 'react-native';
+import {ActivityIndicator, View} from 'react-native';
 import {ScrollView, StyleSheet, Text} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 // Can we import view from paper?s
 import {Appbar} from 'react-native-paper';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {canLoggingInFix} from '@toolkit/core/api/Auth';
+import TriState from '@toolkit/core/client/TriState';
+import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {getItemUi, pathTo} from '../model/outliner';
 import type {
   OutlineItemVisibilityFilter,
@@ -107,20 +111,6 @@ function viewMenuEnumFor(
   return 'focus';
 }
 
-const OutlineViewAction = {
-  id: 'GO_TO_OUTLINE',
-  icon: 'format-list-bulleted',
-  label: 'Outline View',
-  key: 'o',
-  handle: () => {
-    const [{focus}] = useOutlineState();
-    const nav: Nav = useNavigation();
-    return () => {
-      nav.replace('outline', {focus});
-    };
-  },
-};
-
 const TOP_ACTION_PROPS = {
   size: 24,
   color: '#FFF',
@@ -132,15 +122,65 @@ function TopAction(props: {action: Action}) {
   return <ActionButton action={props.action} {...TOP_ACTION_PROPS} />;
 }
 
-export default function OutlineFrame(props: {children: React.ReactNode}) {
-  const {children} = props;
+export default function OutlineFrame(props: LayoutProps) {
+  const {children, loading, style, title = ''} = props;
+  const loadingView = loading ?? SpinnerLoading;
+  const route = useRoute();
+  const reactNav = useNavigation<any>();
+  const nav: Nav = useNavigation();
+  const navStyle = style?.nav ?? 'full';
+  const navType = style?.type ?? 'std';
+  const key = route.key;
+
+  function onError(err: Error) {
+    // If you can fix the error by logging back in, redirect to login
+    if (canLoggingInFix(err)) {
+      reactNav.setOptions({animationEnabled: false});
+      setTimeout(() => nav.reset('LoginScreen'), 0);
+    }
+    return false;
+  }
+
+  if (navType === 'modal') {
+    // Modal views are just the content: No SafeAreaView, Header, or Tabs
+    return (
+      <View style={S.top}>
+        {navStyle == 'full' && <Header title={title} />}
+        <ScrollView style={S.container} contentContainerStyle={S.modalContent}>
+          <TriState key={key} onError={onError} loadingView={loadingView}>
+            <View style={{flex: 1}}>{children}</View>
+          </TriState>
+        </ScrollView>
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaView style={S.top}>
+      {navStyle === 'full' && (
+        <TriState loadingView={Empty} errorView={Empty}>
+          <Header {...props} />
+          <ActionFAB style={S.fab} small action={NewItem} />
+        </TriState>
+      )}
+      <ScrollView style={S.scroll} contentContainerStyle={{flex: 1}}>
+        <TriState key={key} onError={onError} loadingView={loadingView}>
+          <View style={{flex: 1}}>{children}</View>
+        </TriState>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+// TODO: Back button
+function Header(props: LayoutProps) {
   const outliner = useOutliner();
   const loader = useOutlineStore();
   const outlineUiState = getItemUi(outliner.getData());
-  //const view = outlineUiState.view || 'outline';
   const filter = outlineUiState.visibilityFilter || 'focus';
-  const nav: Nav = useNavigation();
   const route = useRoute();
+  const nav: Nav = useNavigation();
+
   const view = route.name;
 
   const [{focus, focusItem}, setOutlineState] = useOutlineState();
@@ -154,15 +194,6 @@ export default function OutlineFrame(props: {children: React.ReactNode}) {
   if (!isTop) {
     actionMenuItems.splice(0, 0, Up);
   }
-
-  const toggleView = () => {
-    const newView = view == 'list' ? 'outline' : 'list';
-    nav.replace(newView, {focus});
-
-    // Also would like for the buttons to animate again... sad they aren't
-    // Would be good to re-enable setting the view
-    // -> outliner.setView(value);
-  };
 
   const messaging = Messaging.get();
 
@@ -185,54 +216,59 @@ export default function OutlineFrame(props: {children: React.ReactNode}) {
   const viewMenuEnum = viewMenuEnumFor(route.name, filter);
 
   return (
-    <View style={styles.page}>
-      <Appbar.Header style={styles.topBar}>
-        <Appbar.Content
-          title={
-            <>
-              <OutlineFocusPicker />
-              <Text> {'>'} </Text>
-              <ActionMenu
-                actions={viewMenuActions}
-                anchor={onPress => (
-                  <EnumTextButton
-                    enums={ViewMenuItems}
-                    value={viewMenuEnum}
-                    style={TOP_ACTION_PROPS.style}
-                    onPress={onPress}
-                  />
-                )}
-              />
-              <Text> </Text>
-              {count != null && (
-                <View style={styles.badge}>
-                  <Text style={{fontSize: 14}}>{count}</Text>
-                </View>
+    <Appbar.Header style={S.topBar}>
+      <Appbar.Content
+        title={
+          <>
+            <OutlineFocusPicker />
+            <Text> {'>'} </Text>
+            <ActionMenu
+              actions={viewMenuActions}
+              anchor={onPress => (
+                <EnumTextButton
+                  enums={ViewMenuItems}
+                  value={viewMenuEnum}
+                  style={TOP_ACTION_PROPS.style}
+                  onPress={onPress}
+                />
               )}
-            </>
-          }
-          subtitle={pathTo(outliner, focusItem.parent)}
-          titleStyle={styles.topBarText}
-        />
-        {!isTop && <TopAction action={Home} />}
-        <ActionMenu
-          actions={actionMenuItems}
-          anchor={onPress => (
-            <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
-          )}
-        />
-      </Appbar.Header>
+            />
+            <Text> </Text>
+            {count != null && (
+              <View style={S.badge}>
+                <Text style={{fontSize: 14}}>{count}</Text>
+              </View>
+            )}
+          </>
+        }
+        subtitle={pathTo(outliner, focusItem.parent)}
+        titleStyle={S.topBarText}
+      />
+      {!isTop && <TopAction action={Home} />}
+      <ActionMenu
+        actions={actionMenuItems}
+        anchor={onPress => (
+          <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
+        )}
+      />
+    </Appbar.Header>
+  );
+}
 
-      <ActionFAB style={styles.fab} small action={NewItem} />
-      <ScrollView key={outlineUiState.view} style={styles.scroll}>
-        {props.children}
-      </ScrollView>
+function SpinnerLoading() {
+  return (
+    <View style={{flex: 1, justifyContent: 'center'}}>
+      <ActivityIndicator size="large" />
     </View>
   );
 }
 
+function Empty() {
+  return <View style={{flex: 1}} />;
+}
+
 // TODO: Add action button styles
-const styles = StyleSheet.create({
+const S = StyleSheet.create({
   action: {opacity: 0.5},
   floatingActionBar: {
     flexDirection: 'row',
@@ -287,4 +323,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
   },
+  modalContent: {flex: 1, marginBottom: 30},
+  container: {flex: 1, padding: 0, height: '100%'},
+  top: {flex: 1, alignSelf: 'stretch', backgroundColor: '#FFF'},
 });

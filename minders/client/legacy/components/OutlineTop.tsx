@@ -4,6 +4,7 @@
 
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
+import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {getChildren, hasVisibleKids, type OutlineItem} from '../model/outliner';
 import Hierarchy from './Hierarchy';
 import {Filters} from './OutlineFrame';
@@ -11,6 +12,7 @@ import OutlineUtil from './OutlineUtil';
 import {useOutlineState, useOutliner} from './OutlinerContext';
 
 export default function OutlineTop() {
+  requireLoggedInUser();
   const outliner = useOutliner();
   const [outlineState] = useOutlineState();
   const topItem = outlineState.focusItem;

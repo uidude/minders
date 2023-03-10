@@ -222,7 +222,6 @@ function OutlineText(props: {
         value={value}
         dense={true}
         onChangeText={value => {
-          console.log('newval');
           setValue(value);
           return false;
         }}
