@@ -1,0 +1,19 @@
+{
+  "name": "minders",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "cd project && yarn start",
+    "ios": "cd project && yarn ios",
+    "android": "echo Android build not enabled - yet...",
+    "web": "cd project && yarn web",
+    "admin": "cd project && yarn admin",
+    "postinstall": "cd project && ./setup.sh"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.5",
+    "prettier": "^2.5.1",
+    "@ianvs/prettier-plugin-sort-imports": "^3.7.1",
+    "@types/react-native": "~0.69.1"
+  },
+  "private": true
+}
