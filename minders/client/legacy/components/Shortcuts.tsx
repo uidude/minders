@@ -14,6 +14,7 @@ const KeyEventTypes: Record<string, string> = {
   ArrowUp: 'keydown',
   ArrowLeft: 'keydown',
   ArrowRight: 'keydown',
+  Enter: 'keydown',
 };
 
 const DefaultKeyEventType = 'keypress';

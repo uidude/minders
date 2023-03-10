@@ -111,8 +111,7 @@ function OutlineText(props: {
   }
 
   function handleKeyEvent(e: any, keyDownPhase: any) {
-    console.log('hke', e.key, keyDownPhase);
-    // Only handle Tabs in keydown (to prevent default)
+    // Need to prevent default on keydown for these keys
     if (keyDownPhase != (e.key == 'Tab' || e.key == 'Backspace')) {
       return;
     }
@@ -195,9 +194,6 @@ function OutlineText(props: {
   }
 
   function onKeyPress(e: NativeSyntheticEvent<TextInputKeyPressEventData>) {
-    console.log('okp');
-    e.stopPropagation();
-    e.preventDefault();
     return handleKeyEvent(e, false);
   }
 
