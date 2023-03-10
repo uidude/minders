@@ -8,7 +8,7 @@
  */
 
 import {Ionicons, MaterialCommunityIcons} from '@expo/vector-icons';
-import {NavigationContainer} from '@react-navigation/native';
+import {DefaultTheme, NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {CONSOLE_LOGGER} from '@toolkit/core/api/Log';
 import IdentityService from '@toolkit/core/api/Login';
@@ -173,6 +173,13 @@ export default function App() {
     config: linkingScreens,
   };
 
+  console.log(DefaultTheme);
+  const navTheme = {
+    colors: {...DefaultTheme.colors, background: 'rgba(0,0,0,0)'},
+    dark: DefaultTheme.dark,
+  };
+  console.log(navTheme);
+
   return (
     <AppContextProvider ctx={APP_CONTEXT}>
       <PaperProvider theme={BLACK_AND_WHITE} settings={{icon: Icon}}>
@@ -181,7 +188,7 @@ export default function App() {
             <View style={S.background}>
               <SafeAreaProvider style={S.container}>
                 <SimpleUserMessaging style={S.messaging} />
-                <NavigationContainer linking={linking}>
+                <NavigationContainer linking={linking} theme={navTheme}>
                   <StatusBar style="auto" />
                   <NavContext routes={ROUTES} />
                   <Stack.Navigator
@@ -202,7 +209,6 @@ export default function App() {
 const S = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0F0F0',
     alignSelf: 'center',
     width: '100%',
     maxWidth: 800,

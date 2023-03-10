@@ -312,10 +312,9 @@ const S = StyleSheet.create({
   badge: {
     width: 32,
     height: 32,
-    marginTop: -4,
-    marginLeft: 8,
-    paddingTop: 8,
-    paddingRight: 1,
+    marginTop: -1,
+    marginLeft: 9,
+    paddingTop: 7,
     backgroundColor: '#385078',
     borderRadius: 16,
     zIndex: 1,
@@ -325,5 +324,13 @@ const S = StyleSheet.create({
   },
   modalContent: {flex: 1, marginBottom: 30},
   container: {flex: 1, padding: 0, height: '100%'},
-  top: {flex: 1, alignSelf: 'stretch', backgroundColor: '#FFF'},
+  top: {
+    flex: 1,
+    alignSelf: 'stretch',
+    backgroundColor: '#FFF',
+    borderRadius: 24,
+    shadowColor: '#C0C0C0',
+    shadowRadius: 4,
+    overflow: 'hidden',
+  },
 });

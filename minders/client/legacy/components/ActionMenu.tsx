@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 6,
     paddingBottom: 0,
+    borderRadius: 12,
   },
   menuItem: {
     borderBottomWidth: 1,
@@ -111,6 +112,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderColor: '#F0F0F0',
     backgroundColor: '#FFF',
+    borderRadius: 12,
   },
   iconButton: {opacity: 0.5},
 });
