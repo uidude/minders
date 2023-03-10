@@ -25,6 +25,7 @@ export type Nav = any;
 
 const Stack = createStackNavigator();
 
+// Note: This must be called in the global scope
 const outlineScreen = (Component: React.ComponentType<{}>) => {
   // Only render most recent screens
   // TODO: Hook this
