@@ -1,23 +1,20 @@
-// @flow
+/**
+ * @format
+ */
 
 import * as React from 'react';
-import {Snackbar} from 'react-native-paper';
-
-type HasComponent = {
-  foo: string,
-};
 
 // TODO: We can probably put the component on the API
 export type UiTool<API> = {
-  api: API,
-  component: React.ComponentType<{}>,
+  api: API;
+  component: React.ComponentType<{}>;
 };
 
 type UiTools = Map<UiTool<any>, any>;
 
 export const UsingUiTools = (props: {
-  tools: UiTool<any>[],
-  children: React.Node,
+  tools: UiTool<any>[];
+  children: React.ReactNode;
 }) => {
   const {tools, children} = props;
 
@@ -40,12 +37,12 @@ export const UsingUiTools = (props: {
 
 export const UiToolsContext = React.createContext<UiTools>(new Map());
 
-export const useUiTool = <API>(uiTool: UiTool<API>): API => {
+export const useUiTool = <API,>(uiTool: UiTool<API>): API => {
   const ctx = React.useContext(UiToolsContext);
   const value = ctx.get(uiTool);
   if (!value) {
     throw new Error(
-      'UITool ' + String(uiTool.component.name) + ' needs to be installed.'
+      'UITool ' + String(uiTool.component.name) + ' needs to be installed.',
     );
   }
   return value;

@@ -1,6 +1,8 @@
-// @flow
+/**
+ * @format
+ */
 
-import { Platform } from 'react-native';
+import {Platform} from 'react-native';
 
 export default {
   fontFamily: Platform.select({

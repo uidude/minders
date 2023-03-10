@@ -1,18 +1,21 @@
-// @flow
+/**
+ * @format
+ */
 
 import * as React from 'react';
-import {type UiTool, UiToolsContext, useUiTool} from './UiTools';
+import {StyleSheet, View} from 'react-native';
+import {Button, Dialog, Portal} from 'react-native-paper';
+import {Opt} from '@toolkit/core/util/Types';
 import Outliner, {type OutlineItem} from '../model/outliner';
-import {Button, Paragraph, Dialog, Portal} from 'react-native-paper';
-import {View, StyleSheet} from 'react-native';
 import {useShortcut} from './Shortcuts';
+import {useUiTool, type UiTool} from './UiTools';
 
 type SnoozeUnit = 'days' | 'hours';
 
-const WaitDialogComponent = (): React.Node => {
+const WaitDialogComponent = () => {
   const {dialog, cancel} = STYLES;
-  const [item, setItem] = React.useState();
-  const [outliner, setOutliner] = React.useState<?Outliner>();
+  const [item, setItem] = React.useState<OutlineItem | null>();
+  const [outliner, setOutliner] = React.useState<Outliner>();
   const waitDialog = WaitDialog.get();
   const visible = item != null;
 
@@ -39,7 +42,7 @@ const WaitDialogComponent = (): React.Node => {
     if (!item || !outliner) {
       return;
     }
-    const update: $Shape<OutlineItem> = {
+    const update: Partial<OutlineItem> = {
       snoozeTil: new Date(Date.now() + UNIT_TO_MS[unit] * amt),
       state: 'waiting',
     };
@@ -47,7 +50,7 @@ const WaitDialogComponent = (): React.Node => {
     setItem(null);
   }
 
-  function SnoozeButton(props: {amt: number, unit: SnoozeUnit}) {
+  function SnoozeButton(props: {amt: number; unit: SnoozeUnit}) {
     const {amt, unit} = props;
     const {button} = STYLES;
     const title = amt == 0 ? 'no time' : `${amt} ${unit}`;
@@ -93,9 +96,9 @@ const WaitDialogComponent = (): React.Node => {
 };
 
 export class WaitDialog {
-  handler: (outliner: Outliner, ?OutlineItem) => void;
+  handler: (outliner: Outliner, item: Opt<OutlineItem>) => void;
 
-  show(outliner: Outliner, item: ?OutlineItem) {
+  show(outliner: Outliner, item: Opt<OutlineItem>) {
     this.handler && this.handler(outliner, item);
   }
 

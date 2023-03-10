@@ -1,24 +1,29 @@
-import { Alert } from 'react-native';
+/**
+ * @format
+ */
 
-export const StdAlert = (title, desc, onPress = () => {}) => {
-  Alert.alert(title, desc, [{ text: 'OK', onPress: () => onPress() }], {
+import {Alert} from 'react-native';
+import {Opt} from '@toolkit/core/util/Types';
+
+export const StdAlert = (title: string, desc: string, onPress = () => {}) => {
+  Alert.alert(title, desc, [{text: 'OK', onPress: () => onPress()}], {
     cancelable: false,
   });
 };
 
 export const BinaryAlert = (
-  title,
-  desc,
+  title: string,
+  desc: Opt<string>,
   onPositivePress = () => {},
-  onNegativePress = () => {}
+  onNegativePress = () => {},
 ) => {
   Alert.alert(
     title,
-    desc,
+    desc !== null ? desc : undefined,
     [
-      { text: 'OK', onPress: () => onPositivePress() },
-      { text: 'Cancel', onPress: () => onNegativePress() },
+      {text: 'OK', onPress: () => onPositivePress()},
+      {text: 'Cancel', onPress: () => onNegativePress()},
     ],
-    { cancelable: false }
+    {cancelable: false},
   );
 };

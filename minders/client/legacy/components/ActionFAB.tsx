@@ -1,12 +1,13 @@
 /**
  * @format
  */
+
 import * as React from 'react';
 import {FAB} from 'react-native-paper';
 import type {Action, HandlerRef} from './Actions';
 import {actionHandlerComponent} from './Actions';
 
-type Props = {action: Action} & React.ComponentProps<typeof FAB>;
+type Props = {action: Action} & Omit<React.ComponentProps<typeof FAB>, 'icon'>;
 export default function ActionFAB(props: Props) {
   const {action, ...fabProps} = props;
 

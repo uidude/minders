@@ -1,10 +1,13 @@
-// @flow
+/**
+ * @format
+ */
+
 import firebase from 'firebase/app';
 import 'firebase/database';
-import {type Outline} from './Outliner';
-import Outliner from './outliner';
 import {rateLimit} from '../components/Useful';
 import {INITIAL_OUTLINE} from './InitialOutline';
+import {type Outline} from './Outliner';
+import Outliner from './outliner';
 import 'firebase/auth';
 
 const IS_LOCALHOST =
@@ -44,7 +47,7 @@ const FIELDS_TO_SAVE = [
 
 const DATE_KEYS = {created: true, modified: true, snoozeTil: true};
 
-const jsonSerializer = (key, value) => {
+const jsonSerializer = (key: any, value: any) => {
   if (!isNaN(key)) {
     return value;
   }
@@ -57,7 +60,7 @@ const jsonSerializer = (key, value) => {
   return null;
 };
 
-function convertOutlineFromSerializedTypes(node) {
+function convertOutlineFromSerializedTypes(node: any) {
   for (const key in node) {
     const value = node[key];
     if (key in DATE_KEYS) {
@@ -87,8 +90,8 @@ class OutlineStore {
       .database()
       .ref(APP_DB_FOLDER + getUserPath() + '/main/outline')
       .once('value')
-      .then((snapshot) => self.loadData(snapshot.val()))
-      .catch((error) => self.failedToLoad(error));
+      .then(snapshot => self.loadData(snapshot.val()))
+      .catch(error => self.failedToLoad(error));
 
     return this.loadPromise;
   }
@@ -127,7 +130,7 @@ class OutlineStore {
     rateLimit('outlinesaver', this.saveBackup.bind(this, outline), 30000);
   }
 
-  async _saveToFirebase(outline: Outline, id: string, folder?: string = '') {
+  async _saveToFirebase(outline: Outline, id: string, folder: string = '') {
     const safeId = id.replace(/\s/g, '-').replace(/,/g, '').replace(/\//g, '-');
 
     try {
@@ -137,7 +140,7 @@ class OutlineStore {
         .set(JSON.parse(JSON.stringify(outline, jsonSerializer, 2)));
     } catch (e) {
       if (this.errorReporter) {
-        await this.errorReporter(e);
+        await this.errorReporter(e as Error);
       }
       throw e;
     }

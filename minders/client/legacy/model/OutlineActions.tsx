@@ -1,9 +1,9 @@
-// @flow
+/**
+ * @format
+ */
 
-import {type OutlineItem, outlineItem} from './outliner';
-import Outliner from './outliner';
 import * as OutlineState from './OutlineState';
-import {Picker} from 'react-native';
+import {type OutlineItem} from './outliner';
 
 function getSiblings(item: OutlineItem): OutlineItem[] {
   if (!item.parent || !item.parent.sub) {
@@ -14,11 +14,13 @@ function getSiblings(item: OutlineItem): OutlineItem[] {
 
 export async function updateItem(
   item: OutlineItem,
-  values: $Shape<OutlineItem>
+  values: Partial<OutlineItem>,
 ): Promise<OutlineItem> {
   let modified = false;
-  for (const key in values) {
+  for (const keyStr in values) {
+    const key = keyStr as keyof OutlineItem;
     if (item[key] !== values[key]) {
+      // @ts-ignore
       item[key] = values[key];
       modified = true;
     }
@@ -32,17 +34,13 @@ export async function touch(item: OutlineItem): Promise<OutlineItem> {
   return newItem;
 }
 
-type TouchParams = {
-  itemId: number,
-};
-
 type OutlineAction<Req, Resp> = {
-  do: (req: Req) => Promise<Resp>,
+  do: (req: Req) => Promise<Resp>;
 };
 
 export async function outlineDo<Req, Resp>(
   doer: OutlineAction<Req, Resp>,
-  req: Req
+  req: Req,
 ): Promise<Resp> {
   // Get outline
   // Pass in outline

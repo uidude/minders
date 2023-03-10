@@ -1,8 +1,9 @@
 /**
  * @format
  */
+
 import * as React from 'react';
-import {ViewStyle} from 'react-native';
+import {StyleProp, ViewStyle} from 'react-native';
 import {IconButton} from 'react-native-paper';
 import type {Action, HandlerRef} from './Actions';
 import {actionHandlerComponent} from './Actions';
@@ -11,7 +12,7 @@ import {actionHandlerComponent} from './Actions';
 export default function ActionButton(props: {
   action: Action;
   size?: number;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   color?: string;
   type?: React.ComponentType<any>;
 }) {

@@ -1,45 +1,44 @@
-// @flow
+/**
+ * @format
+ */
 
-import React, {useContext, useEffect, useState} from 'react';
+import React from 'react';
 import {
-  View,
-  Text,
+  NativeSyntheticEvent,
+  StyleProp,
   StyleSheet,
+  Text,
   TextInput,
-  TouchableOpacity,
+  TextInputSelectionChangeEventData,
+  TextStyle,
+  View,
+  ViewStyle,
 } from 'react-native';
-import type {SelectionChangeEvent} from 'react-native/Libraries/components/TextInput/TextInput';
-import {List} from 'react-native-paper';
-import Outliner, {
-  pathTo,
-  hasVisibleKids,
-  type OutlineItem,
-  isChild,
-  getChildren,
-} from '../model/outliner';
+import {Opt} from '@toolkit/core/util/Types';
 import * as OutlineState from '../model/OutlineState';
+import {
+  getChildren,
+  hasVisibleKids,
+  isChild,
+  pathTo,
+  type OutlineItem,
+} from '../model/outliner';
+import ActionMenu, {VerticalDots} from './ActionMenu';
+import {Bump, Delete, Mover, Snooze} from './Actions';
 import {EditableStatus} from './EditableStatus';
 import OutlineStyles from './OutlineStyles';
+import {NoChildren} from './OutlineTop';
+import OutlineUtil from './OutlineUtil';
 import OutlinerContext, {
-  useOutlineState,
   itemContext,
+  useOutlineState,
   useOutliner,
 } from './OutlinerContext';
-import OutlineUtil from './OutlineUtil';
-import ActionMenu, {VerticalDots} from './ActionMenu';
-import {Bump, Snooze, Delete, Mover} from './Actions';
-import ScrollViewWithTitle from './ScrollViewWithTitle';
-import type {
-  TextStyleProp,
-  ViewStyleProp,
-} from 'react-native/Libraries/StyleSheet/StyleSheet';
-import {NoChildren} from './OutlineTop';
 import {useShortcut} from './Shortcuts';
 import {useForceUpdate} from './Useful';
-import {ThemeProvider} from '@react-navigation/native';
 
-function cursorStyle(cursor): TextStyleProp {
-  // $FlowExpectedError
+function cursorStyle(cursor: Opt<String>): StyleProp<TextStyle> {
+  /** @ts-ignore */
   return {cursor};
 }
 
@@ -49,10 +48,10 @@ function lastChild(item: OutlineItem) {
 }
 
 export function OutlineListItem(props: {
-  item: OutlineItem,
-  listItem?: OutlineItem,
-  prev?: OutlineItem,
-  style?: ViewStyleProp,
+  item: OutlineItem;
+  listItem?: OutlineItem;
+  prev?: OutlineItem;
+  style?: StyleProp<ViewStyle>;
 }) {
   const {item, listItem, prev, style} = props;
   const outliner = useOutliner();
@@ -63,7 +62,7 @@ export function OutlineListItem(props: {
   const selection = isSel ? OutlineState.getSelection() : {start: 0, end: 0};
   const cursor = isSel ? null : 'default';
   const ctx = itemContext(item);
-  const inputRef = React.useRef();
+  const inputRef = React.useRef<TextInput>();
   const forceUpdate = useForceUpdate();
 
   function backspace() {
@@ -93,13 +92,13 @@ export function OutlineListItem(props: {
     return false;
   }
 
-  function submit() {}
-
   useShortcut({key: 'Backspace', action: backspace, inText: true}, isSel);
   useShortcut({key: 'Enter', action: enter, shift: false, inText: true}, isSel);
   useShortcut({key: 'Enter', action: submit, shift: true, inText: true}, isSel);
 
-  function onSelectionChange(e: SelectionChangeEvent) {
+  function onSelectionChange(
+    e: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
+  ) {
     OutlineState.setSelection(item, {...e.nativeEvent.selection});
     // There should be a better way here but we don't want to trigger
     // all updates on this item
@@ -119,7 +118,7 @@ export function OutlineListItem(props: {
     }
   }
 
-  function setInput(input) {
+  function setInput(input: TextInput) {
     if (input && isSel) {
       input.focus();
     }
@@ -141,7 +140,7 @@ export function OutlineListItem(props: {
           <TextInput
             value={text}
             style={[styles.listItemText, cursorStyle(cursor)]}
-            onChangeText={(val) => setText(val)}
+            onChangeText={val => setText(val)}
             onBlur={commit}
             onFocus={focus}
             onSubmitEditing={commit}
@@ -154,7 +153,7 @@ export function OutlineListItem(props: {
         <View style={{justifyContent: 'flex-end'}}>
           <ActionMenu
             actions={[Snooze, Bump, Mover, Delete]}
-            anchor={(onPress) => (
+            anchor={onPress => (
               <VerticalDots style={styles.actionsR} onPress={onPress} />
             )}
           />
@@ -168,20 +167,20 @@ export function OutlineListItem(props: {
 
 function stableishList(newItems: OutlineItem[], oldItems: OutlineItem[]) {
   if (newItems.length == oldItems.length) {
-    const diff = newItems.filter((item) => oldItems.indexOf(item) == -1);
+    const diff = newItems.filter(item => oldItems.indexOf(item) == -1);
     if (diff.length == 0) {
       return oldItems;
     }
   }
 
   if (newItems.length == oldItems.length + 1) {
-    const added = newItems.filter((item) => oldItems.indexOf(item) == -1);
+    const added = newItems.filter(item => oldItems.indexOf(item) == -1);
     if (added.length == 1) {
       oldItems.push(added[0]);
       return oldItems;
     }
   } else if (newItems.length == oldItems.length - 1) {
-    const removed = oldItems.filter((item) => newItems.indexOf(item) == -1);
+    const removed = oldItems.filter(item => newItems.indexOf(item) == -1);
     if (removed.length == 1) {
       const idx = oldItems.indexOf(removed[0]);
       oldItems.splice(idx, 1);
@@ -198,7 +197,7 @@ export default function OutlineList(props: {}) {
   const topItem = outlineState.focusItem;
   const outlineItems = outliner
     .getFlatList(topItem)
-    .filter((item) => !item.ui?.hidden);
+    .filter(item => !item.ui?.hidden);
 
   // Both options aren't great here
   // With [] it stays stable until invalidates parent, and then
@@ -206,7 +205,7 @@ export default function OutlineList(props: {}) {
   // With map, events were firing on every key down,
   // And the lack of stability was possibly annoying
   // Ideally we want a hook when items might change visibility, not otherwise
-  const itemIdsToListen = outlineItems.map((item) => item.id); // = []
+  const itemIdsToListen = outlineItems.map(item => item.id); // = []
   itemIdsToListen.push(topItem.id);
   OutlineUtil.useRedrawOnItemUpdate(itemIdsToListen);
 

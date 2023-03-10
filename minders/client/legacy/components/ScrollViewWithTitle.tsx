@@ -1,11 +1,13 @@
-// @flow
+/**
+ * @format
+ */
 
 import React, {useContext, useEffect, useState} from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 
 export default function ScrollViewWithTitle(props: {
-  title?: string,
-  children?: any,
+  title?: string;
+  children?: any;
 }) {
   const {title, children} = props;
   return (

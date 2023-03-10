@@ -1,44 +1,37 @@
-// @flow
+/**
+ * @format
+ */
 
 import * as React from 'react';
-import OutlineList from './OutlineList';
-import OutlineTop from './OutlineTop';
-import OutlineMover from './OutlineMover';
-import OutlineUtil from './OutlineUtil';
-import Outliner, {getItemUi} from '../model/outliner';
-import OutlinerContext, {
-  useOutlineState,
-  useOutliner,
-  useOutlineStore,
-} from './OutlinerContext';
-import OutlineFrame from './OutlineFrame';
-import {Login} from './Actions';
-import ActionButton from './ActionButton';
-import {View, Text} from 'react-native';
-import {StatusBar} from 'react-native-web';
+import {Text, View} from 'react-native';
 import {
   NavigationContainer,
-  getStateFromPath,
   getPathFromState,
-  useNavigationState,
+  getStateFromPath,
   useNavigation,
+  useNavigationState,
   useRoute,
-  NavigationScreenProp,
-  NavigationStateRoute,
 } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import ActionButton from './ActionButton';
+import {Login} from './Actions';
+import OutlineFrame from './OutlineFrame';
+import OutlineList from './OutlineList';
+import OutlineMover from './OutlineMover';
+import OutlineTop from './OutlineTop';
+import {useOutlineStore, useOutliner} from './OutlinerContext';
 
-export type Nav = NavigationScreenProp<NavigationStateRoute>;
+export type Nav = any;
 
 const Stack = createStackNavigator();
 
 const outlineScreen = (Component: React.ComponentType<{}>) => {
   // Only render most recent screens
   // TODO: Hook this
-  const outlineScreenComponent = (props) => {
+  const outlineScreenComponent = () => {
     const route = useRoute();
     let myIndex = -1;
-    const recent = useNavigationState((state) => {
+    const recent = useNavigationState(state => {
       state.routes.forEach((cur, index) => {
         if (cur.key == route.key) {
           myIndex = index;
@@ -61,6 +54,7 @@ const outlineScreen = (Component: React.ComponentType<{}>) => {
 };
 
 const linking = {
+  prefixes: [],
   notConfig: {
     outline: {path: 'outline'},
     list: {path: 'list'},
@@ -74,12 +68,12 @@ const linking = {
     enabled: true,
     prefixes: [],
   },
-  getStateFromPath: (path, config) => {
+  getStateFromPath: (path: string, config: any) => {
     const gsp = getStateFromPath(path, config);
     //console.log('gsp', path, config, gsp);
     return gsp;
   },
-  getPathFromState: (state, config) => {
+  getPathFromState: (state: any, config: any) => {
     //console.log('gps', state, config);
     return getPathFromState(state, config);
   },
@@ -140,6 +134,7 @@ const HomeRedirector = () => {
   const defaultFocusItem = outliner.getData();
   const focusItemId =
     focusItem.id != defaultFocusItem.id ? focusItem.id : undefined;
+  // @ts-ignore
   nav.replace('outline', {focus: focusItemId});
   return (
     <View>

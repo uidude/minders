@@ -1,7 +1,10 @@
-// @flow
+/**
+ * @format
+ */
 
 // Client-side state for outliner
 
+import {Opt} from '@toolkit/core/util/Types';
 import {type OutlineItem} from './outliner';
 
 // Listeners
@@ -9,13 +12,13 @@ import {type OutlineItem} from './outliner';
 // Structure (for now) is listen to Type, ID -> function (ID)
 // Listener ref is type + ID +
 export type ListenerKey = {
-  type: string,
-  id: string,
+  type: string;
+  id: string;
 };
 
 export type ListenerRef = {
-  key: ListenerKey,
-  ref: number,
+  key: ListenerKey;
+  ref: number;
 };
 
 export type Listener = () => void;
@@ -23,7 +26,7 @@ export type Listener = () => void;
 let nextRef = 1;
 
 // Type+ID -> key -> listener
-const listeners: {[string]: {[number]: Listener}} = {};
+const listeners: Record<string, Record<number, Listener>> = {};
 
 export function listen(fn: Listener, key: ListenerKey): ListenerRef {
   const mapKey = key.type + ':' + key.id;
@@ -63,10 +66,10 @@ export function itemKey(itemId: number): ListenerKey {
 
 // Selections
 
-export type Selection = {|start: number, end: number|};
+export type Selection = {start: number; end: number};
 
 // Currently use global selection state, would be good to localize
-let selectedOutlineItem: ?number;
+let selectedOutlineItem: Opt<number>;
 let selection: Selection = {start: 0, end: 0};
 
 export function setSelection(item: OutlineItem, sel?: Selection) {

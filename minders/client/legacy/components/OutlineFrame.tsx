@@ -1,44 +1,37 @@
-// @flow
+/**
+ * @format
+ */
+
 // TODO: Add keyboard shrtcuts
 
-import {View} from 'react-native';
-
-// Can we import view from paper?s
-import {Appbar, IconButton, Menu, Button, Badge} from 'react-native-paper';
-import OutlinerContext, {
-  useOutlineState,
-  useOutliner,
-  useOutlineStore,
-} from './OutlinerContext';
-import type {OutlineItem} from '../model/outliner';
-import {EnumMenu, EnumDualButton, EnumTextButton, enumActions} from './Enum.js';
-import {StyleSheet, ScrollView, Text} from 'react-native';
-import type {EnumConfig} from './Enum.js';
-import {useState, useContext, useEffect} from 'react';
 import * as React from 'react';
+import {View} from 'react-native';
+import {ScrollView, StyleSheet, Text} from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+// Can we import view from paper?s
+import {Appbar} from 'react-native-paper';
+import {getItemUi, pathTo} from '../model/outliner';
+import type {
+  OutlineItemVisibilityFilter,
+  OutlineViewType,
+} from '../model/outliner';
+import ActionButton from './ActionButton';
+import ActionFAB from './ActionFAB';
+import ActionMenu, {VerticalDots} from './ActionMenu';
 import {
-  Up,
+  Collapse,
+  Expand,
   Home,
   Login,
-  Expand,
-  Collapse,
   NewItem,
+  Up,
   type Action,
 } from './Actions';
-import ActionButton from './ActionButton';
-import ActionMenu, {VerticalDots} from './ActionMenu';
-import {getItemUi, pathTo, getChildren} from '../model/outliner';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {EnumConfig, EnumTextButton, enumActions} from './Enum';
 import {Messaging} from './Messaging';
-import type {Nav} from './OutlinerMain';
-
-import type {
-  OutlineViewType,
-  OutlineItemVisibilityFilter,
-} from '../model/outliner';
-import OutlineUtil from './OutlineUtil';
 import OutlineFocusPicker from './OutlineFocusPicker';
-import ActionFAB from './ActionFAB';
+import {useOutlineState, useOutlineStore, useOutliner} from './OutlinerContext';
+import type {Nav} from './OutlinerMain';
 
 export const Filters: EnumConfig<OutlineItemVisibilityFilter> = new Map([
   /*['top', { icon: 'star-outline', label: 'Starred' }],*/
@@ -62,11 +55,11 @@ const ViewTypes: EnumConfig<OutlineViewType> = new Map([
 
 // New menu config for menu that selects filter *and* view
 type ViewMenuChoice = {
-  filter: OutlineItemVisibilityFilter,
-  view: OutlineViewType,
+  filter: OutlineItemVisibilityFilter;
+  view: OutlineViewType;
 };
 
-const ViewMenuChoices: {[string]: ViewMenuChoice} = {
+const ViewMenuChoices: {[val: string]: ViewMenuChoice} = {
   focus: {filter: 'focus', view: 'list'},
   review: {filter: 'review', view: 'list'},
   pile: {filter: 'pile', view: 'list'},
@@ -76,7 +69,7 @@ const ViewMenuChoices: {[string]: ViewMenuChoice} = {
   outlineall: {filter: 'all', view: 'outline'},
 };
 
-type ViewMenuEnum = $Keys<typeof ViewMenuChoices>;
+type ViewMenuEnum = keyof typeof ViewMenuChoices;
 
 export const ViewMenuItems: EnumConfig<ViewMenuEnum> = new Map([
   ['focus', {icon: 'eye-outline', label: 'In Focus', key: 'f'}],
@@ -96,7 +89,7 @@ export const ViewMenuItems: EnumConfig<ViewMenuEnum> = new Map([
 
 function viewMenuEnumFor(
   view: string,
-  filter: OutlineItemVisibilityFilter
+  filter: OutlineItemVisibilityFilter,
 ): ViewMenuEnum {
   if (view == 'outline') {
     if (filter == 'all') {
@@ -139,12 +132,7 @@ function TopAction(props: {action: Action}) {
   return <ActionButton action={props.action} {...TOP_ACTION_PROPS} />;
 }
 
-// TODO: type state
-function getView(state) {
-  return state.routes[state.routes.length - 1].name;
-}
-
-export default function OutlineFrame(props: {children: React.Node}) {
+export default function OutlineFrame(props: {children: React.ReactNode}) {
   const {children} = props;
   const outliner = useOutliner();
   const loader = useOutlineStore();
@@ -159,8 +147,7 @@ export default function OutlineFrame(props: {children: React.Node}) {
   const isTop = focusItem == outliner.getData();
   const count =
     view == 'list'
-      ? outliner.getFlatList(focusItem).filter((item) => !item.ui?.hidden)
-          .length
+      ? outliner.getFlatList(focusItem).filter(item => !item.ui?.hidden).length
       : null; //getChildren(focusItem).length;
 
   const actionMenuItems = [Expand, Collapse, Login];
@@ -186,7 +173,7 @@ export default function OutlineFrame(props: {children: React.Node}) {
     });
   });
 
-  const viewMenuActions = enumActions(ViewMenuItems, (value) => {
+  const viewMenuActions = enumActions(ViewMenuItems, value => {
     const newView = view == 'list' ? 'outline' : 'list';
     const choice = ViewMenuChoices[value];
     if (route.name != choice.view) {
@@ -204,10 +191,10 @@ export default function OutlineFrame(props: {children: React.Node}) {
           title={
             <>
               <OutlineFocusPicker />
-              <Text> > </Text>
+              <Text> {'>'} </Text>
               <ActionMenu
                 actions={viewMenuActions}
-                anchor={(onPress) => (
+                anchor={onPress => (
                   <EnumTextButton
                     enums={ViewMenuItems}
                     value={viewMenuEnum}
@@ -230,7 +217,7 @@ export default function OutlineFrame(props: {children: React.Node}) {
         {!isTop && <TopAction action={Home} />}
         <ActionMenu
           actions={actionMenuItems}
-          anchor={(onPress) => (
+          anchor={onPress => (
             <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
           )}
         />

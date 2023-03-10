@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import {ViewStyle} from 'react-native';
+import {StyleProp, ViewStyle} from 'react-native';
 import {Image, Text, View} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {useData} from '@toolkit/core/api/DataApi';
@@ -26,7 +26,7 @@ type Props = {
   thing: Thing;
   isFave: boolean;
   faveId?: string;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   canDelete?: boolean;
 };
 

@@ -1,47 +1,51 @@
-// @flow
+/**
+ * @format
+ */
 
 import React, {createContext} from 'react';
-
+import {useNavigation, useRoute} from '@react-navigation/native';
+import firebase from 'firebase/app';
+import {Opt} from '@toolkit/core/util/Types';
+import {FIREBASE_CONFIG} from '@app/common/Config';
 import OutlineStore from '../model/OutlineStore';
 import Outliner from '../model/outliner';
 import type {OutlineItem, OutlineItemVisibilityFilter} from '../model/outliner';
-import firebase from 'firebase/app';
-import {useNavigation, useRoute} from '@react-navigation/native';
 import {batch, useForceUpdate} from './Useful';
-import {FIREBASE_CONFIG} from '@app/common/Config';
 
 export type OutlineState = {
-  focus: number,
-  focusItem: OutlineItem,
-  filter: OutlineItemVisibilityFilter,
+  focus: number;
+  focusItem: OutlineItem;
+  filter: OutlineItemVisibilityFilter;
 };
 
 export function useOutlineState(): [
   OutlineState,
-  (state: $Shape<OutlineState>) => void
+  (state: Partial<OutlineState>) => void,
 ] {
   const nav = useNavigation();
   const outliner = useOutliner();
   const route = useRoute();
-  const focus = route.params?.['focus'];
+  const params = route.params as Opt<OutlineState>;
+  const focus = params?.focus ?? -1;
   const filter = outliner.getData().ui?.visibilityFilter || 'focus';
   // This is internal functionality - should expose officially
   const focusItem = outliner.getItem(focus, outliner.getData());
   const forceUpdate = useForceUpdate();
 
-  function setOutlineState(state: $Shape<OutlineState>) {
+  function setOutlineState(state: Partial<OutlineState>) {
     batch(() => {
-      if ('filter' in state) {
+      if (state.filter) {
         outliner.setVisibilityFilter(state.filter);
         forceUpdate();
       }
-      if ('focus' in state) {
+      if (state.focus != null) {
         const newFocus = state.focus;
         const defaultFocus = outliner.getData().id;
         const focusToSet = newFocus != defaultFocus ? newFocus : undefined;
         // TODO: Is this still needed?
         outliner.setFocusItem(outliner.getItem(newFocus, outliner.getData()));
         if (focus != newFocus) {
+          /* @ts-ignore */
           nav.push(route.name, {focus: focusToSet});
         }
       }
@@ -61,13 +65,13 @@ function initializeOutline(): Promise<void> {
 }
 
 export class OutlinerEnvironment {
-  item: ?OutlineItem;
+  item: Opt<OutlineItem>;
 
   constructor(item?: OutlineItem) {
     this.item = item;
   }
 
-  init(): ?Promise<void> {
+  init(): Opt<Promise<void>> {
     if (!outlineInitialized) {
       return initializeOutline();
     }
@@ -80,6 +84,7 @@ export class OutlinerEnvironment {
     if (outlineStore.loading) {
       throw outlineStore.loadPromise;
     }
+    // @ts-ignore
     window.outliner = outlineStore.outliner;
     return outlineStore.outliner;
   }
@@ -103,7 +108,7 @@ export function useOutlineStore(): OutlineStore {
 
 // Hack to return same context for same items
 // TODO: Find a cleaner way for this;=
-const itemContextMap: {[number]: OutlinerEnvironment} = {};
+const itemContextMap: {[idx: number]: OutlinerEnvironment} = {};
 export function itemContext(item: OutlineItem) {
   if (!itemContextMap[item.id]) {
     itemContextMap[item.id] = new OutlinerEnvironment(item);
@@ -112,6 +117,6 @@ export function itemContext(item: OutlineItem) {
 }
 
 const OutlinerContext = createContext<OutlinerEnvironment>(
-  new OutlinerEnvironment()
+  new OutlinerEnvironment(),
 );
 export default OutlinerContext;

@@ -1,50 +1,50 @@
-// @flow
+/**
+ * @format
+ */
 // TODO: Extend text input props
 
 import * as React from 'react';
-import {useRef, useEffect, useContext} from 'react';
 import {
-  View,
-  StyleSheet,
-  Text,
-  Platform,
+  NativeSyntheticEvent,
   TextInput as NativeTextInput,
+  Platform,
+  StyleProp,
+  TextInputKeyPressEventData,
+  TextInputSelectionChangeEventData,
   TouchableOpacity,
+  View,
+  ViewStyle,
 } from 'react-native';
-import {withTheme, Theme, TextInput, RenderProps} from 'react-native-paper';
-import type {ViewStyleProp} from 'react-native/Libraries/StyleSheet/StyleSheet';
-import type {
-  KeyPressEvent,
-  SelectionChangeEvent,
-} from 'react-native/Libraries/components/TextInput/TextInput';
+import {StyleSheet} from 'react-native';
+import {TextInput, Theme} from 'react-native-paper';
+import {Opt} from '@toolkit/core/util/Types';
+import * as OutlineState from '../model/OutlineState';
 import type {OutlineItem} from '../model/outliner';
 import {isChild, isParent} from '../model/outliner';
-import OutlinerContext, {useOutliner} from './OutlinerContext';
-import {useAction, FocusOn} from './Actions';
-import * as OutlineState from '../model/OutlineState';
-//import {TouchableHighlight} from 'react-native-web';
+import {FocusOn, useAction} from './Actions';
+import {useOutliner} from './OutlinerContext';
 import {useForceUpdate} from './Useful';
 
 export type Selection = {
-  start: number,
-  end: number,
+  start: number;
+  end: number;
 };
 
 type KeyHandler = {
-  key: string,
-  shift?: boolean,
-  action: () => ?boolean,
+  key: string;
+  shift?: boolean;
+  action: () => boolean | void;
 };
 
 function OutlineText(props: {
-  placeholder?: string,
+  placeholder?: string;
   /*value?: string,*/
-  style: ViewStyleProp,
-  backgroundColor?: ?string,
-  theme?: Theme,
-  item: OutlineItem,
+  style: StyleProp<ViewStyle>;
+  backgroundColor?: Opt<string>;
+  theme?: Theme;
+  item: OutlineItem;
   /*focus?: boolean,*/
-  textColor?: ?string,
+  textColor?: string;
 }) {
   const {theme, item, style} = props;
   let [value, setValueState] = React.useState(item.text || '');
@@ -57,7 +57,7 @@ function OutlineText(props: {
   //const backgroundColor = props.backgroundColor || '#FFF';
   //const borderStyle = { borderColor: focus ? '#88F' : backgroundColor };
 
-  let textInput: TextInput;
+  let textInput: NativeTextInput;
   const selection = focusMe ? OutlineState.getSelection() : {start: 0, end: 0};
 
   function setValue(newValue: string) {
@@ -79,7 +79,7 @@ function OutlineText(props: {
     return false;
   }
 
-  function onBackspace(): ?boolean {
+  function onBackspace(): boolean | void {
     if (value == '' && isChild(item)) {
       outliner.deleteItem(item);
       return false;
@@ -106,11 +106,12 @@ function OutlineText(props: {
     {key: 'Escape', action: onSubmit},
   ];
 
-  function applies(val?: boolean, match: boolean) {
+  function applies(val: Opt<boolean>, match: boolean) {
     return val === undefined || match === val;
   }
 
-  function handleKeyEvent(e: any, keyDownPhase) {
+  function handleKeyEvent(e: any, keyDownPhase: any) {
+    console.log('hke', e.key, keyDownPhase);
     // Only handle Tabs in keydown (to prevent default)
     if (keyDownPhase != (e.key == 'Tab' || e.key == 'Backspace')) {
       return;
@@ -125,7 +126,7 @@ function OutlineText(props: {
     }
   }
 
-  function onKeyDown(e) {
+  function onKeyDown(e: any) {
     handleKeyEvent(e, true);
   }
 
@@ -139,7 +140,7 @@ function OutlineText(props: {
     }
   });
 
-  const setTextInput = (component) => {
+  const setTextInput = (component: NativeTextInput) => {
     if (component) {
       textInput = component;
 
@@ -193,13 +194,16 @@ function OutlineText(props: {
     }
   }
 
-  function onKeyPress(e: KeyPressEvent) {
+  function onKeyPress(e: NativeSyntheticEvent<TextInputKeyPressEventData>) {
+    console.log('okp');
     e.stopPropagation();
     e.preventDefault();
     return handleKeyEvent(e, false);
   }
 
-  function onSelectionChange(e: SelectionChangeEvent) {
+  function onSelectionChange(
+    e: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
+  ) {
     if (editable) {
       OutlineState.setSelection(item, {...e.nativeEvent.selection});
       // There should be a better way here but we don't want to trigger
@@ -215,14 +219,14 @@ function OutlineText(props: {
       activeOpacity={0.7}
       style={style}
       onPress={onPress}
-      onLongPress={onLongPress}
-    >
+      onLongPress={onLongPress}>
       <TextInput
         ref={setTextInput}
         editable={editable}
         value={value}
         dense={true}
-        onChangeText={(value) => {
+        onChangeText={value => {
+          console.log('newval');
           setValue(value);
           return false;
         }}
@@ -231,7 +235,7 @@ function OutlineText(props: {
         placeholder="What's your plan? "
         underlineColor="rgba(0,0,0,0)"
         onFocus={onFocus}
-        render={(props) => {
+        render={props => {
           const {style, ...otherProps} = props;
           return (
             <View>

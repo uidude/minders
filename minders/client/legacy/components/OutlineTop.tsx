@@ -1,19 +1,14 @@
-// @flow
+/**
+ * @format
+ */
 
-import React, {useContext, useState} from 'react';
-import {Text, View, StyleSheet, TextInput} from 'react-native';
-import Outliner, {
-  getChildren,
-  outlineSort,
-  hasVisibleKids,
-  type OutlineItem,
-} from '../model/outliner';
-import OutlinerContext, {useOutlineState, useOutliner} from './OutlinerContext';
-import OutlineUtil from './OutlineUtil';
+import React from 'react';
+import {StyleSheet, Text, View} from 'react-native';
+import {getChildren, hasVisibleKids, type OutlineItem} from '../model/outliner';
 import Hierarchy from './Hierarchy';
-import ScrollViewWithTitle from './ScrollViewWithTitle';
-import {useNavigation, useRoute} from '@react-navigation/native';
 import {Filters} from './OutlineFrame';
+import OutlineUtil from './OutlineUtil';
+import {useOutlineState, useOutliner} from './OutlinerContext';
 
 export default function OutlineTop() {
   const outliner = useOutliner();

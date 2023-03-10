@@ -1,51 +1,35 @@
-// @flow
-// TODO:
+/**
+ * @format
+ */
 
 import * as React from 'react';
-import {useContext, useEffect, useState} from 'react';
-import {
-  Animated,
-  View,
-  Easing,
-  Text,
-  StyleSheet,
-  Platform,
-  TextInput,
-} from 'react-native';
+import {Animated, Easing, StyleSheet, View} from 'react-native';
+import {LayoutChangeEvent, StyleProp, ViewStyle} from 'react-native';
 import {IconButton} from 'react-native-paper';
-import Outliner, {
-  prioritySort,
-  isParent,
-  getItemUi,
-  getChildren,
-  outlineSort,
-} from '../model/outliner';
+import {getChildren, getItemUi, isParent} from '../model/outliner';
 import type {OutlineItem} from '../model/outliner';
-import {EditableStatus} from './EditableStatus';
-import OutlineStyles from './OutlineStyles';
-import OutlinerContext, {itemContext, useOutliner} from './OutlinerContext';
-import OutlineUtil from './OutlineUtil';
-import OutlineText from './OutlineText';
-import type {ViewStyleProp} from 'react-native/Libraries/StyleSheet/StyleSheet';
-import {
-  FocusOn,
-  Bump,
-  Pin,
-  Unpin,
-  Mover,
-  Snooze,
-  Delete,
-  Indent,
-  Outdent,
-} from './Actions';
 import ActionButton from './ActionButton';
 import ActionMenu, {VerticalDots} from './ActionMenu';
-import type {Selection} from './OutlineText';
+import {
+  Bump,
+  Delete,
+  FocusOn,
+  Indent,
+  Mover,
+  Outdent,
+  Pin,
+  Snooze,
+  Unpin,
+} from './Actions';
+import {EditableStatus} from './EditableStatus';
+import OutlineText from './OutlineText';
+import OutlineUtil from './OutlineUtil';
+import OutlinerContext, {itemContext, useOutliner} from './OutlinerContext';
 
 function CollapserButton(props: {
-  item: OutlineItem,
-  size?: number,
-  style?: ViewStyleProp,
+  item: OutlineItem;
+  size?: number;
+  style?: StyleProp<ViewStyle>;
 }) {
   const {item, size, style} = props;
   const outliner = useOutliner();
@@ -73,10 +57,10 @@ function CollapserButton(props: {
 }
 
 function Expando(props: {
-  open: boolean,
-  children?: React.Node,
-  style?: ViewStyleProp,
-  t?: string,
+  open: boolean;
+  children?: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+  t?: string;
 }) {
   const {open, children, style} = props;
   const [openState, setOpenState] = React.useState(open);
@@ -93,6 +77,7 @@ function Expando(props: {
         toValue: open ? contentHeight : 0,
         duration: Math.max(200 + 2 * contentHeight, 1200),
         easing: Easing.bounce,
+        useNativeDriver: false,
       }).start(() => {
         setOpenState(open);
       });
@@ -100,30 +85,29 @@ function Expando(props: {
   }
   checkAnimate();
 
-  function onContentLayout(e) {
+  function onContentLayout(e: LayoutChangeEvent) {
     contentHeightRef.current = e.nativeEvent.layout.height;
     checkAnimate();
   }
 
   return (
-    <Animated.View style={[style, {height: animating ? height : null}]}>
+    <Animated.View style={[style, {height: animating ? height : undefined}]}>
       <View onLayout={onContentLayout}>{renderChildren && children}</View>
     </Animated.View>
   );
 }
 
-function ChildItems(props: {item: OutlineItem, level: number}) {
+function ChildItems(props: {item: OutlineItem; level: number}) {
   const {item, level} = props;
   const subs = getChildren(item);
   OutlineUtil.useRedrawOnItemUpdate(item.id);
 
+  /* Had style={{flexDirection: 'column'}} but was a dupe */
   return (
     <Expando
       t={item?.text}
       open={!item.ui?.closed}
-      style={{flexDirection: 'column'}}
-      style={{overflow: 'hidden'}}
-    >
+      style={{overflow: 'hidden'}}>
       {subs.map((sub, idx) => (
         <Hierarchy key={sub.id} item={sub} level={level + 1} index={idx} />
       ))}
@@ -132,9 +116,9 @@ function ChildItems(props: {item: OutlineItem, level: number}) {
 }
 
 export default function Hierarchy(props: {
-  item: OutlineItem,
-  level?: number,
-  index?: number,
+  item: OutlineItem;
+  level?: number;
+  index?: number;
 }) {
   const {item, level = 0, index = 0} = props;
   const subs = getChildren(item);
@@ -165,8 +149,8 @@ export default function Hierarchy(props: {
 
   const isDisabled = parental && item.ui?.kidsHidden;
 
+  /* Had backgroundColor: backgroundColor, but was dupe */
   const extraStyle = {
-    backgroundColor: backgroundColor,
     paddingLeft: parental ? 0 : paddingLeft + 26,
     opacity: isDisabled ? 0.5 : undefined,
     backgroundColor: parental ? '#F0F0F0' : undefined,
@@ -197,14 +181,14 @@ export default function Hierarchy(props: {
         <OutlineText
           style={{flexGrow: 1}}
           backgroundColor={backgroundColor}
-          textColor={level === 0 ? '#404040' : null}
+          textColor={level === 0 ? '#404040' : undefined}
           item={item}
         />
         <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
           {item.pinned && <ActionButton action={Unpin} style={styles.pin} />}
           <ActionMenu
             actions={actions}
-            anchor={(onPress) => (
+            anchor={onPress => (
               <VerticalDots style={styles.actionsR} onPress={onPress} />
             )}
           />

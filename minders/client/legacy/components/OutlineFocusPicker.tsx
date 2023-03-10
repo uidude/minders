@@ -1,14 +1,16 @@
-// @flow
+/**
+ * @format
+ */
 
 import * as React from 'react';
-import {useOutliner, useOutlineState} from './OutlinerContext';
 import {Text, TouchableHighlight} from 'react-native';
 import {Menu} from 'react-native-paper';
-import Styles from './Styles';
-import {getChildren, type OutlineItem, isParent} from '../model/outliner';
+import {getChildren, isParent, type OutlineItem} from '../model/outliner';
+import {useOutlineState, useOutliner} from './OutlinerContext';
 import {useShortcut} from './Shortcuts';
+import Styles from './Styles';
 
-function OutlineFocusPicker(): React.Node {
+function OutlineFocusPicker() {
   const outliner = useOutliner();
   const [outlineState, setOutlineState] = useOutlineState();
   const title = outlineState.focusItem.text;
@@ -60,8 +62,7 @@ function OutlineFocusPicker(): React.Node {
         <TouchableHighlight onPress={() => setMenuVisible(true)}>
           <Text>{title}</Text>
         </TouchableHighlight>
-      }
-    >
+      }>
       {items.map((item, idx) => {
         return (
           <Menu.Item

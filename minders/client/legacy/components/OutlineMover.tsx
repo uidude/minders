@@ -1,14 +1,23 @@
-// @flow
+/**
+ * @format
+ */
 
-import {View, Text, TouchableOpacity} from 'react-native';
 import * as React from 'react';
-import {useOutlineState, useOutliner} from './OutlinerContext';
-import {OutlineListItem} from './OutlineList';
-import {type OutlineItem, isParent, getChildren} from '../model/outliner';
-import {IconButton, Subheading} from 'react-native-paper';
+import {
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {IconButton, Subheading} from 'react-native-paper';
+import {Opt} from '@toolkit/core/util/Types';
+import {getChildren, isParent, type OutlineItem} from '../model/outliner';
+import {useOutlineState, useOutliner} from './OutlinerContext';
 
-function getTree(item: ?OutlineItem) {
+function getTree(item: Opt<OutlineItem>) {
   const tree = [];
   while (item != null) {
     tree.unshift(item);
@@ -21,7 +30,7 @@ function canOpen(item: OutlineItem, focus: OutlineItem) {
   const children = getChildren(item);
   let canBeOpened = false;
 
-  children.forEach((child) => {
+  children.forEach(child => {
     if (isParent(child) && focus != child) {
       canBeOpened = true;
     }
@@ -29,14 +38,14 @@ function canOpen(item: OutlineItem, focus: OutlineItem) {
   return canBeOpened;
 }
 
-const OutlineMover = (): React.Node => {
+const OutlineMover = () => {
   const outliner = useOutliner();
   const nav = useNavigation();
   const [outlineState] = useOutlineState();
 
   const focus: OutlineItem = outliner.getItem(
     outlineState.focus,
-    outliner.getData()
+    outliner.getData(),
   );
   if (focus.parent == null) {
     throw new Error("Can't move top level");
@@ -44,12 +53,12 @@ const OutlineMover = (): React.Node => {
   const [sel, setSel] = React.useState<OutlineItem>(focus.parent);
   const itemTree = getTree(sel);
 
-  function rowStyle(indent: number) {
+  function rowStyle(indent: number): StyleProp<ViewStyle> {
     return [styles.row, {paddingLeft: indent * 20}];
   }
 
   const selectableKids = getChildren(sel).filter(
-    (cur) => cur != focus && isParent(cur)
+    cur => cur != focus && isParent(cur),
   );
 
   function moveTo(to: OutlineItem) {
@@ -92,7 +101,7 @@ const OutlineMover = (): React.Node => {
             <IconButton icon="checkbox-blank-circle-outline" size={18} />
             <Text>{item.text}</Text>
           </View>
-        )
+        ),
       )}
     </View>
   );
@@ -109,7 +118,7 @@ const MoveIt = (props: {onPress: () => void}) => {
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   row: {
     padding: 5,
     height: 50,
@@ -118,6 +127,6 @@ const styles = {
     borderBottomWidth: 1,
     borderColor: '#F0F0F0',
   },
-};
+});
 
 export default OutlineMover;

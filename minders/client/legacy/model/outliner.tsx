@@ -1,9 +1,11 @@
-// @flow
-import {ViewPagerAndroid} from 'react-native-web';
-import * as OutlineState from './OutlineState';
-import InitialOutline from './InitialOutline';
+/**
+ * @format
+ */
 
-const STATE_VISIBILITY = {
+import {Opt} from '@toolkit/core/util/Types';
+import * as OutlineState from './OutlineState';
+
+const STATE_VISIBILITY: Record<string, OutlineItemState[]> = {
   focus: ['cur', 'top'],
   review: ['new', 'waiting', 'soon'],
   pile: ['soon', 'later'],
@@ -42,38 +44,38 @@ export type OutlineItemVisibilityFilter =
   | 'done';
 
 type OutlineItemUi = {
-  view?: OutlineViewType,
-  visibilityFilter?: OutlineItemVisibilityFilter,
-  hidden?: boolean,
-  kidsHidden?: boolean,
-  closed?: boolean,
+  view?: OutlineViewType;
+  visibilityFilter?: OutlineItemVisibilityFilter;
+  hidden?: boolean;
+  kidsHidden?: boolean;
+  closed?: boolean;
 };
 
 // Can we make this a class and still have
 // useful data object semantics (e.g. safe to serialize)?
 // We're already starting on this with "parent"...
 export type OutlineItem = {
-  parent: ?OutlineItem,
-  text: string,
-  id: number,
-  sub: Array<OutlineItem>,
-  ui: OutlineItemUi,
-  state: OutlineItemState,
-  snoozedState?: OutlineItemState,
-  created: Date,
-  modified: Date,
-  snoozeTil?: ?Date,
-  snoozeState?: ?OutlineItemState,
-  pinned?: boolean,
+  parent: Opt<OutlineItem>;
+  text: string;
+  id: number;
+  sub: Array<OutlineItem>;
+  ui: OutlineItemUi;
+  state: OutlineItemState;
+  snoozedState?: OutlineItemState;
+  created: Date;
+  modified: Date;
+  snoozeTil?: Opt<Date>;
+  snoozeState?: Opt<OutlineItemState>;
+  pinned?: boolean;
 };
 
-export type OutlineItemShape = $Shape<OutlineItem>;
+export type OutlineItemShape = Partial<OutlineItem>;
 
 export type Outline = {
-  top: $Shape<OutlineItem>,
-  version: number,
-  baseVersion: number,
-  focus?: number,
+  top: Partial<OutlineItem>;
+  version: number;
+  baseVersion: number;
+  focus?: number;
 };
 
 export const prioritySort = (lhs: OutlineItem, rhs: OutlineItem) => {
@@ -95,7 +97,8 @@ function myIndex(item: OutlineItem) {
 export const outlineSort = (lhs: OutlineItem, rhs: OutlineItem) => {
   if (isParent(lhs) && isParent(rhs)) {
     if (lhs.created.getTime() != rhs.created.getTime()) {
-      return rhs.created - lhs.created;
+      // tag: DATELOGIC
+      return rhs.created.getTime() - lhs.created.getTime();
     } else {
       // Hack for creation sort for items from before creation was saved
       return myIndex(rhs) - myIndex(rhs);
@@ -111,14 +114,15 @@ export const outlineSort = (lhs: OutlineItem, rhs: OutlineItem) => {
   if (pridiff != 0) {
     return pridiff;
   }
-  const lhsmod = lhs.modified || 0;
-  const rhsmod = rhs.modified || 0;
+  // tag: DATELOGIC
+  const lhsmod = lhs.modified ? lhs.modified.getTime() : 0;
+  const rhsmod = rhs.modified ? rhs.modified.getTime() : 0;
   return rhsmod - lhsmod;
 };
 
 export function outlineItem(
-  values: $Shape<OutlineItem>,
-  justCreated: boolean = true
+  values: Partial<OutlineItem>,
+  justCreated: boolean = true,
 ): OutlineItem {
   const newDate = justCreated ? new Date() : new Date(0);
   return {
@@ -144,17 +148,17 @@ export default class Outliner {
   data: OutlineItem;
   outline: Outline;
   focusItem: OutlineItem;
-  visibleStates: Array<OutlineItemState>;
-  itemMap: {[number]: OutlineItem} = {};
-  pinned: {[number]: OutlineItem} = {};
-  saver: ?(outliner: Outliner) => {};
+  visibleStates: OutlineItemState[];
+  itemMap: Record<number, OutlineItem> = {};
+  pinned: Record<number, OutlineItem> = {};
+  saver: Opt<(outliner: Outliner) => {}>;
 
   constructor(outline: Outline) {
     this.outline = outline;
     this.initialize(this.outline.top);
   }
 
-  initialize(rawData: $Shape<OutlineItem>): void {
+  initialize(rawData: Partial<OutlineItem>): void {
     this.data = this.initialProcess(rawData, null);
     if (!this.data.ui) {
       return; // Should throw exception
@@ -165,9 +169,11 @@ export default class Outliner {
     let filter = this.data.ui.visibilityFilter;
 
     // Renames
+    // @ts-ignore
     if (filter == 'cur') {
       filter = 'focus';
     }
+    // @ts-ignore
     if (filter == 'open') {
       filter = 'pile';
     }
@@ -184,7 +190,7 @@ export default class Outliner {
     OutlineState.fire(OutlineState.itemKey(item.id || 0));
   }
 
-  setSnoozeValues(item: OutlineItem, newValues: $Shape<OutlineItem>) {
+  setSnoozeValues(item: OutlineItem, newValues: Partial<OutlineItem>) {
     // Clear out snooze values when waking up
     if (newValues.state && newValues.state != 'waiting') {
       newValues.snoozeTil = null;
@@ -204,15 +210,17 @@ export default class Outliner {
   // In future, will take id + sparse item
   updateOutlineItem(
     item: OutlineItem,
-    newValues: $Shape<OutlineItem>,
-    save: boolean = true
+    newValues: Partial<OutlineItem>,
+    save: boolean = true,
   ) {
     let modified = false;
 
     this.setSnoozeValues(item, newValues);
 
-    for (const field in newValues) {
-      if (item[field] != newValues[field]) {
+    for (const fieldStr in newValues) {
+      const field = fieldStr as keyof OutlineItem;
+      if (item[field] !== newValues[field]) {
+        // @ts-ignore
         item[field] = newValues[field];
         modified = true;
       }
@@ -279,7 +287,7 @@ export default class Outliner {
       items.push(this.pinned[Number(itemId)]);
     }
     if (parentsOnly) {
-      items = items.filter((item) => isParent(item));
+      items = items.filter(item => isParent(item));
     }
     return items;
   }
@@ -288,10 +296,12 @@ export default class Outliner {
   updateOutlineItemUi(
     item: OutlineItem,
     newValues: OutlineItemUi,
-    save: boolean = true
+    save: boolean = true,
   ) {
     item.ui = item.ui || {};
-    for (const field in newValues) {
+    for (const fieldStr in newValues) {
+      const field = fieldStr as keyof OutlineItemUi;
+      // @ts-ignore
       item.ui[field] = newValues[field];
     }
     if (save) {
@@ -307,11 +317,12 @@ export default class Outliner {
     }
   }
 
-  initialProcess(rawItem: $Shape<OutlineItem>, parent: ?OutlineItem) {
+  initialProcess(rawItem: Partial<OutlineItem>, parent: Opt<OutlineItem>) {
     const item = outlineItem({...rawItem, parent}, false);
 
-    item.sub = getChildren(rawItem).map((child) =>
-      this.initialProcess(child, item)
+    // @ts-ignore
+    item.sub = getChildren(rawItem).map(child =>
+      this.initialProcess(child, item),
     );
 
     this.itemMap[item.id] = item;
@@ -370,8 +381,8 @@ export default class Outliner {
   createItemAfter(
     item: OutlineItem,
     text: string,
-    save: boolean = true
-  ): ?OutlineItem {
+    save: boolean = true,
+  ): Opt<OutlineItem> {
     if (!item.parent || !item.parent.sub) {
       return;
     }
@@ -504,7 +515,7 @@ export default class Outliner {
   }
 
   getFlatList(item: OutlineItem) {
-    var result = [];
+    var result: OutlineItem[] = [];
     this.getFlatListInternal(item, result, true);
     result.sort(outlineSort);
     return result;
@@ -512,8 +523,8 @@ export default class Outliner {
 
   getFlatListInternal(
     item: OutlineItem,
-    outArray: Array<OutlineItem>,
-    pinOk: boolean = false
+    outArray: OutlineItem[],
+    pinOk: boolean = false,
   ) {
     if (isParent(item)) {
       if (pinOk || !item.pinned) {
@@ -532,7 +543,7 @@ export default class Outliner {
 
   setVisibilityFilter(
     value: OutlineItemVisibilityFilter,
-    noSave: boolean = false
+    noSave: boolean = false,
   ) {
     this.visibleStates = STATE_VISIBILITY[value];
     this.updateOutlineItemUi(this.getData(), {visibilityFilter: value}, false);
@@ -562,13 +573,15 @@ export default class Outliner {
 
     // Review only goes back 60 days
     if (this.getVisibilityFilter() == 'review' && item.state == 'soon') {
-      const modified = item.modified || 0;
+      // tag: DATELOGIC
+      const modified = item.modified ? item.modified.getTime() : 0;
       const daysBack = (Date.now() - modified) / (1000 * 3600 * 24);
       hidden = daysBack > 60;
     }
     // New items show up everywhere for 5 minutes
     if (item.state == 'new') {
-      const modified = item.modified || 0;
+      // tag: DATELOGIC
+      const modified = item.modified ? item.modified.getTime() : 0;
       const minutesBack = (Date.now() - modified) / (1000 * 60);
       if (minutesBack < 5) {
         hidden = false;
@@ -595,7 +608,10 @@ export default class Outliner {
     return hidden;
   }
 
-  _recursiveUpdateVisibility(item: OutlineItem) {
+  _recursiveUpdateVisibility(item: OutlineItem): {
+    done: boolean;
+    hidden: boolean;
+  } {
     if (isParent(item)) {
       let allDone = true;
       let hasVisibleKids = false;
@@ -645,7 +661,7 @@ export function isChild(item: OutlineItem) {
   return getChildren(item).length == 0;
 }
 
-export function pathTo(outliner: Outliner, item: ?OutlineItem): string {
+export function pathTo(outliner: Outliner, item: Opt<OutlineItem>): string {
   if (!item || item == outliner.getData()) {
     return '';
   }

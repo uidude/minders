@@ -1,19 +1,19 @@
-// @flow
+/**
+ * @format
+ */
 
-import React, {useState, useContext, useEffect} from 'react';
-import {IconButton, Menu, Divider, Text, Button} from 'react-native-paper';
-import {Picker, View} from 'react-native';
+import React from 'react';
+import {View} from 'react-native';
+import {StyleProp, ViewStyle} from 'react-native';
 import type {OutlineItem, OutlineItemState} from '../model/outliner';
-import OutlinerContext, {useOutliner} from './OutlinerContext';
+import {EnumConfig, EnumIconButton, EnumMenu} from './Enum';
 import OutlineUtil from './OutlineUtil';
-import type {EnumConfig} from './Enum.js';
-import {EnumMenu, EnumIconButton} from './Enum';
-import type {ViewStyleProp} from 'react-native/Libraries/StyleSheet/StyleSheet';
+import {useOutliner} from './OutlinerContext';
 
 type Props = {
-  item: OutlineItem,
-  size?: number,
-  style?: ViewStyleProp,
+  item: OutlineItem;
+  size?: number;
+  style?: StyleProp<ViewStyle>;
 };
 
 const VisibilityStateEnums: EnumConfig<OutlineItemState> = new Map([
@@ -36,15 +36,14 @@ export function EditableStatus(props: Props) {
     <View>
       <EnumMenu
         enums={VisibilityStateEnums}
-        onChange={(value) => outliner.updateOutlineItem(item, {state: value})}
-        anchor={(onPress) => (
+        onChange={value => outliner.updateOutlineItem(item, {state: value})}
+        anchor={onPress => (
           <EnumIconButton
             enums={VisibilityStateEnums}
             value={item.state}
             size={size}
             style={style}
             onPress={onPress}
-            onChange={() => {}}
           />
         )}
       />

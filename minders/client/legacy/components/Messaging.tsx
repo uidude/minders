@@ -1,13 +1,16 @@
-// @flow
+/**
+ * @format
+ */
 
 import * as React from 'react';
 import {Snackbar} from 'react-native-paper';
-import {type UiTool, UiToolsContext, useUiTool} from './UiTools';
+import {Opt} from '@toolkit/core/util/Types';
+import {useUiTool, type UiTool} from './UiTools';
 
-const MessagingComponent = (): React.Node => {
+const MessagingComponent = () => {
   const [visible, setVisible] = React.useState(false);
   const messaging = Messaging.get();
-  const [message, setMessage] = React.useState<?Message>();
+  const [message, setMessage] = React.useState<Opt<Message>>();
 
   function onDismiss() {
     setVisible(false);
@@ -31,8 +34,8 @@ const MessagingComponent = (): React.Node => {
 };
 
 type Message = {
-  text: string,
-  type: 'error' | 'warning' | 'info',
+  text: string;
+  type: 'error' | 'warning' | 'info';
 };
 
 export class Messaging {
@@ -41,12 +44,13 @@ export class Messaging {
 
   showMessage(message: Message) {
     this.messages.push(message);
+    /** @ts-ignore */
     for (const listener of this.listeners) {
       listener();
     }
   }
 
-  getNextMessage(): ?Message {
+  getNextMessage(): Opt<Message> {
     if (this.messages.length == 0) {
       return null;
     }

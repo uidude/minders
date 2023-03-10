@@ -1,4 +1,6 @@
-// @flow
+/**
+ * @format
+ */
 
 import * as React from 'react';
 import {unstable_batchedUpdates} from 'react-dom';
@@ -11,15 +13,15 @@ export function batch(fn: () => void) {
 
 export function useForceUpdate() {
   const [value, setValue] = React.useState(0);
-  return () => setValue((value) => ++value);
+  return () => setValue(value => ++value);
 }
 
-const lastBackupMsMap: {[string]: number} = {};
+const lastBackupMsMap: Record<string, number> = {};
 
 export async function rateLimit(
   key: string,
   fn: () => Promise<void>,
-  rateLimitMs: number
+  rateLimitMs: number,
 ) {
   const lastBackupMs = lastBackupMsMap[key] || 0;
   var curTime = new Date().getTime();

@@ -1,8 +1,9 @@
 /**
  * @format
  */
+
 import * as React from 'react';
-import {ViewStyle} from 'react-native';
+import {StyleProp, ViewStyle} from 'react-native';
 import {StyleSheet} from 'react-native';
 import {IconButton, Menu} from 'react-native-paper';
 import type {Action, HandlerRef} from './Actions';
@@ -12,7 +13,7 @@ type Trigger = (onPress: () => void) => React.ReactNode;
 
 export function VerticalDots(props: {
   size?: number;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   type?: React.ComponentType<any>;
   color?: string;
   onPress: () => void;

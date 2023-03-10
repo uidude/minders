@@ -1,21 +1,23 @@
-// @flow
+/**
+ * @format
+ */
 
 import React, {Suspense, useContext, useState} from 'react';
 import {
+  Dimensions,
+  Platform,
+  SafeAreaView,
+  StatusBar,
   StyleSheet,
   Text,
-  Dimensions,
-  SafeAreaView,
-  Platform,
-  StatusBar,
   View,
 } from 'react-native';
-import OutlinerMain from './components/OutlinerMain';
-import OutlinerContext from './components/OutlinerContext';
-import {UsingUiTools} from './components/UiTools';
-import {MessagingTool} from './components/Messaging';
-import {ShortcutTool} from './components/Shortcuts';
 import {Provider as PaperProvider} from 'react-native-paper';
+import {MessagingTool} from './components/Messaging';
+import OutlinerContext from './components/OutlinerContext';
+import OutlinerMain from './components/OutlinerMain';
+import {ShortcutTool} from './components/Shortcuts';
+import {UsingUiTools} from './components/UiTools';
 import {WaitDialogTool} from './components/WaitDialog';
 
 function isDesktopWeb(): boolean {
@@ -23,7 +25,7 @@ function isDesktopWeb(): boolean {
     return false;
   }
   return !/android|webos|iphone|ipad|ipod/.test(
-    navigator.userAgent.toLowerCase()
+    navigator.userAgent.toLowerCase(),
   );
 }
 

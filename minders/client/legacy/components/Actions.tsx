@@ -1,6 +1,7 @@
 /**
  * @format
  */
+
 import * as React from 'react';
 import {useContext} from 'react';
 import {useNavigation} from '@react-navigation/native';
@@ -191,6 +192,7 @@ export const Mover: Action = {
       if (!context || !context.item) {
         return;
       }
+      /** @ts-ignore */
       nav.push('mover', {focus: context.item.id});
     };
   },
@@ -294,9 +296,5 @@ export const Login: Action = {
     return async () => {
       Auth.login(true);
     };
-  },
-  context: () => null,
-  handler: async () => {
-    Auth.login(true);
   },
 };

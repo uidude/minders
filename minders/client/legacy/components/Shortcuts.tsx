@@ -1,9 +1,12 @@
-// @flow
+/**
+ * @format
+ */
 
 import * as React from 'react';
-import {type UiTool, UiToolsContext, useUiTool} from './UiTools';
+import {Opt} from '@toolkit/core/util/Types';
+import {UiToolsContext, useUiTool, type UiTool} from './UiTools';
 
-const KeyEventTypes = {
+const KeyEventTypes: Record<string, string> = {
   Tab: 'keydown',
   Escape: 'keydown',
   Backspace: 'keydown',
@@ -15,20 +18,21 @@ const KeyEventTypes = {
 
 const DefaultKeyEventType = 'keypress';
 
-function applies(val?: boolean, match: boolean) {
+function applies(val: Opt<boolean>, match: boolean) {
   return val === undefined || match === val;
 }
 
-const ShortcutComponent = (): React.Node => {
+const ShortcutComponent = () => {
   const shortcuts = Shortcuts.get();
 
-  async function onKey(e) {
+  async function onKey(e: KeyboardEvent) {
     const eventTypeToMatch = KeyEventTypes[e.key] || DefaultKeyEventType;
     if (eventTypeToMatch != e.type) {
       return;
     }
 
     // Bad logic for preventing shortcuts on text edits... need better
+    // @ts-ignore
     const nodeType = e.srcElement.nodeName;
     const inText = nodeType == 'INPUT' || nodeType == 'TEXTAREA';
     for (const shortcut of shortcuts.values) {
@@ -60,11 +64,11 @@ const ShortcutComponent = (): React.Node => {
 };
 
 type Shortcut = {
-  key: string,
+  key: string;
   // If true, continue the processing
-  action: () => ?boolean | Promise<?boolean>,
-  shift?: boolean,
-  inText?: boolean,
+  action: () => boolean | void | Promise<boolean | void>;
+  shift?: boolean;
+  inText?: boolean;
 };
 
 export class Shortcuts {
