@@ -14,7 +14,7 @@ import {unstable_batchedUpdates} from 'react-dom';
 import {IconButton, Menu} from 'react-native-paper';
 import {type Action} from './Actions';
 import {useShortcut} from './Shortcuts';
-import Styles from './Styles';
+import S from './Styles';
 
 type Config = {icon: string; label: string; key?: string | string[]};
 
@@ -107,8 +107,8 @@ export function EnumMenu<T>(props: Props<T>) {
     <Menu
       visible={menuVisible}
       onDismiss={closeMenu}
-      style={Styles.menu}
-      contentStyle={Styles.menuContent}
+      style={S.menu}
+      contentStyle={S.menuContent}
       anchor={anchor(openMenu)}>
       {menuVisible &&
         Array.from(enums.keys()).map(enumValue => {
@@ -116,7 +116,7 @@ export function EnumMenu<T>(props: Props<T>) {
             <Menu.Item
               key={String(enumValue)}
               onPress={() => menuItemSelected(enumValue)}
-              style={Styles.menuItem}
+              style={S.menuItem}
               icon={enums.get(enumValue)?.icon}
               title={enums.get(enumValue)?.label}
             />
@@ -147,7 +147,7 @@ export function EnumIconButton<T>(props: EnumIconButtonProps<T>) {
       /* @ts-ignore */
       icon={enums.get(enumValue)?.icon}
       accessibilityLabel={enums.get(enumValue)?.label}
-      style={[Styles.iconButton, style]}
+      style={[S.iconButton, style]}
       onPress={onPress}
       size={size}
       color={color}

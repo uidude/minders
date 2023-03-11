@@ -54,8 +54,8 @@ export default function App() {
     // TODO: Wrap entire context frame into a single tag
     <PaperProvider>
       <UsingUiTools tools={[MessagingTool, ShortcutTool, WaitDialogTool]}>
-        <View style={styles.background}>
-          <View style={[styles.container, heightStyle]}>
+        <View style={S.background}>
+          <View style={[S.container, heightStyle]}>
             <Suspense fallback={<Text>Loading...</Text>}>
               <OutlinerMain />
             </Suspense>
@@ -66,7 +66,7 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
+const S = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',

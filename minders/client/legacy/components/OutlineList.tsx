@@ -133,14 +133,14 @@ export function OutlineListItem(props: {
 
   return (
     <OutlinerContext.Provider value={ctx}>
-      <View style={[styles.listItem, style]}>
+      <View style={[S.listItem, style]}>
         <View>
-          <EditableStatus size={18} item={item} style={styles.indicator} />
+          <EditableStatus size={18} item={item} style={S.indicator} />
         </View>
         <View style={{flex: 1, paddingLeft: 2, alignSelf: 'center'}}>
           <TextInput
             value={text}
-            style={[styles.listItemText, cursorStyle(cursor)]}
+            style={[S.listItemText, cursorStyle(cursor)]}
             onChangeText={val => setText(val)}
             onBlur={commit}
             onFocus={focus}
@@ -149,13 +149,13 @@ export function OutlineListItem(props: {
             selection={selection}
             ref={setInput}
           />
-          <Text style={styles.parent}>{pathTo(outliner, item.parent)}</Text>
+          <Text style={S.parent}>{pathTo(outliner, item.parent)}</Text>
         </View>
         <View style={{justifyContent: 'flex-end'}}>
           <ActionMenu
             actions={[Snooze, Bump, Mover, Delete]}
             anchor={onPress => (
-              <VerticalDots style={styles.actionsR} onPress={onPress} />
+              <VerticalDots style={S.actionsR} onPress={onPress} />
             )}
           />
         </View>
@@ -228,14 +228,14 @@ export default function OutlineList(props: {}) {
           listItem={topItem}
           prev={outlineItems[idx - 1]}
           key={item.id}
-          style={idx % 2 == 1 && styles.odd}
+          style={idx % 2 == 1 && S.odd}
         />
       ))}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const S = StyleSheet.create({
   listItem: {
     padding: 5,
     flexWrap: 'nowrap',

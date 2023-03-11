@@ -23,7 +23,7 @@ export function VerticalDots(props: {
   return (
     <ButtonType
       icon="dots-vertical"
-      style={[styles.iconButton, style]}
+      style={[S.iconButton, style]}
       onPress={onPress}
       size={size}
       color={color}
@@ -73,15 +73,15 @@ export default function ActionMenu(props: {
       <Menu
         visible={menuVisible}
         onDismiss={closeMenu}
-        style={styles.menu}
-        contentStyle={styles.menuContent}
+        style={S.menu}
+        contentStyle={S.menuContent}
         anchor={anchorEl}>
         {menuVisible &&
           actions.map((action, index) => (
             <Menu.Item
               key={action.id}
               onPress={() => menuItemSelected(index)}
-              style={styles.menuItem}
+              style={S.menuItem}
               icon={action.icon}
               title={action.label}
             />
@@ -91,7 +91,7 @@ export default function ActionMenu(props: {
   );
 }
 
-const styles = StyleSheet.create({
+const S = StyleSheet.create({
   menu: {
     margin: 0,
     padding: 0,

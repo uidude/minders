@@ -56,7 +56,7 @@ const OutlineMover = () => {
   const itemTree = getTree(sel);
 
   function rowStyle(indent: number): StyleProp<ViewStyle> {
-    return [styles.row, {paddingLeft: indent * 20}];
+    return [S.row, {paddingLeft: indent * 20}];
   }
 
   const selectableKids = getChildren(sel).filter(
@@ -120,7 +120,7 @@ const MoveIt = (props: {onPress: () => void}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const S = StyleSheet.create({
   row: {
     padding: 5,
     height: 50,

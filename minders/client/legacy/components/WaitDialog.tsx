@@ -13,7 +13,6 @@ import {useUiTool, type UiTool} from './UiTools';
 type SnoozeUnit = 'days' | 'hours';
 
 const WaitDialogComponent = () => {
-  const {dialog, cancel} = STYLES;
   const [item, setItem] = React.useState<OutlineItem | null>();
   const [outliner, setOutliner] = React.useState<Outliner>();
   const waitDialog = WaitDialog.get();
@@ -52,10 +51,9 @@ const WaitDialogComponent = () => {
 
   function SnoozeButton(props: {amt: number; unit: SnoozeUnit}) {
     const {amt, unit} = props;
-    const {button} = STYLES;
     const title = amt == 0 ? 'no time' : `${amt} ${unit}`;
     return (
-      <Button style={button} onPress={() => snooze(amt, unit)}>
+      <Button style={S.button} onPress={() => snooze(amt, unit)}>
         {title}
       </Button>
     );
@@ -64,18 +62,18 @@ const WaitDialogComponent = () => {
   return (
     <View>
       <Portal>
-        <Dialog style={dialog} visible={visible} onDismiss={dismiss}>
+        <Dialog style={S.dialog} visible={visible} onDismiss={dismiss}>
           <Dialog.Title>Snooze for</Dialog.Title>
           <Dialog.Content>
             <View style={{flexDirection: 'row'}}>
-              <View style={STYLES.buttons}>
+              <View style={S.buttons}>
                 <SnoozeButton amt={0} unit="hours" />
                 <SnoozeButton amt={1} unit="hours" />
                 <SnoozeButton amt={2} unit="hours" />
                 <SnoozeButton amt={4} unit="hours" />
                 <SnoozeButton amt={8} unit="hours" />
               </View>
-              <View style={STYLES.buttons}>
+              <View style={S.buttons}>
                 <SnoozeButton amt={1} unit="days" />
                 <SnoozeButton amt={3} unit="days" />
                 <SnoozeButton amt={7} unit="days" />
@@ -85,7 +83,7 @@ const WaitDialogComponent = () => {
             </View>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button style={cancel} mode="contained" onPress={dismiss}>
+            <Button style={S.cancel} mode="contained" onPress={dismiss}>
               Cancel
             </Button>
           </Dialog.Actions>
@@ -112,7 +110,7 @@ export const WaitDialogTool: UiTool<WaitDialog> = {
   component: WaitDialogComponent,
 };
 
-const STYLES = StyleSheet.create({
+const S = StyleSheet.create({
   dialog: {maxWidth: 500, alignSelf: 'center'},
   cancel: {
     marginRight: 20,

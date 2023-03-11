@@ -8,7 +8,7 @@ import {Menu} from 'react-native-paper';
 import {getChildren, isParent, type OutlineItem} from '../model/outliner';
 import {useOutlineState, useOutliner} from './OutlinerContext';
 import {useShortcut} from './Shortcuts';
-import Styles from './Styles';
+import S from './Styles';
 
 function OutlineFocusPicker() {
   const outliner = useOutliner();
@@ -56,8 +56,8 @@ function OutlineFocusPicker() {
     <Menu
       visible={menuVisible}
       onDismiss={() => setMenuVisible(false)}
-      style={Styles.menu}
-      contentStyle={Styles.menuContent}
+      style={S.menu}
+      contentStyle={S.menuContent}
       anchor={
         <TouchableHighlight onPress={() => setMenuVisible(true)}>
           <Text>{title}</Text>
@@ -68,7 +68,7 @@ function OutlineFocusPicker() {
           <Menu.Item
             key={item.id}
             onPress={() => focusSelected(item)}
-            style={Styles.menuItem}
+            style={S.menuItem}
             title={item.text}
           />
         );

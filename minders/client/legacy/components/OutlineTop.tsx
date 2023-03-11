@@ -36,7 +36,7 @@ export default function OutlineTop() {
 
   return (
     <View style={{height: 0}}>
-      <View style={styles.frame}>
+      <View style={S.frame}>
         {topChildren.map((item, index) => (
           <Hierarchy item={item} key={item.id} index={index} />
         ))}
@@ -58,7 +58,7 @@ export function NoChildren(props: {item: OutlineItem}) {
   );
 }
 
-const styles = StyleSheet.create({
+const S = StyleSheet.create({
   frame: {
     borderBottomWidth: 1,
     borderRightWidth: 1,

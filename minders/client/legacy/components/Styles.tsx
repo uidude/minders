@@ -4,7 +4,7 @@
 
 import {StyleSheet} from 'react-native';
 
-const styles = StyleSheet.create({
+const S = StyleSheet.create({
   menu: {
     margin: 0,
     padding: 0,
@@ -30,4 +30,4 @@ const styles = StyleSheet.create({
   iconButton: {opacity: 0.5},
 });
 
-export default styles;
+export default S;

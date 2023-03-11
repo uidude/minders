@@ -130,20 +130,20 @@ export default function Hierarchy(props: {
   let backgroundColor = null;
   let extraTitleStyle = null;
 
-  const collapseStyle = [styles.indicator, {marginLeft: paddingLeft + 6}];
+  const collapseStyle = [S.indicator, {marginLeft: paddingLeft + 6}];
   const lhIcons = parental ? (
     <>
-      <ActionButton action={FocusOn} style={styles.focus} />
+      <ActionButton action={FocusOn} style={S.focus} />
       <CollapserButton size={18} item={item} style={collapseStyle} />
     </>
   ) : (
-    <EditableStatus size={18} item={item} style={styles.status} />
+    <EditableStatus size={18} item={item} style={S.status} />
   );
 
   if (parental) {
     if (level == 0) {
       backgroundColor = '#D0D0D0';
-      extraTitleStyle = styles.firstTitle;
+      extraTitleStyle = S.firstTitle;
     }
   }
 
@@ -174,7 +174,7 @@ export default function Hierarchy(props: {
 
   return (
     <OutlinerContext.Provider value={itemContext(item)}>
-      <View style={[styles.listItem, extraStyle]}>
+      <View style={[S.listItem, extraStyle]}>
         <View style={{marginLeft: 5, zIndex: 20, flexDirection: 'row'}}>
           {lhIcons}
         </View>
@@ -185,11 +185,11 @@ export default function Hierarchy(props: {
           item={item}
         />
         <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-          {item.pinned && <ActionButton action={Unpin} style={styles.pin} />}
+          {item.pinned && <ActionButton action={Unpin} style={S.pin} />}
           <ActionMenu
             actions={actions}
             anchor={onPress => (
-              <VerticalDots style={styles.actionsR} onPress={onPress} />
+              <VerticalDots style={S.actionsR} onPress={onPress} />
             )}
           />
         </View>
@@ -199,7 +199,7 @@ export default function Hierarchy(props: {
   );
 }
 
-const styles = StyleSheet.create({
+const S = StyleSheet.create({
   listItem: {
     marginVertical: 0,
     padding: 2,

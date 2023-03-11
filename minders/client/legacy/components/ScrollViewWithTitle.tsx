@@ -11,16 +11,16 @@ export default function ScrollViewWithTitle(props: {
 }) {
   const {title, children} = props;
   return (
-    <View style={styles.all}>
-      <View style={styles.topBar}>
-        <Text style={styles.topBarText}>{title || ''}</Text>
+    <View style={S.all}>
+      <View style={S.topBar}>
+        <Text style={S.topBarText}>{title || ''}</Text>
       </View>
-      <ScrollView style={styles.container}>{children}</ScrollView>
+      <ScrollView style={S.container}>{children}</ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const S = StyleSheet.create({
   topBar: {
     backgroundColor: '#123', // was 123
     height: 50,
