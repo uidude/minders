@@ -114,10 +114,10 @@ function fixOutlineCss() {
   style.setAttribute('type', 'text/css');
   style.appendChild(document.createTextNode('input:focus {outline: none;}'));
   document.getElementsByTagName('head')[0].appendChild(style);
-  /*
-  input:focus {outline: none;}*/
 }
-fixOutlineCss();
+if (Platform.OS === 'web') {
+  fixOutlineCss();
+}
 
 // TODO: Hack to hide header to avoid double back buttons.
 // Fix this by converting these to Screens
@@ -173,12 +173,10 @@ export default function App() {
     config: linkingScreens,
   };
 
-  console.log(DefaultTheme);
   const navTheme = {
     colors: {...DefaultTheme.colors, background: 'rgba(0,0,0,0)'},
     dark: DefaultTheme.dark,
   };
-  console.log(navTheme);
 
   return (
     <AppContextProvider ctx={APP_CONTEXT}>
