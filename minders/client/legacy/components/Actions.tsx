@@ -7,10 +7,11 @@ import {useContext} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
+import {useNav} from '@toolkit/ui/screen/Nav';
+import SettingsScreen from '@app/app/screens/SettingsScreen';
 import {getChildren} from '../model/outliner';
 import type {OutlineItem} from '../model/outliner';
 import {BinaryAlert} from './Alert';
-import Auth from './Auth';
 import OutlinerContext, {useOutlineState, useOutliner} from './OutlinerContext';
 import {Shortcuts, useShortcut} from './Shortcuts';
 import {batch} from './Useful';
@@ -296,12 +297,13 @@ export const Home: Action = {
 };
 
 export const Login: Action = {
-  id: 'login',
-  icon: 'account-circle',
-  label: 'Log In',
+  id: 'settings',
+  icon: 'wrench-outline',
+  label: 'Settings',
   handle: () => {
+    const {navTo} = useNav();
     return async () => {
-      Auth.login(true);
+      navTo(SettingsScreen);
     };
   },
 };
