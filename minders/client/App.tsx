@@ -47,8 +47,8 @@ import LoginScreen from '@app/app/screens/LoginScreen';
 import SettingsScreen from '@app/app/screens/SettingsScreen';
 import StartupScreen from '@app/app/screens/StartupScreen';
 import {FIREBASE_CONFIG, GOOGLE_LOGIN_CONFIG} from '@app/common/Config';
+import AppLayout from './legacy/components/AppLayout';
 import {MessagingTool} from './legacy/components/Messaging';
-import OutlineFrame from './legacy/components/OutlineFrame';
 import OutlineList from './legacy/components/OutlineList';
 import OutlineMover from './legacy/components/OutlineMover';
 import OutlineTop from './legacy/components/OutlineTop';
@@ -163,7 +163,7 @@ export default function App() {
 
   const {navScreens, linkingScreens} = useReactNavScreens(
     ROUTES,
-    OutlineFrame,
+    AppLayout,
     Stack.Screen,
   );
 

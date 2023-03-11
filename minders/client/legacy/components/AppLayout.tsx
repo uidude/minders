@@ -2,8 +2,6 @@
  * @format
  */
 
-// TODO: Add keyboard shrtcuts
-
 import * as React from 'react';
 import {ActivityIndicator, View} from 'react-native';
 import {ScrollView, StyleSheet, Text} from 'react-native';
@@ -36,7 +34,6 @@ import {EnumConfig, EnumTextButton, enumActions} from './Enum';
 import {Messaging} from './Messaging';
 import OutlineFocusPicker from './OutlineFocusPicker';
 import {useOutlineState, useOutlineStore, useOutliner} from './OutlinerContext';
-import type {Nav} from './OutlinerMain';
 
 export const Filters: EnumConfig<OutlineItemVisibilityFilter> = new Map([
   /*['top', { icon: 'star-outline', label: 'Starred' }],*/
@@ -123,7 +120,7 @@ function TopAction(props: {action: Action}) {
   return <ActionButton action={props.action} {...TOP_ACTION_PROPS} />;
 }
 
-export default function OutlineFrame(props: LayoutProps) {
+export default function Layout(props: LayoutProps) {
   const {children, loading, style, title = ''} = props;
   const loadingView = loading ?? SpinnerLoading;
   const route = useRoute();
@@ -181,7 +178,7 @@ function Header(props: LayoutProps) {
   const outlineUiState = getItemUi(outliner.getData());
   const filter = outlineUiState.visibilityFilter || 'focus';
   const route = useRoute();
-  const nav: Nav = useNavigation();
+  const nav: any = useNavigation();
 
   const view = route.name;
 
