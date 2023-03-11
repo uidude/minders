@@ -4,9 +4,9 @@
 
 import * as React from 'react';
 import {StyleProp, ViewStyle} from 'react-native';
-import {IconButton} from 'react-native-paper';
 import type {Action, HandlerRef} from './Actions';
 import {actionHandlerComponent} from './Actions';
+import {IconButton} from './AppComponents';
 
 // TODO: Consider passing in ID
 export default function ActionButton(props: {
@@ -14,10 +14,8 @@ export default function ActionButton(props: {
   size?: number;
   style?: StyleProp<ViewStyle>;
   color?: string;
-  type?: React.ComponentType<any>;
 }) {
-  const {action, size = 18, style, type, color} = props;
-  const ButtonType = type || IconButton;
+  const {action, size = 18, style, color} = props;
 
   const ActionComponent = actionHandlerComponent(action);
   const handlerRef: HandlerRef = {};
@@ -25,7 +23,7 @@ export default function ActionButton(props: {
   return (
     <>
       <ActionComponent handler={handlerRef} />
-      <ButtonType
+      <IconButton
         icon={action.icon}
         accessibilityLabel={action.label}
         onPress={() => handlerRef.current && handlerRef.current()}

@@ -11,10 +11,9 @@ import * as React from 'react';
 import {Text, TouchableHighlight} from 'react-native';
 import {StyleProp, ViewStyle} from 'react-native';
 import {unstable_batchedUpdates} from 'react-dom';
-import {IconButton, Menu} from 'react-native-paper';
 import {type Action} from './Actions';
+import {IconButton, Menu} from './AppComponents';
 import {useShortcut} from './Shortcuts';
-import Styles from './Styles';
 
 type Config = {icon: string; label: string; key?: string | string[]};
 
@@ -104,19 +103,13 @@ export function EnumMenu<T>(props: Props<T>) {
   }
 
   return (
-    <Menu
-      visible={menuVisible}
-      onDismiss={closeMenu}
-      style={Styles.menu}
-      contentStyle={Styles.menuContent}
-      anchor={anchor(openMenu)}>
+    <Menu visible={menuVisible} onDismiss={closeMenu} anchor={anchor(openMenu)}>
       {menuVisible &&
         Array.from(enums.keys()).map(enumValue => {
           return (
             <Menu.Item
               key={String(enumValue)}
               onPress={() => menuItemSelected(enumValue)}
-              style={Styles.menuItem}
               icon={enums.get(enumValue)?.icon}
               title={enums.get(enumValue)?.label}
             />
@@ -133,21 +126,19 @@ export type EnumIconButtonProps<T> = {
   style?: StyleProp<ViewStyle>;
   color?: string;
   onPress: () => void;
-  type?: React.ComponentType<any>;
 };
 // Icon button tied to an enum from an EnumConfig
 export function EnumIconButton<T>(props: EnumIconButtonProps<T>) {
-  const {enums, size, style, color, onPress, type} = props;
+  const {enums, size, style, color, onPress} = props;
   /** @ts-ignore */
   const enumValue: T = props.value || enums.keys().next.value;
-  const ButtonType = type || IconButton;
 
   return (
-    <ButtonType
+    <IconButton
       /* @ts-ignore */
       icon={enums.get(enumValue)?.icon}
       accessibilityLabel={enums.get(enumValue)?.label}
-      style={[Styles.iconButton, style]}
+      style={style}
       onPress={onPress}
       size={size}
       color={color}
@@ -175,7 +166,7 @@ export function EnumTextButton<T>(props: EnumTextButtonProps<T>) {
 }
 
 export function EnumDualButton<T>(props: EnumIconButtonProps<T>) {
-  const {enums, onPress, size, style, type, color} = props;
+  const {enums, onPress, size, style, color} = props;
   /* @ts-ignore */
   const enumValue: T = props.value || enums.keys().next.value;
 
@@ -206,91 +197,6 @@ export function EnumDualButton<T>(props: EnumIconButtonProps<T>) {
   }
 
   return <EnumIconButton {...props} onPress={myOnPress} />;
-}
-
-// DEPRECATED, just keeping until we're sure we haven't just broken things
-
-export type DeprecatedMode = 'icon' | 'text'; // Should have icon+text option
-
-export type DeprecatedProps<T> = {
-  value?: T;
-  enums: EnumConfig<T>;
-  onChange: (value: T) => void;
-  size?: number;
-  style?: StyleProp<ViewStyle>;
-  type?: React.ComponentType<any>;
-  color?: string;
-  children?: React.ReactNode;
-  mode?: DeprecatedMode;
-};
-
-export function EnumMenu_DEPRECATED<T>(props: DeprecatedProps<T>) {
-  const {enums, onChange, size, style, type, color, mode = 'icon'} = props;
-  const [menuVisible, setMenuVisible] = React.useState(false);
-  /* @ts-ignore */
-  const enumValue: T = props.value || enums.keys().next.value;
-
-  useEnumShortcuts(enums, enumValue => {
-    setMenuVisible(false);
-    unstable_batchedUpdates(() => {
-      onChange && onChange(enumValue);
-    });
-  });
-
-  function openMenu() {
-    setMenuVisible(true);
-  }
-
-  function closeMenu(): void {
-    setMenuVisible(false);
-  }
-
-  function menuItemSelected(enumValue: T): void {
-    setMenuVisible(false);
-    unstable_batchedUpdates(() => {
-      onChange && onChange(enumValue);
-    });
-  }
-
-  const pageContent =
-    mode == 'text' ? (
-      <TouchableHighlight onPress={openMenu}>
-        <Text>{enums.get(enumValue)?.label}</Text>
-      </TouchableHighlight>
-    ) : (
-      <IconButton
-        /* @ts-ignore */
-        icon={enums.get(enumValue)?.icon}
-        accessibilityLabel={enums.get(enumValue)?.label}
-        style={[Styles.iconButton, style]}
-        onPress={openMenu}
-        size={size}
-        type={type}
-        color={color}
-      />
-    );
-
-  return (
-    <Menu
-      visible={menuVisible}
-      onDismiss={closeMenu}
-      style={Styles.menu}
-      contentStyle={Styles.menuContent}
-      anchor={pageContent}>
-      {menuVisible &&
-        Array.from(enums.keys()).map(enumValue => {
-          return (
-            <Menu.Item
-              key={String(enumValue)}
-              onPress={() => menuItemSelected(enumValue)}
-              style={Styles.menuItem}
-              icon={enums.get(enumValue)?.icon}
-              title={enums.get(enumValue)?.label}
-            />
-          );
-        })}
-    </Menu>
-  );
 }
 
 export default EnumMenu;

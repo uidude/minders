@@ -24,7 +24,7 @@ const MessagingComponent = () => {
     }
   });
 
-  const style = message?.type == 'error' ? styles.error : null;
+  const style = message?.type == 'error' ? S.error : null;
 
   return (
     <Snackbar visible={visible} onDismiss={onDismiss} style={style}>
@@ -78,7 +78,7 @@ export const MessagingTool: UiTool<Messaging> = {
   component: MessagingComponent,
 };
 
-const styles = {
+const S = {
   error: {
     backgroundColor: '#BB0000',
   },

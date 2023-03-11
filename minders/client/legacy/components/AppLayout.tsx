@@ -2,18 +2,17 @@
  * @format
  */
 
-// TODO: Add keyboard shrtcuts
-
 import * as React from 'react';
 import {ActivityIndicator, View} from 'react-native';
 import {ScrollView, StyleSheet, Text} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
-// Can we import view from paper?s
 import {Appbar} from 'react-native-paper';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {canLoggingInFix} from '@toolkit/core/api/Auth';
 import TriState from '@toolkit/core/client/TriState';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
+import {useNav} from '@toolkit/ui/screen/Nav';
+import LoginScreen from '@app/app/screens/LoginScreen';
 import {getItemUi, pathTo} from '../model/outliner';
 import type {
   OutlineItemVisibilityFilter,
@@ -35,7 +34,6 @@ import {EnumConfig, EnumTextButton, enumActions} from './Enum';
 import {Messaging} from './Messaging';
 import OutlineFocusPicker from './OutlineFocusPicker';
 import {useOutlineState, useOutlineStore, useOutliner} from './OutlinerContext';
-import type {Nav} from './OutlinerMain';
 
 export const Filters: EnumConfig<OutlineItemVisibilityFilter> = new Map([
   /*['top', { icon: 'star-outline', label: 'Starred' }],*/
@@ -122,12 +120,12 @@ function TopAction(props: {action: Action}) {
   return <ActionButton action={props.action} {...TOP_ACTION_PROPS} />;
 }
 
-export default function OutlineFrame(props: LayoutProps) {
+export default function Layout(props: LayoutProps) {
   const {children, loading, style, title = ''} = props;
   const loadingView = loading ?? SpinnerLoading;
   const route = useRoute();
   const reactNav = useNavigation<any>();
-  const nav: Nav = useNavigation();
+  const nav = useNav();
   const navStyle = style?.nav ?? 'full';
   const navType = style?.type ?? 'std';
   const key = route.key;
@@ -136,7 +134,7 @@ export default function OutlineFrame(props: LayoutProps) {
     // If you can fix the error by logging back in, redirect to login
     if (canLoggingInFix(err)) {
       reactNav.setOptions({animationEnabled: false});
-      setTimeout(() => nav.reset('LoginScreen'), 0);
+      setTimeout(() => nav.reset(LoginScreen), 0);
     }
     return false;
   }
@@ -158,6 +156,7 @@ export default function OutlineFrame(props: LayoutProps) {
   return (
     <SafeAreaView style={S.top}>
       {navStyle === 'full' && (
+        // TODO: Should show action bar while loading
         <TriState loadingView={Empty} errorView={Empty}>
           <Header {...props} />
           <ActionFAB style={S.fab} small action={NewItem} />
@@ -179,7 +178,7 @@ function Header(props: LayoutProps) {
   const outlineUiState = getItemUi(outliner.getData());
   const filter = outlineUiState.visibilityFilter || 'focus';
   const route = useRoute();
-  const nav: Nav = useNavigation();
+  const nav: any = useNavigation();
 
   const view = route.name;
 
@@ -264,7 +263,7 @@ function SpinnerLoading() {
 }
 
 function Empty() {
-  return <View style={{flex: 1}} />;
+  return <View style={{width: 0, height: 0}} />;
 }
 
 // TODO: Add action button styles
@@ -312,10 +311,9 @@ const S = StyleSheet.create({
   badge: {
     width: 32,
     height: 32,
-    marginTop: -4,
-    marginLeft: 8,
-    paddingTop: 8,
-    paddingRight: 1,
+    marginTop: -1,
+    marginLeft: 9,
+    paddingTop: 7,
     backgroundColor: '#385078',
     borderRadius: 16,
     zIndex: 1,
@@ -325,5 +323,13 @@ const S = StyleSheet.create({
   },
   modalContent: {flex: 1, marginBottom: 30},
   container: {flex: 1, padding: 0, height: '100%'},
-  top: {flex: 1, alignSelf: 'stretch', backgroundColor: '#FFF'},
+  top: {
+    flex: 1,
+    alignSelf: 'stretch',
+    backgroundColor: '#FFF',
+    borderRadius: 24,
+    shadowColor: '#C0C0C0',
+    shadowRadius: 4,
+    overflow: 'hidden',
+  },
 });

@@ -73,22 +73,28 @@ function convertOutlineFromSerializedTypes(node: any) {
   return node;
 }
 
-function getUserPath() {
-  return localStorage['user'] || 'test';
-}
-
 class OutlineStore {
+  userId: string;
   loaded: boolean = false;
   loading: boolean = true;
   loadPromise: Promise<void>;
   outliner: Outliner;
   errorReporter: (e: Error) => void | Promise<void>;
 
+  constructor(userId: string) {
+    this.userId = userId;
+  }
+
+  getUserPath() {
+    return this.userId;
+  }
+
   load(): Promise<void> {
     var self = this;
+
     this.loadPromise = firebase
       .database()
-      .ref(APP_DB_FOLDER + getUserPath() + '/main/outline')
+      .ref(APP_DB_FOLDER + this.getUserPath() + '/main/outline')
       .once('value')
       .then(snapshot => self.loadData(snapshot.val()))
       .catch(error => self.failedToLoad(error));
@@ -126,7 +132,11 @@ class OutlineStore {
     outline.baseVersion = outline.version;
     outline.version = Date.now();
     localStorage['outline'] = JSON.stringify(outline, jsonSerializer, 2);
-    await this._saveToFirebase(outline, 'outline', getUserPath() + '/main/');
+    await this._saveToFirebase(
+      outline,
+      'outline',
+      this.getUserPath() + '/main/',
+    );
     rateLimit('outlinesaver', this.saveBackup.bind(this, outline), 30000);
   }
 
@@ -148,7 +158,7 @@ class OutlineStore {
 
   async saveBackup(outline: Outline) {
     const id: string = 'test-id::' + new Date(Date.now()).toLocaleString();
-    this._saveToFirebase(outline, id, getUserPath() + '/backup2/');
+    this._saveToFirebase(outline, id, this.getUserPath() + '/backup/');
   }
 }
 
