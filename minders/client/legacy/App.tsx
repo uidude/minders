@@ -32,7 +32,7 @@ function isDesktopWeb(): boolean {
 export default function App() {
   const context = useContext(OutlinerContext);
   const [height, setHeight] = useState(Dimensions.get('window').height);
-  context.init();
+  //context.init();
 
   React.useEffect(() => {
     Dimensions.addEventListener('change', onLayout);

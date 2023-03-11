@@ -159,6 +159,7 @@ export default function OutlineFrame(props: LayoutProps) {
   return (
     <SafeAreaView style={S.top}>
       {navStyle === 'full' && (
+        // TODO: Should show action bar while loading
         <TriState loadingView={Empty} errorView={Empty}>
           <Header {...props} />
           <ActionFAB style={S.fab} small action={NewItem} />
@@ -265,7 +266,7 @@ function SpinnerLoading() {
 }
 
 function Empty() {
-  return <View style={{flex: 1}} />;
+  return <View style={{width: 0, height: 0}} />;
 }
 
 // TODO: Add action button styles

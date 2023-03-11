@@ -4,9 +4,8 @@
 
 import React, {createContext} from 'react';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import firebase from 'firebase/app';
+import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
-import {FIREBASE_CONFIG} from '@app/common/Config';
 import OutlineStore from '../model/OutlineStore';
 import Outliner from '../model/outliner';
 import type {OutlineItem, OutlineItemVisibilityFilter} from '../model/outliner';
@@ -55,14 +54,30 @@ export function useOutlineState(): [
   return [{focus, focusItem, filter}, setOutlineState];
 }
 
-const outlineStore: OutlineStore = new OutlineStore();
-let outlineInitialized: boolean = false;
+// Map of userId -> OutlineStore for that user
+const outlines: Record<string, OutlineStore> = {};
 
-function initializeOutline(): Promise<void> {
-  outlineInitialized = true;
-  return outlineStore.load();
+async function initializeOutline(userId: string): Promise<void> {
+  let outline = outlines[userId];
+  if (!outline) {
+    outline = new OutlineStore(userId);
+    outlines[userId] = outline;
+    return outline.load();
+  }
+  return;
 }
 
+/*
+How should loading a persistent data structure work?
+- Asking for data gives you a promise that throws suspsense if not available
+- If data has been cachced, returns the cached version
+- Ideally could refresh cache but not crticial for now
+
+What should the API look like?
+- Const outliner = useOutliner(userId) or useOutliner() and automatically gets for current user
+- So same thing, but with a cache by user ID?
+- Ideally would have a logout / clear cache variant
+*/
 export class OutlinerEnvironment {
   item: Opt<OutlineItem>;
 
@@ -70,30 +85,27 @@ export class OutlinerEnvironment {
     this.item = item;
   }
 
-  init(): Opt<Promise<void>> {
-    if (!outlineInitialized) {
-      return initializeOutline();
-    }
-    return null;
+  init(userId: string): Opt<Promise<void>> {
+    return initializeOutline(userId);
   }
 
   // Throws the promise if not loaded - this interoperates with
   // React Suspense
-  getOutliner(): Outliner {
+  getOutliner(userId: string): Outliner {
     // Does nothing when called the 2nd+ time
-    this.init();
+    this.init(userId);
+    const outlineStore = outlines[userId];
 
     if (outlineStore.loading) {
       throw outlineStore.loadPromise;
     }
-    // @ts-ignore
-    window.outliner = outlineStore.outliner;
     return outlineStore.outliner;
   }
 }
 
 export function useOutliner(): Outliner {
-  const outliner = React.useContext(OutlinerContext).getOutliner();
+  const user = requireLoggedInUser();
+  const outliner = React.useContext(OutlinerContext).getOutliner(user.id);
   if (outliner == null) {
     throw Error("Outliner can't be null");
   }
@@ -102,10 +114,11 @@ export function useOutliner(): Outliner {
 
 // Wrapped in case it becomes more complicated to pull in
 export function useOutlineStore(): OutlineStore {
+  const user = requireLoggedInUser();
   // This triggers throwing the promise
-  React.useContext(OutlinerContext).getOutliner();
+  React.useContext(OutlinerContext).getOutliner(user.id);
 
-  return outlineStore;
+  return outlines[user.id];
 }
 
 // Hack to return same context for same items

@@ -5,6 +5,7 @@
 import * as React from 'react';
 import {useContext} from 'react';
 import {useNavigation} from '@react-navigation/native';
+import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
 import {getChildren} from '../model/outliner';
 import type {OutlineItem} from '../model/outliner';
@@ -69,13 +70,14 @@ export const Bump: Action = {
   icon: 'format-vertical-align-top',
   label: 'Bump to top',
   handle: () => {
+    const user = requireLoggedInUser();
     const context = useContext(OutlinerContext);
     return () => {
       if (!context || !context.item) {
         return;
       }
       const item: OutlineItem = context.item;
-      context.getOutliner().bump(item);
+      context.getOutliner(user.id).bump(item);
     };
   },
 };
@@ -99,13 +101,14 @@ export const Indent: Action = {
   icon: 'format-indent-increase',
   label: 'Indent',
   handle: () => {
+    const user = requireLoggedInUser();
     const context = useContext(OutlinerContext);
     return () => {
       if (!context || !context.item) {
         return;
       }
       const item: OutlineItem = context.item;
-      context.getOutliner().nest(item);
+      context.getOutliner(user.id).nest(item);
     };
   },
 };
@@ -115,13 +118,14 @@ export const Outdent: Action = {
   icon: 'format-indent-decrease',
   label: 'Outdent',
   handle: () => {
+    const user = requireLoggedInUser();
     const context = useContext(OutlinerContext);
     return () => {
       if (!context || !context.item) {
         return;
       }
       const item: OutlineItem = context.item;
-      context.getOutliner().unnest(item);
+      context.getOutliner(user.id).unnest(item);
     };
   },
 };
@@ -131,6 +135,7 @@ export const Delete: Action = {
   icon: 'delete-outline',
   label: 'Delete',
   handle: () => {
+    const user = requireLoggedInUser();
     const context = useContext(OutlinerContext);
     return () => {
       if (!context || !context.item) {
@@ -141,7 +146,7 @@ export const Delete: Action = {
       setTimeout(
         () =>
           BinaryAlert('Are you sure you want to delete this item?', null, () =>
-            context.getOutliner().deleteItem(item),
+            context.getOutliner(user.id).deleteItem(item),
           ),
         0,
       );
@@ -154,13 +159,14 @@ export const Pin: Action = {
   icon: 'pin',
   label: 'Pin',
   handle: () => {
+    const user = requireLoggedInUser();
     const context = useContext(OutlinerContext);
     return () => {
       if (!context || !context.item) {
         return;
       }
       const item = context.item;
-      context.getOutliner().updateOutlineItem(item, {pinned: true});
+      context.getOutliner(user.id).updateOutlineItem(item, {pinned: true});
     };
   },
 };
@@ -170,13 +176,14 @@ export const Unpin: Action = {
   icon: 'pin', // This is weird but it's for a button that is shown when pinned
   label: 'Unpin',
   handle: () => {
+    const user = requireLoggedInUser();
     const context = useContext(OutlinerContext);
     return () => {
       if (!context || !context.item) {
         return;
       }
       const item = context.item;
-      context.getOutliner().updateOutlineItem(item, {pinned: false});
+      context.getOutliner(user.id).updateOutlineItem(item, {pinned: false});
     };
   },
 };
