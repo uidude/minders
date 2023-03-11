@@ -158,7 +158,7 @@ class OutlineStore {
 
   async saveBackup(outline: Outline) {
     const id: string = 'test-id::' + new Date(Date.now()).toLocaleString();
-    this._saveToFirebase(outline, id, this.getUserPath() + '/backup2/');
+    this._saveToFirebase(outline, id, this.getUserPath() + '/backup/');
   }
 }
 
