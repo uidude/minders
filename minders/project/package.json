@@ -7,7 +7,8 @@
     "web": "expo start -w",
     "build:web": "expo export:web",
     "admin": "CLIENT=admin expo start --web",
-    "build:admin": "CLIENT=admin expo export:web"
+    "build:admin": "CLIENT=admin expo export:web",
+    "eas-build-pre-install": "echo $PWD && ls && git clone https://github.com/facebookincubator/npe-toolkit.git ../../npe-toolkit && ls ../../npe-toolkit"
   },
   "dependencies": {
     "@npe-toolkit-shell": "file:../../npe-toolkit/shell/latest"
