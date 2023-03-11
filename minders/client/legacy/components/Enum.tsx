@@ -11,10 +11,9 @@ import * as React from 'react';
 import {Text, TouchableHighlight} from 'react-native';
 import {StyleProp, ViewStyle} from 'react-native';
 import {unstable_batchedUpdates} from 'react-dom';
-import {IconButton, Menu} from 'react-native-paper';
 import {type Action} from './Actions';
+import {IconButton, Menu} from './AppComponents';
 import {useShortcut} from './Shortcuts';
-import S from './Styles';
 
 type Config = {icon: string; label: string; key?: string | string[]};
 
@@ -104,19 +103,13 @@ export function EnumMenu<T>(props: Props<T>) {
   }
 
   return (
-    <Menu
-      visible={menuVisible}
-      onDismiss={closeMenu}
-      style={S.menu}
-      contentStyle={S.menuContent}
-      anchor={anchor(openMenu)}>
+    <Menu visible={menuVisible} onDismiss={closeMenu} anchor={anchor(openMenu)}>
       {menuVisible &&
         Array.from(enums.keys()).map(enumValue => {
           return (
             <Menu.Item
               key={String(enumValue)}
               onPress={() => menuItemSelected(enumValue)}
-              style={S.menuItem}
               icon={enums.get(enumValue)?.icon}
               title={enums.get(enumValue)?.label}
             />
@@ -133,21 +126,19 @@ export type EnumIconButtonProps<T> = {
   style?: StyleProp<ViewStyle>;
   color?: string;
   onPress: () => void;
-  type?: React.ComponentType<any>;
 };
 // Icon button tied to an enum from an EnumConfig
 export function EnumIconButton<T>(props: EnumIconButtonProps<T>) {
-  const {enums, size, style, color, onPress, type} = props;
+  const {enums, size, style, color, onPress} = props;
   /** @ts-ignore */
   const enumValue: T = props.value || enums.keys().next.value;
-  const ButtonType = type || IconButton;
 
   return (
-    <ButtonType
+    <IconButton
       /* @ts-ignore */
       icon={enums.get(enumValue)?.icon}
       accessibilityLabel={enums.get(enumValue)?.label}
-      style={[S.iconButton, style]}
+      style={style}
       onPress={onPress}
       size={size}
       color={color}
@@ -175,7 +166,7 @@ export function EnumTextButton<T>(props: EnumTextButtonProps<T>) {
 }
 
 export function EnumDualButton<T>(props: EnumIconButtonProps<T>) {
-  const {enums, onPress, size, style, type, color} = props;
+  const {enums, onPress, size, style, color} = props;
   /* @ts-ignore */
   const enumValue: T = props.value || enums.keys().next.value;
 
