@@ -60,7 +60,6 @@ function Expando(props: {
   open: boolean;
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
-  t?: string;
 }) {
   const {open, children, style} = props;
   const [openState, setOpenState] = React.useState(open);
@@ -73,6 +72,7 @@ function Expando(props: {
     if (animating && contentHeightRef.current != 0) {
       const contentHeight = contentHeightRef.current;
       height.setValue(openState ? contentHeight : 0);
+      console.log('animating', contentHeightRef, open, openState);
       Animated.timing(height, {
         toValue: open ? contentHeight : 0,
         duration: Math.max(200 + 2 * contentHeight, 1200),
@@ -104,33 +104,24 @@ function ChildItems(props: {item: OutlineItem; level: number}) {
 
   /* Had style={{flexDirection: 'column'}} but was a dupe */
   return (
-    <Expando
-      t={item?.text}
-      open={!item.ui?.closed}
-      style={{overflow: 'hidden'}}>
+    <Expando open={!item.ui?.closed} style={{overflow: 'scroll'}}>
       {subs.map((sub, idx) => (
-        <Hierarchy key={sub.id} item={sub} level={level + 1} index={idx} />
+        <Hierarchy key={sub.id} item={sub} level={level + 1} />
       ))}
     </Expando>
   );
 }
 
-export default function Hierarchy(props: {
-  item: OutlineItem;
-  level?: number;
-  index?: number;
-}) {
-  const {item, level = 0, index = 0} = props;
-  const subs = getChildren(item);
+export default function Hierarchy(props: {item: OutlineItem; level?: number}) {
+  const {item, level = 0} = props;
   const parental = isParent(item);
-  const outliner = useOutliner();
   OutlineUtil.useRedrawOnItemUpdate(item.id);
 
-  const paddingLeft = level * 24;
+  const leftSpace = level * 18;
   let backgroundColor = null;
   let extraTitleStyle = null;
 
-  const collapseStyle = [S.indicator, {marginLeft: paddingLeft + 6}];
+  const collapseStyle = [S.indicator, {marginLeft: leftSpace}];
   const lhIcons = parental ? (
     <>
       <ActionButton action={FocusOn} style={S.focus} />
@@ -151,7 +142,7 @@ export default function Hierarchy(props: {
 
   /* Had backgroundColor: backgroundColor, but was dupe */
   const extraStyle = {
-    paddingLeft: parental ? 0 : paddingLeft + 26,
+    paddingLeft: parental ? 0 : leftSpace + 32,
     opacity: isDisabled ? 0.5 : undefined,
     backgroundColor: parental ? '#F0F0F0' : undefined,
     borderBottomWidth: 1,
@@ -159,7 +150,6 @@ export default function Hierarchy(props: {
     borderColor: parental ? '#E0E0E0' : '#FFF',
   };
 
-  const ui = getItemUi(item);
   const actions = [Bump, Mover, Indent, Outdent, Delete];
 
   if (parental) {
@@ -175,7 +165,12 @@ export default function Hierarchy(props: {
   return (
     <OutlinerContext.Provider value={itemContext(item)}>
       <View style={[S.listItem, extraStyle]}>
-        <View style={{marginLeft: 5, zIndex: 20, flexDirection: 'row'}}>
+        <View
+          style={{
+            marginHorizontal: 6,
+            zIndex: 20,
+            flexDirection: 'row',
+          }}>
           {lhIcons}
         </View>
         <OutlineText
@@ -213,15 +208,14 @@ const S = StyleSheet.create({
   },
   indicator: {
     opacity: 0.4,
+    marginHorizontal: 0,
   },
   status: {
     opacity: 0.4,
-    marginLeft: 2,
   },
   focus: {
     opacity: 0.4,
-    marginLeft: 0,
-    marginRight: -10,
+    marginHorizontal: 0,
     padding: 0,
   },
   actions: {
