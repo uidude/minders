@@ -6,16 +6,11 @@ import firebase from 'firebase/app';
 import 'firebase/database';
 import {rateLimit} from '../components/Useful';
 import {INITIAL_OUTLINE} from './InitialOutline';
-import {type Outline} from './Outliner';
+import {type Outline} from './outliner';
 import Outliner from './outliner';
 import 'firebase/auth';
 
-const IS_LOCALHOST =
-  window.document &&
-  window.document.location &&
-  window.document.location.host.indexOf('localhost') == 0;
-
-const APP_DB_FOLDER = IS_LOCALHOST ? 'outliner-testing/' : 'outlinerv1/';
+const APP_DB_FOLDER = __DEV__ ? 'outliner-testing/' : 'outlinerv1/';
 
 const localStorage = window.localStorage || {};
 

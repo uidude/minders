@@ -35,12 +35,10 @@ export default function OutlineTop() {
   }
 
   return (
-    <View style={{height: 0}}>
-      <View style={S.frame}>
-        {topChildren.map((item, index) => (
-          <Hierarchy item={item} key={item.id} index={index} />
-        ))}
-      </View>
+    <View style={S.frame}>
+      {topChildren.map((item, index) => (
+        <Hierarchy item={item} key={item.id} />
+      ))}
     </View>
   );
 }
@@ -64,5 +62,6 @@ const S = StyleSheet.create({
     borderRightWidth: 1,
     borderLeftWidth: 1,
     borderColor: '#123',
+    flex: 1,
   },
 });
