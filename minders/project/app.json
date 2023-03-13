@@ -11,7 +11,8 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/2f07f39a-d4fd-449f-ab0e-96b438be599d"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -24,7 +25,8 @@
           "reservedClientId": "com.googleusercontent.apps.316194284018-4iucu1np3ngg7n3ngprre8iro04oe173"
         },
         "usesNonExemptEncryption": false
-      }
+      },
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
@@ -36,9 +38,6 @@
     "web": {
       "favicon": "../client/assets/favicon.png"
     },
-    "facebookScheme": "fb",
-    "facebookAppId": "",
-    "facebookDisplayName": "minders",
     "extra": {
       "eas": {
         "projectId": "2f07f39a-d4fd-449f-ab0e-96b438be599d"
@@ -54,6 +53,9 @@
           }
         }
       ]
-    ]
+    ],
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    }
   }
 }

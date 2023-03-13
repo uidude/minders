@@ -5,15 +5,28 @@
       "distribution": "internal",
       "ios": {
         "simulator": true
-      }
+      },
+      "channel": "dev"
     },
     "dev": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "channel": "dev"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "channel": "preview"
     },
-    "production": {}
+    "prod": {
+      "channel": "prod",
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "prod": {
+      "ios": {
+        "appName": "Minders: Keep your focus"
+      }
+    }
   }
 }
