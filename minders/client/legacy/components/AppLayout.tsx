@@ -215,42 +215,39 @@ function Header(props: LayoutProps) {
   const viewMenuEnum = viewMenuEnumFor(route.name, filter);
 
   return (
-    <Appbar.Header style={S.topBar}>
-      <Appbar.Content
-        title={
-          <>
-            <OutlineFocusPicker />
-            <Text> {'>'} </Text>
-            <ActionMenu
-              actions={viewMenuActions}
-              anchor={onPress => (
-                <EnumTextButton
-                  enums={ViewMenuItems}
-                  value={viewMenuEnum}
-                  style={TOP_ACTION_PROPS.style}
-                  onPress={onPress}
-                />
-              )}
-            />
-            <Text> </Text>
-            {count != null && (
-              <View style={S.badge}>
-                <Text style={{fontSize: 14}}>{count}</Text>
-              </View>
+    <View style={S.topBar}>
+      <View style={S.row}>
+        <View style={S.row}>
+          <OutlineFocusPicker style={S.title} />
+          <Text style={S.title}>{' > '}</Text>
+          <ActionMenu
+            actions={viewMenuActions}
+            anchor={onPress => (
+              <EnumTextButton
+                enums={ViewMenuItems}
+                value={viewMenuEnum}
+                style={S.title}
+                onPress={onPress}
+              />
             )}
-          </>
-        }
-        subtitle={pathTo(outliner, focusItem.parent)}
-        titleStyle={S.topBarText}
-      />
-      {!isTop && <TopAction action={Home} />}
-      <ActionMenu
-        actions={actionMenuItems}
-        anchor={onPress => (
-          <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
+          />
+        </View>
+        {count != null && (
+          <View style={S.badge}>
+            <Text style={{fontSize: 14, color: '#FFF'}}>{count}</Text>
+          </View>
         )}
-      />
-    </Appbar.Header>
+      </View>
+      <View style={S.row}>
+        {!isTop && <TopAction action={Home} />}
+        <ActionMenu
+          actions={actionMenuItems}
+          anchor={onPress => (
+            <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
+          )}
+        />
+      </View>
+    </View>
   );
 }
 
@@ -292,11 +289,27 @@ const S = StyleSheet.create({
   },
   topBar: {
     backgroundColor: '#123',
-    marginLeft: -6,
+    height: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 4,
+    elevation: 4,
+    justifyContent: 'space-between',
   },
-  topBarText: {
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  title: {
     color: '#FFF',
     fontWeight: 'bold',
+    fontSize: 20,
+    marginBottom: 3,
+  },
+  subtitle: {
+    color: '#FFF',
+    fontSize: 16,
   },
   fab: {
     position: 'absolute',
@@ -311,13 +324,10 @@ const S = StyleSheet.create({
   badge: {
     width: 32,
     height: 32,
-    marginTop: -1,
     marginLeft: 9,
     paddingTop: 7,
     backgroundColor: '#385078',
     borderRadius: 16,
-    zIndex: 1,
-    position: 'absolute',
     flexDirection: 'row',
     justifyContent: 'space-around',
   },

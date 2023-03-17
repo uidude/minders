@@ -38,15 +38,12 @@ type KeyHandler = {
 
 function OutlineText(props: {
   placeholder?: string;
-  /*value?: string,*/
-  style: StyleProp<ViewStyle>;
   backgroundColor?: Opt<string>;
   theme?: Theme;
   item: OutlineItem;
-  /*focus?: boolean,*/
   textColor?: string;
 }) {
-  const {theme, item, style} = props;
+  const {item} = props;
   let [value, setValueState] = React.useState(item.text || '');
   const [editable, setEditableState] = React.useState(startsEditable());
   /*const focus = React.useRef(props.focus);*/
@@ -208,12 +205,13 @@ function OutlineText(props: {
     }
   }
 
-  const cursor = editable ? null : 'default';
+  // @ts-ignore Needed for extra web style
+  const cursor: StyleProp<ViewStyle> = {cursor: editable ? null : 'default'};
 
   return (
     <TouchableOpacity
       activeOpacity={0.7}
-      style={style}
+      style={{flex: 1}}
       onPress={onPress}
       onLongPress={onLongPress}>
       <TextInput
@@ -227,16 +225,16 @@ function OutlineText(props: {
         }}
         onKeyPress={onKeyPress}
         onBlur={onBlur}
-        placeholder="What's your plan? "
+        placeholder="What's your plan?"
         underlineColor="rgba(0,0,0,0)"
         onFocus={onFocus}
         render={props => {
           const {style, ...otherProps} = props;
           return (
-            <View>
+            <View style={S.textInputHolder}>
               <NativeTextInput
                 {...otherProps}
-                style={[style, {cursor}, {paddingLeft: 0}]}
+                style={[style, {paddingLeft: 0, textAlign: 'auto'}, cursor]}
               />
             </View>
           );
@@ -258,13 +256,10 @@ function OutlineText(props: {
   );
 }
 
-const styles = StyleSheet.create({
-  textInput: {
-    borderWidth: 4,
-    borderRadius: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 4,
+const S = StyleSheet.create({
+  textInputHolder: {
     flexGrow: 1,
+    justifyContent: 'center',
   },
 });
 

@@ -3,13 +3,14 @@
  */
 
 import * as React from 'react';
-import {Text, TouchableHighlight} from 'react-native';
-import {getChildren, isParent, type OutlineItem} from '../model/outliner';
-import {IconButton, Menu} from './AppComponents';
+import {StyleProp, Text, TextStyle, TouchableHighlight} from 'react-native';
+import {OutlineItem} from '../model/outliner';
+import {Menu} from './AppComponents';
 import {useOutlineState, useOutliner} from './OutlinerContext';
 import {useShortcut} from './Shortcuts';
 
-function OutlineFocusPicker() {
+function OutlineFocusPicker(props: {style?: StyleProp<TextStyle>}) {
+  const {style} = props;
   const outliner = useOutliner();
   const [outlineState, setOutlineState] = useOutlineState();
   const title = outlineState.focusItem.text;
@@ -57,7 +58,7 @@ function OutlineFocusPicker() {
       onDismiss={() => setMenuVisible(false)}
       anchor={
         <TouchableHighlight onPress={() => setMenuVisible(true)}>
-          <Text>{title}</Text>
+          <Text style={style}>{title}</Text>
         </TouchableHighlight>
       }>
       {items.map((item, idx) => {

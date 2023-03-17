@@ -4,7 +4,6 @@
 
 import * as React from 'react';
 import {StyleProp, ViewStyle} from 'react-native';
-import {StyleSheet} from 'react-native';
 import type {Action, HandlerRef} from './Actions';
 import {actionHandlerComponent} from './Actions';
 import {IconButton, Menu} from './AppComponents';

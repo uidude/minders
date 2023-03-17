@@ -8,8 +8,13 @@
 // - Stop initial flicker when opening menu
 
 import * as React from 'react';
-import {Text, TouchableHighlight} from 'react-native';
-import {StyleProp, ViewStyle} from 'react-native';
+import {
+  StyleProp,
+  Text,
+  TextStyle,
+  TouchableHighlight,
+  ViewStyle,
+} from 'react-native';
 import {unstable_batchedUpdates} from 'react-dom';
 import {type Action} from './Actions';
 import {IconButton, Menu} from './AppComponents';
@@ -149,7 +154,7 @@ export function EnumIconButton<T>(props: EnumIconButtonProps<T>) {
 export type EnumTextButtonProps<T> = {
   value?: T;
   enums: EnumConfig<T>;
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<TextStyle>;
   onPress: () => void;
 };
 
@@ -159,8 +164,8 @@ export function EnumTextButton<T>(props: EnumTextButtonProps<T>) {
   const enumValue: T = props.value || enums.keys().next.value;
 
   return (
-    <TouchableHighlight onPress={onPress} style={style}>
-      <Text>{enums.get(enumValue)?.label}</Text>
+    <TouchableHighlight onPress={onPress}>
+      <Text style={style}>{enums.get(enumValue)?.label}</Text>
     </TouchableHighlight>
   );
 }

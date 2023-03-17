@@ -119,7 +119,6 @@ export default function Hierarchy(props: {item: OutlineItem; level?: number}) {
 
   const leftSpace = level * 18;
   let backgroundColor = null;
-  let extraTitleStyle = null;
 
   const collapseStyle = [S.indicator, {marginLeft: leftSpace}];
   const lhIcons = parental ? (
@@ -134,7 +133,6 @@ export default function Hierarchy(props: {item: OutlineItem; level?: number}) {
   if (parental) {
     if (level == 0) {
       backgroundColor = '#D0D0D0';
-      extraTitleStyle = S.firstTitle;
     }
   }
 
@@ -165,16 +163,8 @@ export default function Hierarchy(props: {item: OutlineItem; level?: number}) {
   return (
     <OutlinerContext.Provider value={itemContext(item)}>
       <View style={[S.listItem, extraStyle]}>
-        <View
-          style={{
-            marginHorizontal: 6,
-            zIndex: 20,
-            flexDirection: 'row',
-          }}>
-          {lhIcons}
-        </View>
+        <View style={S.leftIcons}>{lhIcons}</View>
         <OutlineText
-          style={{flexGrow: 1}}
           backgroundColor={backgroundColor}
           textColor={level === 0 ? '#404040' : undefined}
           item={item}
@@ -201,10 +191,6 @@ const S = StyleSheet.create({
     paddingVertical: 0,
     flexWrap: 'nowrap',
     flexDirection: 'row',
-  },
-  firstTitle: {
-    /* color: '#FFF', */
-    fontWeight: 'bold',
   },
   indicator: {
     opacity: 0.4,
@@ -233,5 +219,10 @@ const S = StyleSheet.create({
     marginLeft: -6,
     marginRight: 6,
     paddingTop: 3,
+  },
+  leftIcons: {
+    marginHorizontal: 6,
+    zIndex: 20,
+    flexDirection: 'row',
   },
 });
