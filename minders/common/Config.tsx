@@ -13,9 +13,7 @@ let localConf: Record<string, any> = {};
 try {
   // @ts-ignore
   localConf = require('./.localconf.json');
-} catch (e) {
-  console.log(e);
-}
+} catch (_ignored) {}
 
 /**
  * Fill in the Firebase config from values at
@@ -45,7 +43,8 @@ export const FIREBASE_CONFIG: FirebaseConfig = localConf['firebase'] ?? {
  * https://github.com/facebookincubator/npe-toolkit/blob/main/docs/getting-started/Firebase.md
  */
 export const GOOGLE_LOGIN_CONFIG = localConf['google-login'] ?? {
-  iosClientId: 'fill-me-in',
+  iosClientId:
+    '729397867154-o7pdcviop9n916p65ptf8j37v1kd9tl9.apps.googleusercontent.com',
   webClientId:
     '729397867154-rbsrjlb7cvm3jfcq04gei4j730qo4jtc.apps.googleusercontent.com',
 };
