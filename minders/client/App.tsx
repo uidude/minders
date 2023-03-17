@@ -109,14 +109,23 @@ Outline.title = 'Outline';
 List.title = 'List';
 
 // TODO: Move this some place useful
-function fixOutlineCss() {
+function webDomChanges() {
   var style = document.createElement('style');
   style.setAttribute('type', 'text/css');
   style.appendChild(document.createTextNode('input:focus {outline: none;}'));
   document.getElementsByTagName('head')[0].appendChild(style);
+  // TODO: use epxo-font
+  var link = document.createElement('link');
+  link.setAttribute('rel', 'stylesheet');
+  link.setAttribute(
+    'href',
+    'https://fonts.googleapis.com/icon?family=Roboto+Condensed:400,700|Roboto:400,700;',
+  );
+
+  document.getElementsByTagName('head')[0].appendChild(link);
 }
 if (Platform.OS === 'web') {
-  fixOutlineCss();
+  webDomChanges();
 }
 
 // TODO: Hack to hide header to avoid double back buttons.
