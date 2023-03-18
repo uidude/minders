@@ -21,9 +21,6 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.uidude.minders",
       "config": {
-        "googleSignIn": {
-          "reservedClientId": "com.googleusercontent.apps.316194284018-4iucu1np3ngg7n3ngprre8iro04oe173"
-        },
         "usesNonExemptEncryption": false
       },
       "buildNumber": "2"
