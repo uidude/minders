@@ -12,11 +12,6 @@
     "android": "expo run:android"
   },
   "dependencies": {
-    "expo": "~47.0.12",
-    "expo-splash-screen": "~0.17.5",
-    "expo-status-bar": "~1.4.2",
-    "react": "18.1.0",
-    "react-native": "0.70.5",
     "//": "After here are copied from shell/latest",
     "@gorhom/bottom-sheet": "^4.4.5",
     "@miblanchard/react-native-slider": "^2.1.0",
@@ -25,6 +20,7 @@
     "@react-navigation/native": "^6.0.0",
     "@react-navigation/native-stack": "^6.4.1",
     "@react-navigation/stack": "^6.0.11",
+    "expo": "~47.0.12",
     "expo-auth-session": "~3.8.0",
     "expo-av": "~13.0.2",
     "expo-build-properties": "~0.4.1",
@@ -42,6 +38,8 @@
     "expo-modules-autolinking": "~1.0.0",
     "expo-notifications": "~0.17.0",
     "expo-random": "~13.0.0",
+    "expo-splash-screen": "~0.17.5",
+    "expo-status-bar": "~1.4.2",
     "expo-updates": "~0.15.6",
     "expo-web-browser": "~12.0.0",
     "firebase": "^8.2.3",
@@ -49,9 +47,12 @@
     "libphonenumber-js": "^1.9.49",
     "mime": "^3.0.0",
     "moti": "^0.17.1",
+    "react": "18.1.0",
     "react-dom": "18.1.0",
+    "react-native": "0.70.5",
     "react-native-gesture-handler": "~2.8.0",
     "react-native-get-random-values": "^1.8.0",
+    "react-native-markdown-display": "^6.1.6",
     "react-native-paper": "^4.8.1",
     "react-native-reanimated": "~2.12.0",
     "react-native-safe-area-context": "4.4.1",
@@ -65,7 +66,6 @@
     "uuid": "^3.4.0"
   },
   "devDependencies": {
-    "@npe-toolkit-tools": "file:../../npe-toolkit/tools",
     "@babel/core": "^7.18.5",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
@@ -76,6 +76,7 @@
     "@babel/plugin-transform-shorthand-properties": "^7.18.6",
     "@babel/plugin-transform-template-literals": "^7.18.9",
     "@expo/cli": "^0.3.2",
+    "@npe-toolkit-tools": "file:../../npe-toolkit/tools",
     "@types/react": "~18.0.14",
     "@types/react-native": "~0.69.1",
     "typescript": "^4.5.5"
