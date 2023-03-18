@@ -18,7 +18,6 @@ import {AppContextProvider} from '@toolkit/core/util/AppContext';
 import {filterHandledExceptions} from '@toolkit/core/util/Environment';
 import {FIRESTORE_DATASTORE} from '@toolkit/providers/firebase/DataStore';
 import {FIREBASE_LOGGER} from '@toolkit/providers/firebase/client/Logger';
-import {fbAuthProvider} from '@toolkit/providers/login/FacebookLogin';
 import {googleAuthProvider} from '@toolkit/providers/login/GoogleLogin';
 import {
   NavContext,
@@ -164,7 +163,6 @@ const APP_CONTEXT = [
 export default function App() {
   registerAppConfig(APP_CONFIG);
   initializeFirebase(FIREBASE_CONFIG);
-  IdentityService.addProvider(fbAuthProvider());
   IdentityService.addProvider(googleAuthProvider(GOOGLE_LOGIN_CONFIG));
   registerIconPack('ion', Ionicons);
   registerIconPack('mci', MaterialCommunityIcons);
