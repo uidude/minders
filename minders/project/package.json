@@ -1,5 +1,5 @@
 {
-  "name": "faves-template",
+  "name": "minders",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start --dev-client",
