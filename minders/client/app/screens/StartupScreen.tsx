@@ -53,12 +53,10 @@ const StartupScreen: Screen<{}> = () => {
   const dontAnimateNextTransition = useDontAnimate();
   const ctx = React.useContext(OutlinerContext);
 
-  // Disable animation from splash screen to app
-  React.useLayoutEffect(dontAnimateNextTransition);
-
   // Async initialization that occurs before redirecting to main app
   async function waitForInitialization() {
     if (appChecks.passed) {
+      dontAnimateNextTransition();
       const user = await auth.getLoggedInUser();
       if (user == null) {
         nav.reset(OutlineList);

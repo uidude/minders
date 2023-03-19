@@ -163,6 +163,13 @@ export default function App() {
     ROUTES,
     AppLayout,
     Stack.Screen,
+    {
+      modal: {
+        presentation: Platform.OS === 'web' ? 'transparentModal' : 'modal',
+      },
+      top: {animationEnabled: false},
+      std: {animationEnabled: false},
+    },
   );
 
   // For deep links
