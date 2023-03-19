@@ -239,9 +239,11 @@ function Header(props: LayoutProps) {
 
   return (
     <View style={S.topBar}>
-      <View style={S.row}>
+      <View style={[S.row, {flexShrink: 1}]}>
         <View style={S.row}>
-          <OutlineFocusPicker style={S.title} />
+          <View style={{flexShrink: 1, overflow: 'hidden'}}>
+            <OutlineFocusPicker style={S.title} />
+          </View>
           <Text style={S.title}>{' > '}</Text>
           <ActionMenu
             actions={viewMenuActions}

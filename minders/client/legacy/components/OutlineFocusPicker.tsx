@@ -56,7 +56,9 @@ function OutlineFocusPicker(props: {style?: StyleProp<TextStyle>}) {
       onDismiss={() => setMenuVisible(false)}
       anchor={
         <TouchableHighlight onPress={() => setMenuVisible(true)}>
-          <Text style={style}>{title}</Text>
+          <Text style={style} numberOfLines={1}>
+            {title}
+          </Text>
         </TouchableHighlight>
       }>
       {items.map((item, idx) => {
