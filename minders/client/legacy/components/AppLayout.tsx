@@ -224,7 +224,6 @@ function Header(props: LayoutProps) {
 
   const viewMenuActions = enumActions(ViewMenuItems, value => {
     const choice = viewMenuChoices()[value];
-    console.log(choice);
     nav.replace(choice.view, {focus});
     // TODO: This should probably be in URL?
     setOutlineState({filter: choice.filter});
