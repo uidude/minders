@@ -3,9 +3,10 @@
  */
 
 import React, {createContext} from 'react';
-import {useNavigation, useRoute} from '@react-navigation/native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
+import Promised from '@toolkit/core/util/Promised';
 import {Opt} from '@toolkit/core/util/Types';
+import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import OutlineStore from '../model/OutlineStore';
 import Outliner from '../model/outliner';
 import type {OutlineItem, OutlineItemVisibilityFilter} from '../model/outliner';
@@ -21,10 +22,9 @@ export function useOutlineState(): [
   OutlineState,
   (state: Partial<OutlineState>) => void,
 ] {
-  const nav = useNavigation();
+  const nav = useNav();
   const outliner = useOutliner();
-  const route = useRoute();
-  const params = route.params as Opt<OutlineState>;
+  const params = useNavState().location.params;
   const focus = params?.focus ?? -1;
   const filter = outliner.getData().ui?.visibilityFilter || 'focus';
   // This is internal functionality - should expose officially
@@ -44,8 +44,7 @@ export function useOutlineState(): [
         // TODO: Is this still needed?
         outliner.setFocusItem(outliner.getItem(newFocus, outliner.getData()));
         if (focus != newFocus) {
-          /* @ts-ignore */
-          nav.push(route.name, {focus: focusToSet});
+          nav.setParams({focus: focusToSet});
         }
       }
     });
@@ -100,6 +99,17 @@ export class OutlinerEnvironment {
       throw outlineStore.loadPromise;
     }
     return outlineStore.outliner;
+  }
+
+  getOutlinerPromise(userId: string): Promised<void> {
+    // Does nothing when called the 2nd+ time
+    this.init(userId);
+    const outlineStore = outlines[userId];
+
+    if (outlineStore.loading) {
+      return new Promised(outlineStore.loadPromise);
+    }
+    return new Promised(Promise.resolve());
   }
 }
 

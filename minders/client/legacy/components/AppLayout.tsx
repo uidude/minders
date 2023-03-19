@@ -5,7 +5,7 @@
 import * as React from 'react';
 import {ActivityIndicator, View} from 'react-native';
 import {ScrollView, StyleSheet, Text} from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 import {Appbar} from 'react-native-paper';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {canLoggingInFix} from '@toolkit/core/api/Auth';
@@ -13,7 +13,7 @@ import TriState from '@toolkit/core/client/TriState';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import LoginScreen from '@app/app/screens/LoginScreen';
-import {getItemUi, pathTo} from '../model/outliner';
+import {getItemUi} from '../model/outliner';
 import type {
   OutlineItemVisibilityFilter,
   OutlineViewType,
@@ -33,7 +33,10 @@ import {
 import {EnumConfig, EnumTextButton, enumActions} from './Enum';
 import {Messaging} from './Messaging';
 import OutlineFocusPicker from './OutlineFocusPicker';
+import OutlineList from './OutlineList';
+import OutlineTop from './OutlineTop';
 import {useOutlineState, useOutlineStore, useOutliner} from './OutlinerContext';
+import {useDontAnimate} from './Useful';
 
 export const Filters: EnumConfig<OutlineItemVisibilityFilter> = new Map([
   /*['top', { icon: 'star-outline', label: 'Starred' }],*/
@@ -55,25 +58,33 @@ const ViewTypes: EnumConfig<OutlineViewType> = new Map([
   ['outline', {icon: 'format-align-justify', label: 'List View', key: 'o'}],
 ]);
 
+type OutlineView =
+  | 'focus'
+  | 'review'
+  | 'pile'
+  | 'waiting'
+  | 'done'
+  | 'outline'
+  | 'outlineall';
+
 // New menu config for menu that selects filter *and* view
 type ViewMenuChoice = {
   filter: OutlineItemVisibilityFilter;
-  view: OutlineViewType;
+  view: typeof OutlineTop | typeof OutlineList;
 };
 
-const ViewMenuChoices: {[val: string]: ViewMenuChoice} = {
-  focus: {filter: 'focus', view: 'list'},
-  review: {filter: 'review', view: 'list'},
-  pile: {filter: 'pile', view: 'list'},
-  waiting: {filter: 'waiting', view: 'list'},
-  done: {filter: 'done', view: 'list'},
-  outline: {filter: 'notdone', view: 'outline'},
-  outlineall: {filter: 'all', view: 'outline'},
-};
+// Function for lazy loading of view types
+const viewMenuChoices = (): Record<OutlineView, ViewMenuChoice> => ({
+  focus: {filter: 'focus', view: OutlineList},
+  review: {filter: 'review', view: OutlineList},
+  pile: {filter: 'pile', view: OutlineList},
+  waiting: {filter: 'waiting', view: OutlineList},
+  done: {filter: 'done', view: OutlineList},
+  outline: {filter: 'notdone', view: OutlineTop},
+  outlineall: {filter: 'all', view: OutlineTop},
+});
 
-type ViewMenuEnum = keyof typeof ViewMenuChoices;
-
-export const ViewMenuItems: EnumConfig<ViewMenuEnum> = new Map([
+export const ViewMenuItems: EnumConfig<OutlineView> = new Map([
   ['focus', {icon: 'eye-outline', label: 'In Focus', key: 'f'}],
   ['review', {icon: 'timer', label: 'To review', key: 'r'}],
   [
@@ -89,10 +100,10 @@ export const ViewMenuItems: EnumConfig<ViewMenuEnum> = new Map([
   ],
 ]);
 
-function viewMenuEnumFor(
+function viewFor(
   view: string,
   filter: OutlineItemVisibilityFilter,
-): ViewMenuEnum {
+): OutlineView {
   if (view == 'outline') {
     if (filter == 'all') {
       return 'outlineall';
@@ -124,7 +135,7 @@ export default function Layout(props: LayoutProps) {
   const {children, loading, style, title = ''} = props;
   const loadingView = loading ?? SpinnerLoading;
   const route = useRoute();
-  const reactNav = useNavigation<any>();
+  const dontAnimateNextTransition = useDontAnimate();
   const nav = useNav();
   const navStyle = style?.nav ?? 'full';
   const navType = style?.type ?? 'std';
@@ -133,7 +144,7 @@ export default function Layout(props: LayoutProps) {
   function onError(err: Error) {
     // If you can fix the error by logging back in, redirect to login
     if (canLoggingInFix(err)) {
-      reactNav.setOptions({animationEnabled: false});
+      dontAnimateNextTransition();
       setTimeout(() => nav.reset(LoginScreen), 0);
     }
     return false;
@@ -178,7 +189,7 @@ function Header(props: LayoutProps) {
   const outlineUiState = getItemUi(outliner.getData());
   const filter = outlineUiState.visibilityFilter || 'focus';
   const route = useRoute();
-  const nav: any = useNavigation();
+  const nav = useNav();
 
   const view = route.name;
 
@@ -204,15 +215,19 @@ function Header(props: LayoutProps) {
   });
 
   const viewMenuActions = enumActions(ViewMenuItems, value => {
-    const newView = view == 'list' ? 'outline' : 'list';
-    const choice = ViewMenuChoices[value];
+    const choice = viewMenuChoices()[value];
+    console.log(choice);
+    nav.replace(choice.view, {focus});
+    // TODO: This should probably be in URL?
+    setOutlineState({filter: choice.filter});
+    /*
     if (route.name != choice.view) {
       nav.replace(choice.view, {focus});
     }
-    setOutlineState({filter: choice.filter});
+    */
   });
 
-  const viewMenuEnum = viewMenuEnumFor(route.name, filter);
+  const viewMenuEnum = viewFor(route.name, filter);
 
   return (
     <View style={S.topBar}>

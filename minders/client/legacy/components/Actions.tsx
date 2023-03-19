@@ -4,7 +4,6 @@
 
 import * as React from 'react';
 import {useContext} from 'react';
-import {useNavigation} from '@react-navigation/native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
 import {useNav} from '@toolkit/ui/screen/Nav';
@@ -12,6 +11,7 @@ import SettingsScreen from '@app/app/screens/SettingsScreen';
 import {getChildren} from '../model/outliner';
 import type {OutlineItem} from '../model/outliner';
 import {BinaryAlert} from './Alert';
+import OutlineMover from './OutlineMover';
 import OutlinerContext, {useOutlineState, useOutliner} from './OutlinerContext';
 import {Shortcuts, useShortcut} from './Shortcuts';
 import {batch} from './Useful';
@@ -194,14 +194,13 @@ export const Mover: Action = {
   icon: 'arrow-top-right',
   label: 'Move Item',
   handle: () => {
-    const nav = useNavigation();
+    const nav = useNav();
     const context = useContext(OutlinerContext);
     return () => {
       if (!context || !context.item) {
         return;
       }
-      /** @ts-ignore */
-      nav.push('mover', {focus: context.item.id});
+      nav.navTo(OutlineMover, {focus: context.item.id});
     };
   },
 };

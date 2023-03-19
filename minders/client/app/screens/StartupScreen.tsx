@@ -9,13 +9,15 @@
 
 import * as React from 'react';
 import {Image, Linking, StyleSheet, Text, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
 import Constants from 'expo-constants';
 import {useAuth} from '@toolkit/core/api/Auth';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {FIREBASE_CONFIG} from '@app/common/Config';
 import OutlineList from '@app/legacy/components/OutlineList';
+import OutlineTop from '@app/legacy/components/OutlineTop';
+import OutlinerContext from '@app/legacy/components/OutlinerContext';
+import {useDontAnimate} from '@app/legacy/components/Useful';
 import AppIcon from '../../assets/splash.png';
 
 /**
@@ -46,20 +48,30 @@ function newAppChecks() {
  */
 const StartupScreen: Screen<{}> = () => {
   const nav = useNav();
-  const reactNav = useNavigation<any>();
   const auth = useAuth();
   const appChecks = newAppChecks();
+  const dontAnimateNextTransition = useDontAnimate();
+  const ctx = React.useContext(OutlinerContext);
 
   // Disable animation from splash screen to app
-  React.useLayoutEffect(() => {
-    reactNav.setOptions({animation: 'none'});
-  }, [reactNav]);
+  React.useLayoutEffect(dontAnimateNextTransition);
 
   // Async initialization that occurs before redirecting to main app
   async function waitForInitialization() {
     if (appChecks.passed) {
-      await auth.getLoggedInUser();
-      nav.reset(OutlineList);
+      const user = await auth.getLoggedInUser();
+      if (user == null) {
+        nav.reset(OutlineList);
+        return;
+      }
+      await ctx.getOutlinerPromise(user.id);
+      const outliner = ctx.getOutliner(user.id);
+      // TODO: Remember last view?
+      const focusItem = outliner.getFocusItem();
+      const defaultFocusItem = outliner.getData();
+      const focus =
+        focusItem.id != defaultFocusItem.id ? focusItem.id : undefined;
+      nav.reset(OutlineTop, {focus});
     }
   }
 

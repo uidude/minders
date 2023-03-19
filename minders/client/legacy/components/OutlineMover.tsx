@@ -11,12 +11,12 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
 import {IconButton, Subheading} from 'react-native-paper';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
+import {useNav} from '@toolkit/ui/screen/Nav';
 import {getChildren, isParent, type OutlineItem} from '../model/outliner';
-import {useOutlineState, useOutliner} from './OutlinerContext';
+import {useOutliner} from './OutlinerContext';
 
 function getTree(item: Opt<OutlineItem>) {
   const tree = [];
@@ -39,16 +39,16 @@ function canOpen(item: OutlineItem, focus: OutlineItem) {
   return canBeOpened;
 }
 
-const OutlineMover = () => {
+type Props = {
+  focus: number;
+};
+
+const OutlineMover = (props: Props) => {
   requireLoggedInUser();
   const outliner = useOutliner();
-  const nav = useNavigation();
-  const [outlineState] = useOutlineState();
+  const nav = useNav();
 
-  const focus: OutlineItem = outliner.getItem(
-    outlineState.focus,
-    outliner.getData(),
-  );
+  const focus: OutlineItem = outliner.getItem(props.focus, outliner.getData());
   if (focus.parent == null) {
     throw new Error("Can't move top level");
   }
@@ -65,7 +65,7 @@ const OutlineMover = () => {
 
   function moveTo(to: OutlineItem) {
     outliner.move(focus, to);
-    nav.goBack();
+    nav.back();
   }
 
   const len = itemTree.length;

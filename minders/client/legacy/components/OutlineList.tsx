@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
+import {Screen} from '@toolkit/ui/screen/Screen';
 import * as OutlineState from '../model/OutlineState';
 import {
   getChildren,
@@ -191,7 +192,11 @@ function stableishList(newItems: OutlineItem[], oldItems: OutlineItem[]) {
   return newItems;
 }
 
-export default function OutlineList(props: {}) {
+type Props = {
+  focus?: number;
+};
+
+const OutlineList: Screen<Props> = props => {
   requireLoggedInUser();
   const outliner = useOutliner();
 
@@ -233,7 +238,9 @@ export default function OutlineList(props: {}) {
       ))}
     </View>
   );
-}
+};
+
+export default OutlineList;
 
 const S = StyleSheet.create({
   listItem: {

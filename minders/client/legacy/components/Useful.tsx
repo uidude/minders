@@ -3,6 +3,7 @@
  */
 
 import * as React from 'react';
+import {useNavigation} from '@react-navigation/native';
 import {unstable_batchedUpdates} from 'react-dom';
 
 // Consistent wrapper around batching to avoid exposing react
@@ -31,4 +32,12 @@ export async function rateLimit(
     lastBackupMsMap[key] = curTime;
     await fn();
   }
+}
+
+// Hook to get function to not animate next transition
+export function useDontAnimate() {
+  const reactNav = useNavigation<any>();
+  return () => {
+    reactNav.setOptions({animationEnabled: false});
+  };
 }
