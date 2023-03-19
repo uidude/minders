@@ -46,9 +46,7 @@ function OutlineFocusPicker(props: {style?: StyleProp<TextStyle>}) {
   });
 
   function focusSelected(item: OutlineItem) {
-    // REVIEW: This was causing warning, worked without but wasn't clear
-    // if we could rely on selecting closing
-    // setMenuVisible(false);
+    setMenuVisible(false);
     setTimeout(() => setOutlineState({focus: item.id}), 0);
   }
 
