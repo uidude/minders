@@ -45,6 +45,8 @@ export function useDontAnimate() {
 export function useSetPageTitle() {
   const reactNav = useNavigation();
   return (title: string) => {
-    reactNav.setOptions({title});
+    // Needs to be on timeout so it isn't called synchronously
+    // while rendering another component
+    setTimeout(() => reactNav.setOptions({title}), 0);
   };
 }
