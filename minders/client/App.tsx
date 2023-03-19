@@ -98,15 +98,6 @@ patchReactNativeWebViewCrash();
 
 filterHandledExceptions();
 
-export const Outline = OutlineTop; //outlineScreen(OutlineTop);
-export const List = OutlineList; //outlineScreen(OutlineList);
-export const Mover = OutlineMover; //outlineScreen(OutlineMover);
-
-// @ts-ignore
-Outline.title = 'Outline';
-// @ts-ignore
-List.title = 'List';
-
 // TODO: Move this some place useful
 function webDomChanges() {
   var style = document.createElement('style');
@@ -142,9 +133,9 @@ const ROUTES: Routes = {
   WebViewScreen,
   AboutScreen,
   NotificationSettingsScreen,
-  outline: Outline,
-  list: List,
-  mover: Mover,
+  outline: OutlineTop,
+  list: OutlineList,
+  mover: OutlineMover,
 };
 const Stack = createStackNavigator();
 

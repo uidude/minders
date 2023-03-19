@@ -11,7 +11,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {canLoggingInFix} from '@toolkit/core/api/Auth';
 import TriState from '@toolkit/core/client/TriState';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
-import {useNav} from '@toolkit/ui/screen/Nav';
+import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import LoginScreen from '@app/app/screens/LoginScreen';
 import {getItemUi} from '../model/outliner';
 import type {
@@ -191,6 +191,9 @@ function Header(props: LayoutProps) {
   const route = useRoute();
   const nav = useNav();
   const setPageTitle = useSetPageTitle();
+  const {
+    location: {screen},
+  } = useNavState();
 
   const view = route.name;
 
@@ -215,7 +218,9 @@ function Header(props: LayoutProps) {
     });
   });
 
-  setPageTitle(focusItem.text);
+  if (screen === OutlineTop || screen === OutlineList) {
+    setPageTitle(focusItem.text);
+  }
 
   const viewMenuActions = enumActions(ViewMenuItems, value => {
     const choice = viewMenuChoices()[value];

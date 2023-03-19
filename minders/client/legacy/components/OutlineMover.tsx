@@ -109,6 +109,8 @@ const OutlineMover = (props: Props) => {
   );
 };
 
+OutlineMover.title = 'Move item';
+
 const MoveIt = (props: {onPress: () => void}) => {
   return (
     <IconButton
