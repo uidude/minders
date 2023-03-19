@@ -47,6 +47,7 @@ const OutlineTop: Screen<Props> = props => {
     </View>
   );
 };
+OutlineTop.title = 'Minders';
 
 export default OutlineTop;
 

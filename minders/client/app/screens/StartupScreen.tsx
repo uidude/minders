@@ -121,6 +121,7 @@ const StartupScreen: Screen<{}> = () => {
     </View>
   );
 };
+StartupScreen.title = 'Minders';
 StartupScreen.style = {nav: 'none'};
 
 const S = StyleSheet.create({
