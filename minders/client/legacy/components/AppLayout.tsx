@@ -3,7 +3,7 @@
  */
 
 import * as React from 'react';
-import {ActivityIndicator, View} from 'react-native';
+import {ActivityIndicator, Platform, View} from 'react-native';
 import {ScrollView, StyleSheet, Text} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import {Appbar} from 'react-native-paper';
@@ -36,7 +36,7 @@ import OutlineFocusPicker from './OutlineFocusPicker';
 import OutlineList from './OutlineList';
 import OutlineTop from './OutlineTop';
 import {useOutlineState, useOutlineStore, useOutliner} from './OutlinerContext';
-import {useDontAnimate} from './Useful';
+import {useDontAnimate, useSetPageTitle} from './Useful';
 
 export const Filters: EnumConfig<OutlineItemVisibilityFilter> = new Map([
   /*['top', { icon: 'star-outline', label: 'Starred' }],*/
@@ -190,6 +190,7 @@ function Header(props: LayoutProps) {
   const filter = outlineUiState.visibilityFilter || 'focus';
   const route = useRoute();
   const nav = useNav();
+  const setPageTitle = useSetPageTitle();
 
   const view = route.name;
 
@@ -213,6 +214,8 @@ function Header(props: LayoutProps) {
       text: 'Failure saving outline - please reload.',
     });
   });
+
+  setPageTitle(focusItem.text);
 
   const viewMenuActions = enumActions(ViewMenuItems, value => {
     const choice = viewMenuChoices()[value];

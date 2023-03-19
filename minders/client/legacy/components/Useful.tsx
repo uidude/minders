@@ -41,3 +41,10 @@ export function useDontAnimate() {
     reactNav.setOptions({animationEnabled: false});
   };
 }
+
+export function useSetPageTitle() {
+  const reactNav = useNavigation();
+  return (title: string) => {
+    reactNav.setOptions({title});
+  };
+}
