@@ -37,15 +37,14 @@ export function useOutlineState(): [
         outliner.setVisibilityFilter(state.filter);
         forceUpdate();
       }
-      if (state.focus != null) {
-        const newFocus = state.focus;
-        const defaultFocus = outliner.getData().id;
-        const focusToSet = newFocus != defaultFocus ? newFocus : undefined;
-        // TODO: Is this still needed?
+
+      const newFocus = state.focus;
+      const defaultFocus = outliner.getData().id;
+      const focusToSet = newFocus != defaultFocus ? newFocus : undefined;
+      // Needed to save focus state
+      if (focus != newFocus) {
         outliner.setFocusItem(outliner.getItem(newFocus, outliner.getData()));
-        if (focus != newFocus) {
-          nav.setParams({focus: focusToSet});
-        }
+        nav.setParams({focus: focusToSet});
       }
     });
   }

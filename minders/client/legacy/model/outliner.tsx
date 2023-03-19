@@ -553,7 +553,10 @@ export default class Outliner {
     }
   }
 
-  getItem(itemId: number, defaultItem: OutlineItem): OutlineItem {
+  getItem(itemId: Opt<number>, defaultItem: OutlineItem): OutlineItem {
+    if (itemId == null) {
+      return defaultItem;
+    }
     return this.itemMap[itemId] || defaultItem;
   }
 
