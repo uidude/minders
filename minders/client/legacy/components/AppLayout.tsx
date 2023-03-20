@@ -173,7 +173,7 @@ export default function Layout(props: LayoutProps) {
           <ActionFAB style={S.fab} small action={NewItem} />
         </TriState>
       )}
-      <ScrollView style={S.scroll} contentContainerStyle={{flex: 1}}>
+      <ScrollView style={S.scroll} contentContainerStyle={S.content}>
         <TriState key={key} onError={onError} loadingView={loadingView}>
           <View style={{flex: 1}}>{children}</View>
         </TriState>
@@ -287,6 +287,25 @@ function Empty() {
   return <View style={{width: 0, height: 0}} />;
 }
 
+function getDeviceType() {
+  const ua = navigator.userAgent;
+  if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+    return 'tablet';
+  }
+  if (
+    /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(
+      ua,
+    )
+  ) {
+    return 'mobile';
+  }
+  return 'desktop';
+}
+
+function isMobile() {
+  return Platform.OS !== 'web' || getDeviceType() === 'mobile';
+}
+
 // TODO: Add action button styles
 const S = StyleSheet.create({
   action: {opacity: 0.5},
@@ -306,10 +325,12 @@ const S = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   scroll: {
-    borderBottomWidth: 1,
-    borderRightWidth: 1,
-    borderLeftWidth: 1,
-    borderColor: '#123',
+    backgroundColor: '#FFF',
+    borderBottomWidth: isMobile() ? 1 : 0,
+    borderColor: '#385078',
+  },
+  content: {
+    flex: 1,
   },
   topBar: {
     backgroundColor: '#123',
@@ -319,6 +340,8 @@ const S = StyleSheet.create({
     paddingLeft: 16,
     paddingRight: 4,
     elevation: 4,
+    borderTopWidth: isMobile() ? 1 : 0,
+    borderColor: '#385078',
     justifyContent: 'space-between',
   },
   row: {
@@ -360,8 +383,8 @@ const S = StyleSheet.create({
   top: {
     flex: 1,
     alignSelf: 'stretch',
-    backgroundColor: '#FFF',
-    borderRadius: 24,
+    backgroundColor: '#123',
+    borderRadius: isMobile() ? 0 : 24,
     shadowColor: '#C0C0C0',
     shadowRadius: 4,
     overflow: 'hidden',

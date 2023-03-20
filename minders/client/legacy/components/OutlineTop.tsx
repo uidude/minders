@@ -66,10 +66,6 @@ export function NoChildren(props: {item: OutlineItem}) {
 
 const S = StyleSheet.create({
   frame: {
-    borderBottomWidth: 1,
-    borderRightWidth: 1,
-    borderLeftWidth: 1,
-    borderColor: '#123',
     flex: 1,
   },
 });
