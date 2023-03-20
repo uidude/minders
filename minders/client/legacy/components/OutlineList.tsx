@@ -236,7 +236,7 @@ const OutlineList: Screen<Props> = props => {
   }
 
   return (
-    <View style={{height: 500}}>
+    <View>
       {orderedItems.map((item, idx) => (
         <OutlineListItem
           item={item}

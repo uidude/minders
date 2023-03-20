@@ -3,7 +3,12 @@
  */
 
 import * as React from 'react';
-import {ActivityIndicator, Platform, View} from 'react-native';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  View,
+} from 'react-native';
 import {ScrollView, StyleSheet, Text} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import {Appbar} from 'react-native-paper';
@@ -166,18 +171,23 @@ export default function Layout(props: LayoutProps) {
 
   return (
     <SafeAreaView style={S.top}>
-      {navStyle === 'full' && (
-        // TODO: Should show action bar while loading
-        <TriState loadingView={Empty} errorView={Empty}>
-          <Header {...props} />
-          <ActionFAB style={S.fab} small action={NewItem} />
-        </TriState>
-      )}
-      <ScrollView style={S.scroll} contentContainerStyle={S.content}>
-        <TriState key={key} onError={onError} loadingView={loadingView}>
-          <View style={{flex: 1}}>{children}</View>
-        </TriState>
-      </ScrollView>
+      <KeyboardAvoidingView
+        style={{flex: 1}}
+        behavior="position"
+        contentContainerStyle={{flex: 1}}>
+        {navStyle === 'full' && (
+          // TODO: Should show action bar while loading
+          <TriState loadingView={Empty} errorView={Empty}>
+            <Header {...props} />
+            <ActionFAB style={S.fab} small action={NewItem} />
+          </TriState>
+        )}
+        <ScrollView style={S.scroll} contentContainerStyle={S.content}>
+          <TriState key={key} onError={onError} loadingView={loadingView}>
+            <View style={{flex: 1}}>{children}</View>
+          </TriState>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -329,9 +339,7 @@ const S = StyleSheet.create({
     borderBottomWidth: isMobile() ? 1 : 0,
     borderColor: '#385078',
   },
-  content: {
-    flex: 1,
-  },
+  content: {},
   topBar: {
     backgroundColor: '#123',
     height: 56,
