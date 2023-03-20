@@ -72,7 +72,6 @@ function Expando(props: {
     if (animating && contentHeightRef.current != 0) {
       const contentHeight = contentHeightRef.current;
       height.setValue(openState ? contentHeight : 0);
-      console.log('animating', contentHeightRef, open, openState);
       Animated.timing(height, {
         toValue: open ? contentHeight : 0,
         duration: Math.max(200 + 2 * contentHeight, 1200),
