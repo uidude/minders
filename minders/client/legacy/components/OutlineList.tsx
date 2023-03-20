@@ -37,7 +37,7 @@ import OutlinerContext, {
   useOutliner,
 } from './OutlinerContext';
 import {useShortcut} from './Shortcuts';
-import {useForceUpdate} from './Useful';
+import {textInputSelect, useForceUpdate} from './Useful';
 
 function cursorStyle(cursor: Opt<String>): StyleProp<TextStyle> {
   /** @ts-ignore */
@@ -57,37 +57,31 @@ export function OutlineListItem(props: {
 }) {
   const {item, listItem, prev, style} = props;
   const outliner = useOutliner();
-  const [text, setText] = React.useState(item.text);
+  const [value, setValue] = React.useState(item.text);
+  const [active, setActive] = React.useState(false);
   OutlineUtil.useRedrawOnItemUpdate(item.id);
+  const forceUpdate = useForceUpdate();
 
   const isSel = OutlineState.isSelected(item);
-  const selection = isSel ? OutlineState.getSelection() : {start: 0, end: 0};
   const cursor = isSel ? null : 'default';
   const ctx = itemContext(item);
   const inputRef = React.useRef<TextInput>();
-  const forceUpdate = useForceUpdate();
 
   function backspace() {
-    if (text == '' && isChild(item)) {
-      outliner.deleteItem(item);
-      if (prev) {
-        OutlineState.setSelection(prev, {
-          start: prev.text.length,
-          end: prev.text.length,
-        });
-      } else {
-        OutlineState.clearSelection();
-      }
+    if (value == '' && isChild(item)) {
+      outliner.deleteItem(item, true, prev);
       listItem && outliner.touch(listItem);
+      forceUpdate();
       return false;
     }
     return true;
   }
 
   function enter() {
-    var beforeText = text.substring(0, selection.start) || '';
-    var afterText = text.substring(selection.start) || '';
-    setText(beforeText);
+    const selection = OutlineState.getSelection();
+    var beforeText = value.substring(0, selection.start) || '';
+    var afterText = value.substring(selection.start) || '';
+    setValue(beforeText);
     const after = listItem || item;
     outliner.createItemAfter(lastChild(after), afterText);
     listItem && outliner.touch(listItem);
@@ -101,34 +95,50 @@ export function OutlineListItem(props: {
   function onSelectionChange(
     e: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
   ) {
-    OutlineState.setSelection(item, {...e.nativeEvent.selection});
-    // There should be a better way here but we don't want to trigger
-    // all updates on this item
-    forceUpdate();
-  }
-
-  function commit() {
-    if (OutlineState.isSelected(item)) {
-      OutlineState.clearSelection();
-    }
-    outliner.updateOutlineItem(item, {text});
-  }
-
-  function focus() {
-    if (!OutlineState.isSelected(item)) {
-      OutlineState.setSelection(item);
+    if (active) {
+      OutlineState.setSelection(item, {...e.nativeEvent.selection});
     }
   }
 
-  function setInput(input: TextInput) {
-    if (input && isSel) {
-      input.focus();
+  function checkNewSelection() {
+    const newSelection = OutlineState.shouldSelectText(item);
+    // We select twice to capture before and after the auto selection
+    function selector() {
+      if (newSelection && inputRef.current) {
+        textInputSelect(inputRef.current, newSelection);
+      }
     }
+    selector();
+    setTimeout(selector, 10);
+  }
+
+  function onBlur() {
+    OutlineState.clearSelection();
+    setActive(false);
+    const trimmed = value.trim();
+    outliner.updateOutlineItem(item, {state: item.state, text: trimmed});
+    setValue(trimmed);
+  }
+
+  function onFocus() {
+    checkNewSelection();
+    OutlineState.setSelection(item);
+    setActive(true);
+  }
+
+  const setInput = (input: TextInput) => {
     inputRef.current = input;
-  }
+    if (input && OutlineState.isSelected(item)) {
+      if (active) {
+        checkNewSelection();
+      } else {
+        input.focus();
+      }
+    }
+  };
 
   function submit() {
-    // Just blur it
+    // This will commit values
     inputRef.current?.blur();
   }
 
@@ -140,15 +150,15 @@ export function OutlineListItem(props: {
         </View>
         <View style={{flex: 1, paddingLeft: 2, alignSelf: 'center'}}>
           <TextInput
-            value={text}
+            value={value}
             style={[S.listItemText, cursorStyle(cursor)]}
-            onChangeText={val => setText(val)}
-            onBlur={commit}
-            onFocus={focus}
-            onSubmitEditing={commit}
+            onChangeText={val => setValue(val)}
+            onBlur={onBlur}
+            onFocus={onFocus}
+            onSubmitEditing={submit}
             onSelectionChange={onSelectionChange}
-            selection={selection}
             ref={setInput}
+            selectTextOnFocus={true}
           />
           <Text style={S.parent}>{pathTo(outliner, item.parent)}</Text>
         </View>

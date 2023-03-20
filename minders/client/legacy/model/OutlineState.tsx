@@ -97,3 +97,24 @@ export function isSelected(item: OutlineItem): boolean {
 export function getSelection(): Selection {
   return selection;
 }
+
+let itemToSelect: Opt<OutlineItem>;
+let toSelect: Opt<Selection>;
+
+// Select text
+// Text inputs will check this on every render, and the `fire` triggers a re-render
+export function selectText(item: OutlineItem, sel: Selection) {
+  setSelection(item, sel);
+  itemToSelect = item;
+  toSelect = sel;
+  fire(itemKey(itemToSelect.id));
+}
+
+// Get text to select, and clears if found
+export function shouldSelectText(item: OutlineItem): Opt<Selection> {
+  if (item.id === itemToSelect?.id) {
+    itemToSelect = null;
+    return toSelect;
+  }
+  return null;
+}

@@ -340,7 +340,7 @@ export default class Outliner {
     return this.focusItem || this.data;
   }
 
-  deleteItem(item: OutlineItem, save: boolean = true) {
+  deleteItem(item: OutlineItem, save: boolean = true, toSelect?: OutlineItem) {
     if (!item.parent || !item.parent.sub) {
       return;
     }
@@ -349,10 +349,10 @@ export default class Outliner {
     var index = subs.indexOf(item);
 
     if (OutlineState.isSelected(item)) {
-      const prevItem = this.firstVisibleItemBefore(item);
+      const prevItem = toSelect ?? this.firstVisibleItemBefore(item);
       if (prevItem) {
         const len = prevItem.text?.length || 0;
-        OutlineState.setSelection(prevItem, {start: len, end: len});
+        OutlineState.selectText(prevItem, {start: len, end: len});
       }
     }
 
@@ -398,7 +398,7 @@ export default class Outliner {
       getItemUi(newItem).hidden = this._isHidden(newItem);
       subs.splice(index + 1, 0, newItem);
       this.itemMap[newItem.id] = newItem;
-      OutlineState.setSelection(newItem, {start: 0, end: 0});
+      OutlineState.selectText(newItem, {start: 0, end: 0});
 
       if (save) {
         this.save();
