@@ -64,7 +64,6 @@ import DevSettings from './app/screens/DevSettings';
 import EditProfile from './app/screens/EditProfile';
 import Onboarding from './app/screens/Onboarding';
 import AppLayout from './legacy/components/AppLayout';
-import {MessagingTool} from './legacy/components/Messaging';
 import OutlineList from './legacy/components/OutlineList';
 import OutlineMover from './legacy/components/OutlineMover';
 import OutlineTop from './legacy/components/OutlineTop';
@@ -170,7 +169,7 @@ export default function App() {
     <AppContextProvider ctx={APP_CONTEXT}>
       <PaperProvider theme={BLACK_AND_WHITE} settings={{icon: Icon}}>
         <StatusContainer top={true}>
-          <UsingUiTools tools={[MessagingTool, ShortcutTool, WaitDialogTool]}>
+          <UsingUiTools tools={[ShortcutTool, WaitDialogTool]}>
             <AuthConfig>
               <View style={S.background}>
                 <SafeAreaProvider style={S.container}>

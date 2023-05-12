@@ -16,7 +16,10 @@ import {useRoute} from '@react-navigation/native';
 import {Appbar} from 'react-native-paper';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {canLoggingInFix} from '@toolkit/core/api/Auth';
+import {useStatus} from '@toolkit/core/client/Status';
 import TriState from '@toolkit/core/client/TriState';
+import {AdhocError, CodedError} from '@toolkit/core/util/CodedError';
+import {GenericError} from '@toolkit/tbd/CommonErrors';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import LoginScreen from '@app/app/screens/LoginScreen';
@@ -203,6 +206,7 @@ function Header(props: LayoutProps) {
   const route = useRoute();
   const nav = useNav();
   const setPageTitle = useSetPageTitle();
+  const {setError} = useStatus();
   const {
     location: {screen},
   } = useNavState();
@@ -221,13 +225,8 @@ function Header(props: LayoutProps) {
     actionMenuItems.splice(0, 0, Up);
   }
 
-  const messaging = Messaging.get();
-
   loader.setErrorReporter((e: Error) => {
-    messaging.showMessage({
-      type: 'error',
-      text: 'Failure saving outline - please reload.',
-    });
+    setError(AdhocError('Failure saving outline - please reload.'));
   });
 
   if (screen === OutlineTop || screen === OutlineList) {
