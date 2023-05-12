@@ -17,27 +17,27 @@ import {
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import * as OutlineState from '../model/OutlineState';
+import ActionMenu, {VerticalDots} from '../../legacy/components/ActionMenu';
+import {Bump, Delete, Mover, Snooze} from '../../legacy/components/Actions';
+import {EditableStatus} from '../../legacy/components/EditableStatus';
+import OutlineStyles from '../../legacy/components/OutlineStyles';
+import OutlineUtil from '../../legacy/components/OutlineUtil';
+import OutlinerContext, {
+  itemContext,
+  useOutlineState,
+  useOutliner,
+} from '../../legacy/components/OutlinerContext';
+import {useShortcut} from '../../legacy/components/Shortcuts';
+import {textInputSelect, useForceUpdate} from '../../legacy/components/Useful';
+import * as OutlineState from '../../legacy/model/OutlineState';
 import {
   getChildren,
   hasVisibleKids,
   isChild,
   pathTo,
   type OutlineItem,
-} from '../model/outliner';
-import ActionMenu, {VerticalDots} from './ActionMenu';
-import {Bump, Delete, Mover, Snooze} from './Actions';
-import {EditableStatus} from './EditableStatus';
-import OutlineStyles from './OutlineStyles';
+} from '../../legacy/model/outliner';
 import {NoChildren} from './OutlineTop';
-import OutlineUtil from './OutlineUtil';
-import OutlinerContext, {
-  itemContext,
-  useOutlineState,
-  useOutliner,
-} from './OutlinerContext';
-import {useShortcut} from './Shortcuts';
-import {textInputSelect, useForceUpdate} from './Useful';
 
 function cursorStyle(cursor: Opt<String>): StyleProp<TextStyle> {
   /** @ts-ignore */

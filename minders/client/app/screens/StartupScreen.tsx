@@ -14,9 +14,9 @@ import Constants from 'expo-constants';
 import {useAuth} from '@toolkit/core/api/Auth';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
+import OutlineList from '@app/app/screens/OutlineList';
+import OutlineTop from '@app/app/screens/OutlineTop';
 import {FIREBASE_CONFIG} from '@app/common/Config';
-import OutlineList from '@app/legacy/components/OutlineList';
-import OutlineTop from '@app/legacy/components/OutlineTop';
 import OutlinerContext from '@app/legacy/components/OutlinerContext';
 import {useDontAnimate} from '@app/legacy/components/Useful';
 

@@ -18,19 +18,13 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {canLoggingInFix} from '@toolkit/core/api/Auth';
 import {useStatus} from '@toolkit/core/client/Status';
 import TriState from '@toolkit/core/client/TriState';
-import {AdhocError, CodedError} from '@toolkit/core/util/CodedError';
-import {GenericError} from '@toolkit/tbd/CommonErrors';
+import {AdhocError} from '@toolkit/core/util/CodedError';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import LoginScreen from '@app/app/screens/LoginScreen';
-import type {
-  OutlineItemVisibilityFilter,
-  OutlineViewType,
-} from '../model/outliner';
-import {getItemUi} from '../model/outliner';
-import ActionButton from './ActionButton';
-import ActionFAB from './ActionFAB';
-import ActionMenu, {VerticalDots} from './ActionMenu';
+import ActionButton from '../legacy/components/ActionButton';
+import ActionFAB from '../legacy/components/ActionFAB';
+import ActionMenu, {VerticalDots} from '../legacy/components/ActionMenu';
 import {
   Collapse,
   Expand,
@@ -39,14 +33,26 @@ import {
   NewItem,
   Up,
   type Action,
-} from './Actions';
-import {EnumConfig, EnumTextButton, enumActions} from './Enum';
-import {Messaging} from './Messaging';
-import OutlineFocusPicker from './OutlineFocusPicker';
-import OutlineList from './OutlineList';
-import OutlineTop from './OutlineTop';
-import {useOutlineState, useOutlineStore, useOutliner} from './OutlinerContext';
-import {useDontAnimate, useSetPageTitle} from './Useful';
+} from '../legacy/components/Actions';
+import {
+  EnumConfig,
+  EnumTextButton,
+  enumActions,
+} from '../legacy/components/Enum';
+import OutlineFocusPicker from '../legacy/components/OutlineFocusPicker';
+import {
+  useOutlineState,
+  useOutlineStore,
+  useOutliner,
+} from '../legacy/components/OutlinerContext';
+import {useDontAnimate, useSetPageTitle} from '../legacy/components/Useful';
+import type {
+  OutlineItemVisibilityFilter,
+  OutlineViewType,
+} from '../legacy/model/outliner';
+import {getItemUi} from '../legacy/model/outliner';
+import OutlineList from './screens/OutlineList';
+import OutlineTop from './screens/OutlineTop';
 
 export const Filters: EnumConfig<OutlineItemVisibilityFilter> = new Map([
   /*['top', { icon: 'star-outline', label: 'Starred' }],*/

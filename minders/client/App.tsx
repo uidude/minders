@@ -60,13 +60,13 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 /**
  * TODO: Move this to FirebasePhoneUtils, as that is the proximate use case that is most important
  */
+import AppLayout from './app/AppLayout';
 import DevSettings from './app/screens/DevSettings';
 import EditProfile from './app/screens/EditProfile';
 import Onboarding from './app/screens/Onboarding';
-import AppLayout from './legacy/components/AppLayout';
-import OutlineList from './legacy/components/OutlineList';
-import OutlineMover from './legacy/components/OutlineMover';
-import OutlineTop from './legacy/components/OutlineTop';
+import OutlineList from './app/screens/OutlineList';
+import OutlineMover from './app/screens/OutlineMover';
+import OutlineTop from './app/screens/OutlineTop';
 import {ShortcutTool} from './legacy/components/Shortcuts';
 import {UsingUiTools} from './legacy/components/UiTools';
 import {WaitDialogTool} from './legacy/components/WaitDialog';
