@@ -201,7 +201,10 @@ const S = StyleSheet.create({
     maxWidth: 800,
   },
   messaging: {
-    bottom: 100,
+    bottom: 24,
+    backgroundColor: '#E00000',
+    borderRadius: 24,
+    marginHorizontal: 60,
   },
   background: {flex: 1, backgroundColor: '#202020'},
 });
