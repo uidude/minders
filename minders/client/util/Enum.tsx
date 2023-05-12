@@ -16,8 +16,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import {unstable_batchedUpdates} from 'react-dom';
-import {type Action} from './Actions';
-import {IconButton, Menu} from './AppComponents';
+import {type Action} from '@app/components/Actions';
+import {IconButton, Menu} from '../components/AppComponents';
 import {useShortcut} from './Shortcuts';
 
 type Config = {icon: string; label: string; key?: string | string[]};

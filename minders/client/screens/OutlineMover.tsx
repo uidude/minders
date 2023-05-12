@@ -15,12 +15,8 @@ import {IconButton, Subheading} from 'react-native-paper';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
 import {useNav} from '@toolkit/ui/screen/Nav';
-import {useOutliner} from '../../legacy/components/OutlinerContext';
-import {
-  getChildren,
-  isParent,
-  type OutlineItem,
-} from '../../legacy/model/outliner';
+import {useOutliner} from '../model/OutlinerContext';
+import {getChildren, isParent, type OutlineItem} from '../model/outliner';
 
 function getTree(item: Opt<OutlineItem>) {
   const tree = [];

@@ -4,9 +4,9 @@
 
 import {useEffect} from 'react';
 import {Opt} from '@toolkit/core/util/Types';
-import * as OutlineState from '../model/OutlineState';
+import {useForceUpdate} from '../util/Useful';
+import * as OutlineState from './OutlineState';
 import {useOutliner} from './OutlinerContext';
-import {useForceUpdate} from './Useful';
 
 function useRedrawOnItemUpdate(itemId: number | Array<Opt<number>>) {
   const forceUpdate = useForceUpdate();

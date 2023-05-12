@@ -7,10 +7,10 @@ import {requireLoggedInUser} from '@toolkit/core/api/User';
 import Promised from '@toolkit/core/util/Promised';
 import {Opt} from '@toolkit/core/util/Types';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
-import OutlineStore from '../model/OutlineStore';
-import Outliner from '../model/outliner';
-import type {OutlineItem, OutlineItemVisibilityFilter} from '../model/outliner';
-import {batch, useForceUpdate} from './Useful';
+import {batch, useForceUpdate} from '../util/Useful';
+import OutlineStore from './OutlineStore';
+import type {OutlineItem, OutlineItemVisibilityFilter} from './outliner';
+import Outliner from './outliner';
 
 export type OutlineState = {
   focus: number;

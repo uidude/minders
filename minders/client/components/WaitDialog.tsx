@@ -7,8 +7,8 @@ import {StyleSheet, View} from 'react-native';
 import {Button, Dialog, Portal} from 'react-native-paper';
 import {Opt} from '@toolkit/core/util/Types';
 import Outliner, {type OutlineItem} from '../model/outliner';
-import {useShortcut} from './Shortcuts';
-import {useUiTool, type UiTool} from './UiTools';
+import {useShortcut} from '../util/Shortcuts';
+import {useUiTool, type UiTool} from '../util/UiTools';
 
 type SnoozeUnit = 'days' | 'hours';
 

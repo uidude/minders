@@ -4,7 +4,7 @@
 
 import {TestNotif} from '@app/common/Api';
 import {Profile} from '@app/common/DataTypes';
-import {registerForPushNotificationsAsync} from '@app/lib/Notifications';
+import {registerForPushNotificationsAsync} from '@app/util/Notifications';
 import {useApi} from '@toolkit/core/api/DataApi';
 import {eventToString, getDevLogs} from '@toolkit/core/api/Log';
 import {User, requireLoggedInUser} from '@toolkit/core/api/User';

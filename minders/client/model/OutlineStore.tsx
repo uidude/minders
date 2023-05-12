@@ -3,12 +3,11 @@
  */
 
 import firebase from 'firebase/app';
-import 'firebase/database';
-import {rateLimit} from '../components/Useful';
-import {INITIAL_OUTLINE} from './InitialOutline';
-import {type Outline} from './outliner';
-import Outliner from './outliner';
 import 'firebase/auth';
+import 'firebase/database';
+import {rateLimit} from '../util/Useful';
+import {INITIAL_OUTLINE} from './InitialOutline';
+import Outliner, {type Outline} from './outliner';
 
 const APP_DB_FOLDER = __DEV__ ? 'outliner-testing/' : 'outlinerv1/';
 

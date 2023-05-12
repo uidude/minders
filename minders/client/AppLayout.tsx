@@ -21,10 +21,9 @@ import TriState from '@toolkit/core/client/TriState';
 import {AdhocError} from '@toolkit/core/util/CodedError';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
-import LoginScreen from '@app/app/screens/LoginScreen';
-import ActionButton from '../legacy/components/ActionButton';
-import ActionFAB from '../legacy/components/ActionFAB';
-import ActionMenu, {VerticalDots} from '../legacy/components/ActionMenu';
+import ActionButton from '@app/components/ActionButton';
+import ActionFAB from '@app/components/ActionFAB';
+import ActionMenu, {VerticalDots} from '@app/components/ActionMenu';
 import {
   Collapse,
   Expand,
@@ -33,26 +32,23 @@ import {
   NewItem,
   Up,
   type Action,
-} from '../legacy/components/Actions';
-import {
-  EnumConfig,
-  EnumTextButton,
-  enumActions,
-} from '../legacy/components/Enum';
-import OutlineFocusPicker from '../legacy/components/OutlineFocusPicker';
+} from '@app/components/Actions';
+import OutlineFocusPicker from '@app/components/OutlineFocusPicker';
 import {
   useOutlineState,
   useOutlineStore,
   useOutliner,
-} from '../legacy/components/OutlinerContext';
-import {useDontAnimate, useSetPageTitle} from '../legacy/components/Useful';
+} from '@app/model/OutlinerContext';
 import type {
   OutlineItemVisibilityFilter,
   OutlineViewType,
-} from '../legacy/model/outliner';
-import {getItemUi} from '../legacy/model/outliner';
-import OutlineList from './screens/OutlineList';
-import OutlineTop from './screens/OutlineTop';
+} from '@app/model/outliner';
+import {getItemUi} from '@app/model/outliner';
+import LoginScreen from '@app/screens/LoginScreen';
+import OutlineList from '@app/screens/OutlineList';
+import OutlineTop from '@app/screens/OutlineTop';
+import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
+import {useDontAnimate, useSetPageTitle} from './util/Useful';
 
 export const Filters: EnumConfig<OutlineItemVisibilityFilter> = new Map([
   /*['top', { icon: 'star-outline', label: 'Starred' }],*/

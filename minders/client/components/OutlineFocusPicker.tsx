@@ -4,10 +4,10 @@
 
 import * as React from 'react';
 import {StyleProp, Text, TextStyle, TouchableHighlight} from 'react-native';
+import {useOutlineState, useOutliner} from '../model/OutlinerContext';
 import {OutlineItem} from '../model/outliner';
+import {useShortcut} from '../util/Shortcuts';
 import {Menu} from './AppComponents';
-import {useOutlineState, useOutliner} from './OutlinerContext';
-import {useShortcut} from './Shortcuts';
 
 function OutlineFocusPicker(props: {style?: StyleProp<TextStyle>}) {
   const {style} = props;

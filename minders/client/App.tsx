@@ -40,16 +40,16 @@ import {Icon, registerIconPack} from '@toolkit/ui/components/Icon';
 import {usePaperComponents} from '@toolkit/ui/components/Paper';
 import {Routes} from '@toolkit/ui/screen/Nav';
 import WebViewScreen from '@toolkit/ui/screen/WebScreen';
-import AuthConfig from '@app/app/AuthConfig';
-import AboutScreen from '@app/app/screens/AboutScreen';
-import LoginScreen from '@app/app/screens/LoginScreen';
-import SettingsScreen from '@app/app/screens/SettingsScreen';
-import StartupScreen from '@app/app/screens/StartupScreen';
+import AuthConfig from '@app/AuthConfig';
 import {
   CLIENT_FALLBACK_ENABLED,
   FIREBASE_CONFIG,
   GOOGLE_LOGIN_CONFIG,
 } from '@app/common/Config';
+import AboutScreen from '@app/screens/AboutScreen';
+import LoginScreen from '@app/screens/LoginScreen';
+import SettingsScreen from '@app/screens/SettingsScreen';
+import StartupScreen from '@app/screens/StartupScreen';
 import 'expo-dev-client';
 import React from 'react';
 import {Platform, StyleSheet, View} from 'react-native';
@@ -60,17 +60,17 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 /**
  * TODO: Move this to FirebasePhoneUtils, as that is the proximate use case that is most important
  */
-import AppLayout from './app/AppLayout';
-import DevSettings from './app/screens/DevSettings';
-import EditProfile from './app/screens/EditProfile';
-import Onboarding from './app/screens/Onboarding';
-import OutlineList from './app/screens/OutlineList';
-import OutlineMover from './app/screens/OutlineMover';
-import OutlineTop from './app/screens/OutlineTop';
-import {ShortcutTool} from './legacy/components/Shortcuts';
-import {UsingUiTools} from './legacy/components/UiTools';
-import {WaitDialogTool} from './legacy/components/WaitDialog';
-import {APP_CONFIG, APP_INFO, NOTIF_CHANNELS_CONTEXT} from './lib/Config';
+import AppLayout from '@app/AppLayout';
+import {APP_CONFIG, APP_INFO, NOTIF_CHANNELS_CONTEXT} from './Config';
+import {WaitDialogTool} from './components/WaitDialog';
+import DevSettings from './screens/DevSettings';
+import EditProfile from './screens/EditProfile';
+import Onboarding from './screens/Onboarding';
+import OutlineList from './screens/OutlineList';
+import OutlineMover from './screens/OutlineMover';
+import OutlineTop from './screens/OutlineTop';
+import {ShortcutTool} from './util/Shortcuts';
+import {UsingUiTools} from './util/UiTools';
 
 filterHandledExceptions();
 

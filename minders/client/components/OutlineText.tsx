@@ -8,20 +8,20 @@ import {
   NativeSyntheticEvent,
   TextInput as NativeTextInput,
   Platform,
+  StyleSheet,
   TextInputKeyPressEventData,
   TextInputSelectionChangeEventData,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {StyleSheet} from 'react-native';
 import {TextInput, Theme} from 'react-native-paper';
 import {Opt} from '@toolkit/core/util/Types';
 import * as OutlineState from '../model/OutlineState';
+import {useOutliner} from '../model/OutlinerContext';
 import type {OutlineItem} from '../model/outliner';
 import {isChild, isParent} from '../model/outliner';
+import {textInputSelect} from '../util/Useful';
 import {FocusOn, useAction} from './Actions';
-import {useOutliner} from './OutlinerContext';
-import {textInputSelect} from './Useful';
 
 export type Selection = {
   start: number;

@@ -3,12 +3,11 @@
  */
 
 import React from 'react';
-import {View} from 'react-native';
-import {StyleProp, ViewStyle} from 'react-native';
+import {StyleProp, View, ViewStyle} from 'react-native';
+import OutlineUtil from '@app/model/OutlineUtil';
+import {useOutliner} from '../model/OutlinerContext';
 import type {OutlineItem, OutlineItemState} from '../model/outliner';
-import {EnumConfig, EnumIconButton, EnumMenu} from './Enum';
-import OutlineUtil from './OutlineUtil';
-import {useOutliner} from './OutlinerContext';
+import {EnumConfig, EnumIconButton, EnumMenu} from '../util/Enum';
 
 type Props = {
   item: OutlineItem;

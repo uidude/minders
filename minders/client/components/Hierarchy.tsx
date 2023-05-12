@@ -3,11 +3,23 @@
  */
 
 import * as React from 'react';
-import {Animated, Easing, StyleSheet, View} from 'react-native';
-import {LayoutChangeEvent, StyleProp, ViewStyle} from 'react-native';
+import {
+  Animated,
+  Easing,
+  LayoutChangeEvent,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
 import {IconButton} from 'react-native-paper';
-import {getChildren, getItemUi, isParent} from '../model/outliner';
+import OutlineUtil from '@app/model/OutlineUtil';
+import OutlinerContext, {
+  itemContext,
+  useOutliner,
+} from '../model/OutlinerContext';
 import type {OutlineItem} from '../model/outliner';
+import {getChildren, getItemUi, isParent} from '../model/outliner';
 import ActionButton from './ActionButton';
 import ActionMenu, {VerticalDots} from './ActionMenu';
 import {
@@ -23,8 +35,6 @@ import {
 } from './Actions';
 import {EditableStatus} from './EditableStatus';
 import OutlineText from './OutlineText';
-import OutlineUtil from './OutlineUtil';
-import OutlinerContext, {itemContext, useOutliner} from './OutlinerContext';
 
 function CollapserButton(props: {
   item: OutlineItem;

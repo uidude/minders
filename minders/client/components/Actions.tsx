@@ -7,14 +7,17 @@ import {useContext} from 'react';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
 import {useNav} from '@toolkit/ui/screen/Nav';
-import SettingsScreen from '@app/app/screens/SettingsScreen';
-import OutlineMover from '../../app/screens/OutlineMover';
+import OutlinerContext, {
+  useOutlineState,
+  useOutliner,
+} from '@app/model/OutlinerContext';
+import OutlineMover from '@app/screens/OutlineMover';
+import SettingsScreen from '@app/screens/SettingsScreen';
+import {BinaryAlert} from '@app/util/Alert';
+import {Shortcuts, useShortcut} from '@app/util/Shortcuts';
+import {batch} from '@app/util/Useful';
 import type {OutlineItem} from '../model/outliner';
 import {getChildren} from '../model/outliner';
-import {BinaryAlert} from './Alert';
-import OutlinerContext, {useOutlineState, useOutliner} from './OutlinerContext';
-import {Shortcuts, useShortcut} from './Shortcuts';
-import {batch} from './Useful';
 import {WaitDialog} from './WaitDialog';
 
 export type Handler = () => Promise<void> | void;

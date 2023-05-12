@@ -14,11 +14,11 @@ import Constants from 'expo-constants';
 import {useAuth} from '@toolkit/core/api/Auth';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import OutlineList from '@app/app/screens/OutlineList';
-import OutlineTop from '@app/app/screens/OutlineTop';
 import {FIREBASE_CONFIG} from '@app/common/Config';
-import OutlinerContext from '@app/legacy/components/OutlinerContext';
-import {useDontAnimate} from '@app/legacy/components/Useful';
+import OutlinerContext from '@app/model/OutlinerContext';
+import OutlineList from '@app/screens/OutlineList';
+import OutlineTop from '@app/screens/OutlineTop';
+import {useDontAnimate} from '@app/util/Useful';
 
 /**
  * Checks that new apps have been initiatlized sufficiently so that they can run.

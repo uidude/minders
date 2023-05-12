@@ -13,9 +13,9 @@ import {useTextInput} from '@toolkit/ui/UiHooks';
 import {MultistepFlow, Step} from '@toolkit/ui/components/MultistepFlow';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import OutlineList from '@app/app/screens/OutlineList';
 import {useUpdateUserAndProfile} from '@app/common/AppLogic';
 import {Profile} from '@app/common/DataTypes';
+import OutlineList from '@app/screens/OutlineList';
 import {ProfilePicEditor} from './EditProfile';
 
 type Props = {

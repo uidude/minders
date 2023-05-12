@@ -6,18 +6,11 @@ import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import Hierarchy from '../../legacy/components/Hierarchy';
-import OutlineUtil from '../../legacy/components/OutlineUtil';
-import {
-  useOutlineState,
-  useOutliner,
-} from '../../legacy/components/OutlinerContext';
-import {
-  getChildren,
-  hasVisibleKids,
-  type OutlineItem,
-} from '../../legacy/model/outliner';
-import {Filters} from '../AppLayout';
+import {Filters} from '@app/AppLayout';
+import OutlineUtil from '@app/model/OutlineUtil';
+import Hierarchy from '../components/Hierarchy';
+import {useOutlineState, useOutliner} from '../model/OutlinerContext';
+import {getChildren, hasVisibleKids, type OutlineItem} from '../model/outliner';
 
 type Props = {
   focus?: number;

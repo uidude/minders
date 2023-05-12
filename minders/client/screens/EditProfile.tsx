@@ -2,10 +2,10 @@
  * Screen for editing the user's profile.
  */
 
-import {ProfilePic} from '@app/app/components/ProfilePic';
-import OutlineList from '@app/app/screens/OutlineList';
 import {useUpdateUserAndProfile} from '@app/common/AppLogic';
 import {Profile} from '@app/common/DataTypes';
+import {ProfilePic} from '@app/components/ProfilePic';
+import OutlineList from '@app/screens/OutlineList';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {useAction} from '@toolkit/core/client/Action';
 import {withTimeout} from '@toolkit/core/util/DevUtil';
