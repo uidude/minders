@@ -5,6 +5,7 @@
 import React from 'react';
 import {
   NativeSyntheticEvent,
+  Platform,
   StyleProp,
   StyleSheet,
   Text,
@@ -19,7 +20,6 @@ import {Opt} from '@toolkit/core/util/Types';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import ActionMenu, {VerticalDots} from '@app/components/ActionMenu';
 import {Bump, Delete, Mover, Snooze} from '@app/components/Actions';
-import OutlineStyles from '@app/legacy/components/OutlineStyles';
 import OutlineUtil from '@app/model/OutlineUtil';
 import {EditableStatus} from '../components/EditableStatus';
 import * as OutlineState from '../model/OutlineState';
@@ -253,6 +253,14 @@ OutlineList.title = 'Minders';
 
 export default OutlineList;
 
+function getFontFamily() {
+  return Platform.select({
+    ios: 'Futura',
+    android: 'Roboto',
+    web: 'Roboto, Arial',
+  });
+}
+
 const S = StyleSheet.create({
   listItem: {
     padding: 5,
@@ -264,7 +272,7 @@ const S = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   listItemTitle: {
-    fontFamily: OutlineStyles.fontFamily,
+    fontFamily: getFontFamily(),
     fontSize: 13,
     fontWeight: '500',
     opacity: 0.9,
@@ -279,7 +287,7 @@ const S = StyleSheet.create({
     fontWeight: '500',
   },
   listItemDescription: {
-    fontFamily: OutlineStyles.fontFamily,
+    fontFamily: getFontFamily(),
     paddingTop: 4,
     fontSize: 13,
     fontWeight: 'bold',
