@@ -298,9 +298,9 @@ export const Home: Action = {
   },
 };
 
-export const Login: Action = {
+export const Settings: Action = {
   id: 'settings',
-  icon: 'wrench-outline',
+  icon: 'ion:settings-outline',
   label: 'Settings',
   handle: () => {
     const {navTo} = useNav();

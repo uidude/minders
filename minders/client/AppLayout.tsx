@@ -28,8 +28,8 @@ import {
   Collapse,
   Expand,
   Home,
-  Login,
   NewItem,
+  Settings,
   Up,
   type Action,
 } from '@app/components/Actions';
@@ -222,7 +222,7 @@ function Header(props: LayoutProps) {
       ? outliner.getFlatList(focusItem).filter(item => !item.ui?.hidden).length
       : null; //getChildren(focusItem).length;
 
-  const actionMenuItems = [Expand, Collapse, Login];
+  const actionMenuItems = [Expand, Collapse, Settings];
   if (!isTop) {
     actionMenuItems.splice(0, 0, Up);
   }
