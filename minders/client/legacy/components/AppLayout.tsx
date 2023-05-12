@@ -7,9 +7,11 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
   View,
 } from 'react-native';
-import {ScrollView, StyleSheet, Text} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import {Appbar} from 'react-native-paper';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -18,11 +20,11 @@ import TriState from '@toolkit/core/client/TriState';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import LoginScreen from '@app/app/screens/LoginScreen';
-import {getItemUi} from '../model/outliner';
 import type {
   OutlineItemVisibilityFilter,
   OutlineViewType,
 } from '../model/outliner';
+import {getItemUi} from '../model/outliner';
 import ActionButton from './ActionButton';
 import ActionFAB from './ActionFAB';
 import ActionMenu, {VerticalDots} from './ActionMenu';
@@ -339,7 +341,9 @@ const S = StyleSheet.create({
     borderBottomWidth: isMobile() ? 1 : 0,
     borderColor: '#385078',
   },
-  content: {},
+  content: {
+    flexGrow: 1,
+  },
   topBar: {
     backgroundColor: '#123',
     height: 56,
