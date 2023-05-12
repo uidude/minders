@@ -7,16 +7,16 @@
  * @format
  */
 
+import icon from '@assets/icon.png';
 import {APP_INFO_KEY} from '@toolkit/core/client/Theme';
 import {APP_CONFIG_KEY, AppConfig} from '@toolkit/core/util/AppConfig';
 import {Context, context} from '@toolkit/core/util/AppContext';
 import {NOTIF_CHANNELS_KEY} from '@toolkit/services/notifications/NotificationChannel';
 import {NOTIF_CHANNELS} from '@app/common/NotifChannels';
-import icon from '../assets/icon.png';
 
 export const APP_CONFIG: Context<AppConfig> = {
   product: 'minders',
-  fbAppId: '',
+  dataEnv: 'prod',
   _key: APP_CONFIG_KEY,
 };
 

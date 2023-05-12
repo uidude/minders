@@ -10,13 +10,22 @@
 import {Ionicons, MaterialCommunityIcons} from '@expo/vector-icons';
 import {DefaultTheme, NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {
+  setClientFallbackEnabled,
+  setDefaultServerApi,
+} from '@toolkit/core/api/DataApi';
 import {CONSOLE_LOGGER} from '@toolkit/core/api/Log';
 import IdentityService from '@toolkit/core/api/Login';
-import {SimpleUserMessaging} from '@toolkit/core/client/UserMessaging';
+import {
+  SimpleUserMessaging,
+  StatusContainer,
+} from '@toolkit/core/client/Status';
 import {registerAppConfig} from '@toolkit/core/util/AppConfig';
 import {AppContextProvider} from '@toolkit/core/util/AppContext';
 import {filterHandledExceptions} from '@toolkit/core/util/Environment';
+import {initializeFirebase} from '@toolkit/providers/firebase/Config';
 import {FIRESTORE_DATASTORE} from '@toolkit/providers/firebase/DataStore';
+import {firebaseFn} from '@toolkit/providers/firebase/client/FunctionsApi';
 import {FIREBASE_LOGGER} from '@toolkit/providers/firebase/client/Logger';
 import {googleAuthProvider} from '@toolkit/providers/login/GoogleLogin';
 import {
@@ -28,9 +37,19 @@ import PhoneVerification from '@toolkit/screens/login/PhoneVerification';
 import {NotificationSettingsScreen} from '@toolkit/screens/settings/NotificationSettings';
 import {BLACK_AND_WHITE} from '@toolkit/ui/QuickThemes';
 import {Icon, registerIconPack} from '@toolkit/ui/components/Icon';
-import {NavItem} from '@toolkit/ui/layout/DrawerLayout';
+import {usePaperComponents} from '@toolkit/ui/components/Paper';
 import {Routes} from '@toolkit/ui/screen/Nav';
 import WebViewScreen from '@toolkit/ui/screen/WebScreen';
+import AuthConfig from '@app/app/AuthConfig';
+import AboutScreen from '@app/app/screens/AboutScreen';
+import LoginScreen from '@app/app/screens/LoginScreen';
+import SettingsScreen from '@app/app/screens/SettingsScreen';
+import StartupScreen from '@app/app/screens/StartupScreen';
+import {
+  CLIENT_FALLBACK_ENABLED,
+  FIREBASE_CONFIG,
+  GOOGLE_LOGIN_CONFIG,
+} from '@app/common/Config';
 import 'expo-dev-client';
 import React from 'react';
 import {Platform, StyleSheet, View} from 'react-native';
@@ -38,14 +57,12 @@ import {StatusBar} from 'expo-status-bar';
 import 'react-native-gesture-handler';
 import {Provider as PaperProvider} from 'react-native-paper';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {initializeFirebase} from '@toolkit/providers/firebase/Config';
-import {usePaperComponents} from '@toolkit/ui/components/Paper';
-import AuthConfig from '@app/app/AuthConfig';
-import AboutScreen from '@app/app/screens/AboutScreen';
-import LoginScreen from '@app/app/screens/LoginScreen';
-import SettingsScreen from '@app/app/screens/SettingsScreen';
-import StartupScreen from '@app/app/screens/StartupScreen';
-import {FIREBASE_CONFIG, GOOGLE_LOGIN_CONFIG} from '@app/common/Config';
+/**
+ * TODO: Move this to FirebasePhoneUtils, as that is the proximate use case that is most important
+ */
+import DevSettings from './app/screens/DevSettings';
+import EditProfile from './app/screens/EditProfile';
+import Onboarding from './app/screens/Onboarding';
 import AppLayout from './legacy/components/AppLayout';
 import {MessagingTool} from './legacy/components/Messaging';
 import OutlineList from './legacy/components/OutlineList';
@@ -55,46 +72,6 @@ import {ShortcutTool} from './legacy/components/Shortcuts';
 import {UsingUiTools} from './legacy/components/UiTools';
 import {WaitDialogTool} from './legacy/components/WaitDialog';
 import {APP_CONFIG, APP_INFO, NOTIF_CHANNELS_CONTEXT} from './lib/Config';
-
-//
-/**
- * Hacky workaround for 'react-native-webview' crashing app when JS is unloaded.
- *
- * `onContentProcessDidTerminate` bridge is always called when view is unloaded and
- * if JS engine is already stopped this will terminate the app, as the event callback
- * fires and React force quits.
- *
- * This happens in Expo Go but could also see it occuring during hot reloading.
- *
- * Temporary fix is to patch to set onContentProcessDidTerminate in bridge when the prop is
- * passed into the React Component.
- *
- */
-
-let reactNativeWebViewCrashPatched = false;
-
-// TODO: Move this to FirebasePhoneUtils, as that is the proximate use case that is most important
-function patchReactNativeWebViewCrash() {
-  if (Platform.OS !== 'web') {
-    try {
-      if (!reactNativeWebViewCrashPatched) {
-        const WebViewShared = require('react-native-webview/lib/WebViewShared');
-        const useWebWiewLogic = WebViewShared.useWebWiewLogic;
-        /** @ts-ignore */
-        WebViewShared.useWebWiewLogic = props => {
-          const result = useWebWiewLogic(props);
-          if (!props.onContentProcessDidTerminateProp && result) {
-            /** @ts-ignore */
-            delete result['onContentProcessDidTerminate'];
-          }
-          return result;
-        };
-        reactNativeWebViewCrashPatched = true;
-      }
-    } catch (ignored) {}
-  }
-}
-patchReactNativeWebViewCrash();
 
 filterHandledExceptions();
 
@@ -136,6 +113,9 @@ const ROUTES: Routes = {
   outline: OutlineTop,
   list: OutlineList,
   mover: OutlineMover,
+  DevSettings,
+  Onboarding,
+  EditProfile,
 };
 const Stack = createStackNavigator();
 
@@ -158,6 +138,9 @@ export default function App() {
   registerIconPack('ion', Ionicons);
   registerIconPack('mci', MaterialCommunityIcons);
   usePaperComponents();
+
+  setDefaultServerApi(firebaseFn);
+  setClientFallbackEnabled(CLIENT_FALLBACK_ENABLED);
 
   const {navScreens, linkingScreens} = useReactNavScreens(
     ROUTES,
@@ -186,24 +169,26 @@ export default function App() {
   return (
     <AppContextProvider ctx={APP_CONTEXT}>
       <PaperProvider theme={BLACK_AND_WHITE} settings={{icon: Icon}}>
-        <UsingUiTools tools={[MessagingTool, ShortcutTool, WaitDialogTool]}>
-          <AuthConfig>
-            <View style={S.background}>
-              <SafeAreaProvider style={S.container}>
-                <SimpleUserMessaging style={S.messaging} />
-                <NavigationContainer linking={linking} theme={navTheme}>
-                  <StatusBar style="auto" />
-                  <NavContext routes={ROUTES} />
-                  <Stack.Navigator
-                    screenOptions={{headerShown: false}}
-                    initialRouteName="StartupScreen">
-                    {navScreens}
-                  </Stack.Navigator>
-                </NavigationContainer>
-              </SafeAreaProvider>
-            </View>
-          </AuthConfig>
-        </UsingUiTools>
+        <StatusContainer top={true}>
+          <UsingUiTools tools={[MessagingTool, ShortcutTool, WaitDialogTool]}>
+            <AuthConfig>
+              <View style={S.background}>
+                <SafeAreaProvider style={S.container}>
+                  <SimpleUserMessaging style={S.messaging} />
+                  <NavigationContainer linking={linking} theme={navTheme}>
+                    <StatusBar style="auto" />
+                    <NavContext routes={ROUTES} />
+                    <Stack.Navigator
+                      screenOptions={{headerShown: false}}
+                      initialRouteName="StartupScreen">
+                      {navScreens}
+                    </Stack.Navigator>
+                  </NavigationContainer>
+                </SafeAreaProvider>
+              </View>
+            </AuthConfig>
+          </UsingUiTools>
+        </StatusContainer>
       </PaperProvider>
     </AppContextProvider>
   );
@@ -221,3 +206,41 @@ const S = StyleSheet.create({
   },
   background: {flex: 1, backgroundColor: '#202020'},
 });
+
+/**
+ * Hacky workaround for 'react-native-webview' crashing app when JS is unloaded.
+ *
+ * `onContentProcessDidTerminate` bridge is always called when view is unloaded and
+ * if JS engine is already stopped this will terminate the app, as the event callback
+ * fires and React force quits.
+ *
+ * This happens in Expo Go but could also see it occuring during hot reloading.
+ *
+ * Temporary fix is to patch to set onContentProcessDidTerminate in bridge when the prop is
+ * passed into the React Component.
+ *
+ */
+
+let reactNativeWebViewCrashPatched = false;
+
+function patchReactNativeWebViewCrash() {
+  if (Platform.OS !== 'web') {
+    try {
+      if (!reactNativeWebViewCrashPatched) {
+        const WebViewShared = require('react-native-webview/lib/WebViewShared');
+        const useWebWiewLogic = WebViewShared.useWebWiewLogic;
+        /** @ts-ignore */
+        WebViewShared.useWebWiewLogic = props => {
+          const result = useWebWiewLogic(props);
+          if (!props.onContentProcessDidTerminateProp && result) {
+            /** @ts-ignore */
+            delete result['onContentProcessDidTerminate'];
+          }
+          return result;
+        };
+        reactNativeWebViewCrashPatched = true;
+      }
+    } catch (ignored) {}
+  }
+}
+patchReactNativeWebViewCrash();

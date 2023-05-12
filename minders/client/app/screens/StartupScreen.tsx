@@ -9,6 +9,7 @@
 
 import * as React from 'react';
 import {Image, Linking, StyleSheet, Text, View} from 'react-native';
+import AppIcon from '@assets/splash.png';
 import Constants from 'expo-constants';
 import {useAuth} from '@toolkit/core/api/Auth';
 import {useNav} from '@toolkit/ui/screen/Nav';
@@ -18,7 +19,6 @@ import OutlineList from '@app/legacy/components/OutlineList';
 import OutlineTop from '@app/legacy/components/OutlineTop';
 import OutlinerContext from '@app/legacy/components/OutlinerContext';
 import {useDontAnimate} from '@app/legacy/components/Useful';
-import AppIcon from '../../assets/splash.png';
 
 /**
  * Checks that new apps have been initiatlized sufficiently so that they can run.

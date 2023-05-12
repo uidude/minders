@@ -33,6 +33,7 @@
     "expo-firebase-analytics": "~8.0.0",
     "expo-firebase-core": "~6.0.0",
     "expo-firebase-recaptcha": "~2.3.1",
+    "expo-image-manipulator": "~11.0.0",
     "expo-image-picker": "~14.0.2",
     "expo-media-library": "~15.0.0",
     "expo-modules-autolinking": "~1.0.0",
@@ -77,6 +78,7 @@
     "@babel/plugin-transform-template-literals": "^7.18.9",
     "@expo/cli": "^0.3.2",
     "@npe-toolkit-tools": "file:../../npe-toolkit/tools",
+    "@types/mime": "^3.0.1",
     "@types/react": "~18.0.14",
     "@types/react-native": "~0.69.1",
     "typescript": "^4.5.5"
@@ -98,7 +100,8 @@
     "@toolkit": "../../npe-toolkit/lib",
     "@app/admin": "../admin",
     "@app/common": "../common",
-    "@app": "../client"
+    "@app": "../client",
+    "@assets": "../project/assets"
   },
   "private": true
 }

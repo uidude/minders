@@ -1,47 +1,16 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- */
-
-import React from 'react';
-import {View} from 'react-native';
+import {LEGAL_LINKS} from '@app/common/Config';
 import {useAuth} from '@toolkit/core/api/Auth';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
-import {useUserMessaging} from '@toolkit/core/client/UserMessaging';
+import {actionHook} from '@toolkit/core/client/Action';
 import Settings, {Setting} from '@toolkit/screens/Settings';
 import {NotificationSettingsScreen} from '@toolkit/screens/settings/NotificationSettings';
 import {navToAction} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import {openUrlAction} from '@toolkit/ui/screen/WebScreen';
+import {OpenLinkAction, openUrlAction} from '@toolkit/ui/screen/WebScreen';
+import React from 'react';
+import {View} from 'react-native';
 import AboutScreen from './AboutScreen';
-
-const META_TOS = {
-  id: 'META_TOS',
-  label: 'Terms of Service',
-  url: 'https://www.facebook.com/legal/terms',
-};
-
-const NPE_TOS = {
-  id: 'NPE_TOS',
-  label: 'NPE Supplemental Terms',
-  url: 'https://npe.facebook.com/about/terms',
-};
-
-const META_DATA_POLICY = {
-  id: 'DATA_POLICY',
-  label: 'Data Policy',
-  url: 'https://www.facebook.com/about/privacy',
-};
-
-const NPE_EU_DATA_POLICY = {
-  id: 'NPE_EU_DATA_POLICY',
-  label: 'NPE EU Data Policy',
-  url: 'https://npe.facebook.com/about/eu_data_policy',
-};
+import DevSettings from './DevSettings';
 
 const ABOUT = {
   icon: 'information-outline',
@@ -55,36 +24,30 @@ const NOTIF_SETTINGS = {
   to: NotificationSettingsScreen,
 };
 
-const DEV_SETTINGS = () => {
-  const {showMessage} = useUserMessaging();
-  return {
-    id: 'DEV_SETTINGS',
-    label: 'Dev Settings',
-    icon: 'wrench-outline',
-    act: () => showMessage('coming soon'!),
-  };
+const DEV_SETTINGS = {
+  id: 'DevSettings',
+  label: 'Dev Settings',
+  icon: 'wrench-outline',
+  to: DevSettings,
 };
 
-export const LOGOUT_ACTION = () => {
-  const auth = useAuth();
-  return {
-    id: 'LOGOUT',
-    label: 'Log Out',
-    icon: 'logout',
-    act: () => auth.logout(),
-  };
+export const LOGOUT_ACTION = {
+  id: 'Logout',
+  label: 'Log Out',
+  icon: 'logout',
+  action: actionHook(() => {
+    const auth = useAuth();
+    return () => auth.logout();
+  }),
 };
 
 const SETTINGS: Setting[] = [
-  DEV_SETTINGS,
+  navToAction(DEV_SETTINGS),
   navToAction(NOTIF_SETTINGS),
   LOGOUT_ACTION,
   navToAction(ABOUT),
   'LEGAL',
-  openUrlAction(META_TOS),
-  openUrlAction(META_DATA_POLICY),
-  openUrlAction(NPE_TOS),
-  openUrlAction(NPE_EU_DATA_POLICY),
+  ...LEGAL_LINKS.map((link: OpenLinkAction) => openUrlAction(link)),
 ];
 
 const SettingsScreen: Screen<{}> = () => {

@@ -13,9 +13,9 @@
       "distribution": "internal",
       "channel": "dev"
     },
-    "preview": {
+    "preprod": {
       "distribution": "internal",
-      "channel": "preview"
+      "channel": "preprod"
     },
     "prod": {
       "channel": "prod",

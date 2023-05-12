@@ -37,7 +37,7 @@ export const FIREBASE_CONFIG: FirebaseConfig = localConf['firebase'] ?? {
 
 /**
  * Fill in the client IDs from
- * https://console.cloud.google.com/apis/credentials?project=YOUR_PROJECT
+ * https://console.cloud.google.com/apis/credentials
  *
  * You also will need to add redirect URIs in the console, see
  * https://github.com/facebookincubator/npe-toolkit/blob/main/docs/getting-started/Firebase.md
@@ -48,3 +48,16 @@ export const GOOGLE_LOGIN_CONFIG = localConf['google-login'] ?? {
   webClientId:
     '729397867154-rbsrjlb7cvm3jfcq04gei4j730qo4jtc.apps.googleusercontent.com',
 };
+
+export const CLIENT_FALLBACK_ENABLED = true;
+
+// Add legal links here for easy reference.
+export const LEGAL_LINKS = [
+  {
+    id: 'tos',
+    label: 'Terms of Service',
+    url: 'https://facebookincubator.github.io/npe-toolkit/docs/release/tos.html',
+  },
+];
+
+export const MIXPANEL_TOKEN = null;

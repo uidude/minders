@@ -1,158 +1,100 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- */
-
-import {dataApi} from '@toolkit/core/api/DataApi';
-import {User, requireLoggedInUser} from '@toolkit/core/api/User';
+import {User} from '@toolkit/core/api/User';
+import {Opt} from '@toolkit/core/util/Types';
 import {useDataStore} from '@toolkit/data/DataStore';
-import {Fave, Thing} from './DataTypes';
+import {Profile} from './DataTypes';
 
-// Cilent business logic
+function newProfileFor(user: User): Partial<Profile> {
+  return {
+    id: user.id,
+    user: user,
+    name: user.name,
+    ...(user.pic && {pic: user.pic}),
+  };
+}
+
+function addDerivedFields(user: User) {
+  user.canLogin = true;
+  if (user.name === '') {
+    user.canLogin = false;
+    user.cantLoginReason = 'onboarding';
+  }
+}
+
+export type LoginUserInfo = {
+  uid: string;
+  displayName: Opt<string>;
+  email: Opt<string>;
+  phoneNumber: Opt<string>;
+  photoURL: Opt<string>;
+};
 
 /**
- * Get all of the things the app knows about
+ * Client version of creating user - this is for early development,
+ * should switch to a server-based version for launch
  */
-export const GetThings = dataApi<void, Thing[]>('things.get', () => {
-  const user = requireLoggedInUser<User>();
-  const thingStore = useDataStore(Thing);
+export function useGetOrCreateUser() {
+  const users = useDataStore(User);
+  const profiles = useDataStore(Profile);
 
-  return async function getAllThings() {
-    let things = await thingStore.getAll();
+  return async (firebaseAccount: LoginUserInfo): Promise<User> => {
+    const userId = firebaseAccount.uid;
 
-    // If it's a first time load, populate DB with initial set of things
-    if (things.length === 0) {
-      const newThings = INITIAL_THINGS.map(thing => {
-        thing.creator = user;
-        return thingStore.create(thing);
-      });
-      things = await Promise.all(newThings);
+    let [user, profile] = await Promise.all([
+      users.get(userId),
+      profiles.get(userId),
+    ]);
+
+    if (user != null && profile != null) {
+      addDerivedFields(user);
+      return user;
     }
 
-    // Alphabetize
-    things.sort((thing1, thing2) => thing1.name.localeCompare(thing2.name));
+    const initialName =
+      firebaseAccount.displayName || firebaseAccount.email || '';
 
-    return things;
-  };
-});
+    const newUser: User = {
+      id: userId,
+      name: initialName,
+      pic: firebaseAccount.photoURL || undefined,
+      email: firebaseAccount.email || undefined,
+    };
 
-/**
- * Get all favorites for a user.
- */
-export const GetFaves = dataApi<void, Fave[]>('getFaves', () => {
-  const user = requireLoggedInUser<User>();
-  const faveStore = useDataStore(Fave);
+    const newProfile = newProfileFor(newUser);
 
-  return async function getFaves() {
-    return await faveStore.getMany({
-      query: {
-        where: [{field: 'user', op: '==', value: user.id}],
-      },
-      edges: [Thing],
-    });
-  };
-});
-
-/**
- * Add a new favorite to a given thingID.
- */
-export const AddFave = dataApi<string, Fave>('addFave', () => {
-  const user = requireLoggedInUser<User>();
-  const thingStore = useDataStore(Thing);
-  const faveStore = useDataStore(Fave);
-
-  return async (thingId: string) => {
-    const thing = await thingStore.get(thingId);
-    if (!thing) {
-      throw Error(`Thing with ID ${thingId} does not exist`);
+    // We have an example of doing these in a transaction (in server code)
+    // but for simplicity, will make separate calls.
+    if (user == null) {
+      user = await users.create(newUser);
+      addDerivedFields(user);
     }
 
-    const existing = await faveStore.getMany({
-      query: {
-        where: [
-          {field: 'user', op: '==', value: user.id!},
-          {field: 'thing', op: '==', value: thingId},
-        ],
-      },
-    });
-    if (existing.length > 0) {
-      return existing[0];
+    if (profile == null) {
+      await profiles.create(newProfile);
+      user.canLogin = false;
+      user.cantLoginReason = 'onboarding';
     }
 
-    const fave = await faveStore.create({
-      user,
-      thing,
-    });
-
-    return (await faveStore.get(fave.id, {
-      edges: [User, Fave],
-    }))!;
+    return user;
   };
-});
+}
 
-/**
- * Add a new thing
- */
-export const AddThing = dataApi<Partial<Thing>, string>('addThing', () => {
-  const user = requireLoggedInUser<User>();
-  const thingStore = useDataStore(Thing);
-  return async (thing: Partial<Thing>) => {
-    thing.creator = user;
-    const result = await thingStore.create(thing);
-    return result.id;
+export function useUpdateUserAndProfile() {
+  const userStore = useDataStore(User);
+  const profileStore = useDataStore(Profile);
+
+  return async function updateUserAndProfile(
+    id: string,
+    user: Partial<User>,
+    profile: Partial<Profile>,
+  ) {
+    // Ensure user` has updated before updating profile
+    await userStore.update({...user, id});
+
+    const userFieldsToCopy = {
+      name: user.name,
+      ...(user.pic && {pic: user.pic}),
+    };
+    // TODO: Consider using transactions
+    await profileStore.update({...profile, ...userFieldsToCopy, id});
   };
-});
-
-/**
- * Delete a thing and associated faves
- */
-export const RemoveThing = dataApi<string, void>('removeThing', () => {
-  const faveStore = useDataStore(Fave);
-  const thingStore = useDataStore(Thing);
-
-  return async function removeThing(thingId: string) {
-    // Delete fave edgers
-    const faves = await faveStore.getMany({
-      query: {
-        where: [{field: 'thing', op: '==', value: thingId}],
-      },
-    });
-    const faveDeletes = faves.map(fave => faveStore.remove(fave.id));
-    await Promise.all(faveDeletes);
-
-    // Delete the thing itself
-    await thingStore.remove(thingId);
-  };
-});
-
-/**
- * Initial set of Things to load when DB is empty
- */
-const INITIAL_THINGS: Partial<Thing>[] = [
-  {
-    name: 'Thing One',
-    description: 'How do you do?',
-    imageUrl:
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSLlk8hk1QfmsUd_ywSN8oL5k6zDaaoFlbIw&usqp=CAU',
-  },
-  {
-    name: 'Thing Two',
-    description: 'Would you like to shake hands?',
-    imageUrl: 'https://m.media-amazon.com/images/I/81uAsD24VcL._AC_SL1500_.jpg',
-  },
-  {
-    name: 'Fantastic Thing',
-    description: "It's clobbering time!",
-    imageUrl:
-      'https://cdn.webshopapp.com/shops/153/files/314909725/funko-the-thing-560-fantastic-four-pop-marvel.jpg',
-  },
-  {
-    name: 'The Thing',
-    description: 'The ultimate in alien terror',
-    imageUrl: 'https://m.media-amazon.com/images/I/91U8fI0EBdL._SY445_.jpg',
-  },
-];
+}

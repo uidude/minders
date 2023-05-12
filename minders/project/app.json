@@ -4,9 +4,10 @@
     "slug": "minders",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "../client/assets/icon.png",
+    "icon": "../project/assets/icon.png",
+    "scheme": "minders",
     "splash": {
-      "image": "../client/assets/splash.png",
+      "image": "../project/assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -21,19 +22,22 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.uidude.minders",
       "config": {
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.729397867154-o7pdcviop9n916p65ptf8j37v1kd9tl9"
+        },
         "usesNonExemptEncryption": false
       },
       "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "../client/assets/adaptive-icon.png",
+        "foregroundImage": "../project/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.uidude.minders"
     },
     "web": {
-      "favicon": "../client/assets/favicon.png"
+      "favicon": "../project/assets/favicon.png"
     },
     "extra": {
       "eas": {
@@ -47,12 +51,14 @@
           "ios": {
             "useFrameworks": "static",
             "deploymentTarget": "13.0"
+          },
+          "android": {
+            "compileSdkVersion": 31,
+            "targetSdkVersion": 31,
+            "buildToolsVersion": "31.0.0"
           }
         }
       ]
-    ],
-    "runtimeVersion": {
-      "policy": "sdkVersion"
-    }
+    ]
   }
 }
