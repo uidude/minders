@@ -47,6 +47,7 @@ export const GOOGLE_LOGIN_CONFIG = localConf['google-login'] ?? {
     '729397867154-o7pdcviop9n916p65ptf8j37v1kd9tl9.apps.googleusercontent.com',
   webClientId:
     '729397867154-rbsrjlb7cvm3jfcq04gei4j730qo4jtc.apps.googleusercontent.com',
+  expoId: '@uidude/minders',
 };
 
 export const CLIENT_FALLBACK_ENABLED = true;
