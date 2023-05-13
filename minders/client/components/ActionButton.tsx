@@ -4,29 +4,24 @@
 
 import * as React from 'react';
 import {StyleProp, ViewStyle} from 'react-native';
-import type {Action, HandlerRef} from './Actions';
-import {actionHandlerComponent} from './Actions';
+import {ActionItem, useAction} from '@toolkit/core/client/Action';
 import {IconButton} from './AppComponents';
 
-// TODO: Consider passing in ID
-export default function ActionButton(props: {
-  action: Action;
+export function ActionButton(props: {
+  item: ActionItem;
   size?: number;
   style?: StyleProp<ViewStyle>;
   color?: string;
 }) {
-  const {action, size = 18, style, color} = props;
-
-  const ActionComponent = actionHandlerComponent(action);
-  const handlerRef: HandlerRef = {};
+  const {item, size = 18, style, color} = props;
+  const [action] = useAction(item.action);
 
   return (
     <>
-      <ActionComponent handler={handlerRef} />
       <IconButton
-        icon={action.icon}
-        accessibilityLabel={action.label}
-        onPress={() => handlerRef.current && handlerRef.current()}
+        icon={item.icon ?? ''}
+        accessibilityLabel={item.label}
+        onPress={() => action()}
         style={style}
         size={size}
         color={color}

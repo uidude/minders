@@ -4,8 +4,9 @@
 
 import * as React from 'react';
 import {StyleProp, ViewStyle} from 'react-native';
-import type {Action, HandlerRef} from './Actions';
-import {actionHandlerComponent} from './Actions';
+import {ActionItem, useAction} from '@toolkit/core/client/Action';
+import {useShortcut} from '@app/util/Shortcuts';
+import {ActionItemWithShortcut} from './Actions';
 import {IconButton, Menu} from './AppComponents';
 
 type Trigger = (onPress: () => void) => React.ReactNode;
@@ -29,56 +30,52 @@ export function VerticalDots(props: {
   );
 }
 
-// TODO: Consider passing in ID
-export default function ActionMenu(props: {
-  actions: Array<Action>;
-  children?: React.ReactNode;
+export function ActionMenu(props: {items: Array<ActionItem>; anchor: Trigger}) {
+  const key = props.items.map(item => item.id).join(',');
+
+  // By providing a different key based on menu items, this ensures that
+  // the same number of `useAction()` hooks are called each render
+  return <ActionMenuImpl key={key} {...props} />;
+}
+
+function ActionMenuImpl(props: {
+  items: Array<ActionItemWithShortcut>;
   anchor: Trigger;
 }) {
-  const {actions, anchor} = props;
+  const {items, anchor} = props;
+  const handlers = items.map(item => {
+    const [handler] = useAction(item.id, item.action);
+    return handler;
+  });
+  items.forEach((item, index) => {
+    const keys = (typeof item.key == 'string' ? [item.key] : item.key) ?? [];
+    for (const key of keys) {
+      useShortcut({key, action: handlers[index]});
+    }
+  });
   const [menuVisible, setMenuVisible] = React.useState(false);
 
   function menuItemSelected(index: number): void {
-    const handler = handlers[index].current;
-    handler && handler();
+    handlers[index]();
     setMenuVisible(false);
   }
 
-  function openMenu() {
-    setMenuVisible(true);
-  }
+  const show = () => setMenuVisible(true);
+  const hide = () => setMenuVisible(false);
 
-  function closeMenu() {
-    setMenuVisible(false);
-  }
-
-  // This hackiness is necessary becuse the Menu.Items are
-  // created in a different context. If we want actions to have
-  // the react context for their place in the tree, they need
-  // to have components created not as children of <Menu>
-  const handlers: HandlerRef[] = [];
-
-  const anchorEl = anchor(openMenu);
+  const anchorEl = anchor(show);
 
   return (
-    <>
-      {actions.map((action, index) => {
-        const ActionComponent = actionHandlerComponent(action);
-        const handlerRef: HandlerRef = {};
-        handlers.push(handlerRef);
-        return <ActionComponent key={index} handler={handlerRef} />;
-      })}
-      <Menu visible={menuVisible} onDismiss={closeMenu} anchor={anchorEl}>
-        {menuVisible &&
-          actions.map((action, index) => (
-            <Menu.Item
-              key={action.id}
-              onPress={() => menuItemSelected(index)}
-              icon={action.icon}
-              title={action.label}
-            />
-          ))}
-      </Menu>
-    </>
+    <Menu visible={menuVisible} onDismiss={hide} anchor={anchorEl}>
+      {menuVisible &&
+        items.map((item, index) => (
+          <Menu.Item
+            key={item.id}
+            onPress={() => menuItemSelected(index)}
+            icon={item.icon}
+            title={item.label}
+          />
+        ))}
+    </Menu>
   );
 }

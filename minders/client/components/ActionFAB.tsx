@@ -4,24 +4,19 @@
 
 import * as React from 'react';
 import {FAB} from 'react-native-paper';
-import type {Action, HandlerRef} from './Actions';
-import {actionHandlerComponent} from './Actions';
+import {ActionItem, useAction} from '@toolkit/core/client/Action';
 
-type Props = {action: Action} & Omit<React.ComponentProps<typeof FAB>, 'icon'>;
+type Props = {item: ActionItem} & Omit<
+  React.ComponentProps<typeof FAB>,
+  'icon'
+>;
 export default function ActionFAB(props: Props) {
-  const {action, ...fabProps} = props;
-
-  const ActionComponent = actionHandlerComponent(action);
-  const handlerRef: HandlerRef = {};
+  const {item, ...fabProps} = props;
+  const [action] = useAction(item.action);
 
   return (
     <>
-      <ActionComponent handler={handlerRef} />
-      <FAB
-        {...fabProps}
-        icon={action.icon}
-        onPress={() => handlerRef.current && handlerRef.current()}
-      />
+      <FAB {...fabProps} icon={item.icon ?? ''} onPress={() => action()} />
     </>
   );
 }

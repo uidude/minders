@@ -13,26 +13,13 @@ import {
   ViewStyle,
 } from 'react-native';
 import {IconButton} from 'react-native-paper';
+import {useItemActions} from '@app/components/Actions';
 import OutlineUtil from '@app/model/OutlineUtil';
-import OutlinerContext, {
-  itemContext,
-  useOutliner,
-} from '../model/OutlinerContext';
+import {useOutliner} from '../model/OutlinerContext';
 import type {OutlineItem} from '../model/outliner';
-import {getChildren, getItemUi, isParent} from '../model/outliner';
-import ActionButton from './ActionButton';
-import ActionMenu, {VerticalDots} from './ActionMenu';
-import {
-  Bump,
-  Delete,
-  FocusOn,
-  Indent,
-  Mover,
-  Outdent,
-  Pin,
-  Snooze,
-  Unpin,
-} from './Actions';
+import {getChildren, isParent} from '../model/outliner';
+import {ActionButton} from './ActionButton';
+import {ActionMenu, VerticalDots} from './ActionMenu';
 import {EditableStatus} from './EditableStatus';
 import OutlineText from './OutlineText';
 
@@ -125,6 +112,8 @@ export default function Hierarchy(props: {item: OutlineItem; level?: number}) {
   const {item, level = 0} = props;
   const parental = isParent(item);
   OutlineUtil.useRedrawOnItemUpdate(item.id);
+  const {Bump, Mover, Indent, Outdent, Delete, Pin, Unpin, Snooze, FocusOn} =
+    useItemActions(item);
 
   const leftSpace = level * 18;
   let backgroundColor = null;
@@ -132,7 +121,7 @@ export default function Hierarchy(props: {item: OutlineItem; level?: number}) {
   const collapseStyle = [S.indicator, {marginLeft: leftSpace}];
   const lhIcons = parental ? (
     <>
-      <ActionButton action={FocusOn} style={S.focus} />
+      <ActionButton item={FocusOn} style={S.focus} />
       <CollapserButton size={18} item={item} style={collapseStyle} />
     </>
   ) : (
@@ -157,20 +146,14 @@ export default function Hierarchy(props: {item: OutlineItem; level?: number}) {
     borderColor: parental ? '#E0E0E0' : '#FFF',
   };
 
-  const actions = [Bump, Mover, Indent, Outdent, Delete];
-
-  if (parental) {
-    actions.unshift(Pin);
-  } else {
-    actions.unshift(Snooze);
-  }
+  const items = [parental ? Pin : Snooze, Bump, Mover, Indent, Outdent, Delete];
 
   if (item.ui?.hidden) {
     return <></>;
   }
 
   return (
-    <OutlinerContext.Provider value={itemContext(item)}>
+    <>
       <View style={[S.listItem, extraStyle]}>
         <View style={S.leftIcons}>{lhIcons}</View>
         <OutlineText
@@ -179,9 +162,9 @@ export default function Hierarchy(props: {item: OutlineItem; level?: number}) {
           item={item}
         />
         <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-          {item.pinned && <ActionButton action={Unpin} style={S.pin} />}
+          {item.pinned && <ActionButton item={Unpin} style={S.pin} />}
           <ActionMenu
-            actions={actions}
+            items={items}
             anchor={onPress => (
               <VerticalDots style={S.actionsR} onPress={onPress} />
             )}
@@ -189,7 +172,7 @@ export default function Hierarchy(props: {item: OutlineItem; level?: number}) {
         </View>
       </View>
       {!isDisabled && <ChildItems item={item} level={level} />}
-    </OutlinerContext.Provider>
+    </>
   );
 }
 

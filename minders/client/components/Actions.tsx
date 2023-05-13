@@ -2,229 +2,106 @@
  * @format
  */
 
-import * as React from 'react';
-import {useContext} from 'react';
-import {requireLoggedInUser} from '@toolkit/core/api/User';
-import {Opt} from '@toolkit/core/util/Types';
+import {ActionItem, actionHook} from '@toolkit/core/client/Action';
 import {useNav} from '@toolkit/ui/screen/Nav';
-import OutlinerContext, {
-  useOutlineState,
-  useOutliner,
-} from '@app/model/OutlinerContext';
+import {useOutlineState, useOutliner} from '@app/model/OutlinerContext';
 import OutlineMover from '@app/screens/OutlineMover';
 import SettingsScreen from '@app/screens/SettingsScreen';
 import {BinaryAlert} from '@app/util/Alert';
-import {Shortcuts, useShortcut} from '@app/util/Shortcuts';
 import {batch} from '@app/util/Useful';
-import type {OutlineItem} from '../model/outliner';
-import {getChildren} from '../model/outliner';
+import {OutlineItem, getChildren} from '../model/outliner';
 import {WaitDialog} from './WaitDialog';
 
-export type Handler = () => Promise<void> | void;
-export type HandlerRef = {current?: Opt<Handler>};
+export function useItemActions(item: OutlineItem) {
+  const [, setOutlineState] = useOutlineState();
+  const outliner = useOutliner();
+  const nav = useNav();
 
-export type Action = {
-  id: string;
-  icon: string;
-  label: string;
-  key?: string | string[];
-  handle: () => Handler;
-};
-
-export function useAction(action: Action): Handler {
-  const handler = action.handle();
-  if (action.key) {
-    const keys: string[] =
-      typeof action.key == 'string' ? [action.key] : action.key;
-    for (const key of keys) {
-      useShortcut({key: key, action: handler});
-    }
-  }
-  return handler;
-}
-
-// Useful for variable # of actions displayed
-// As useContext calls needs to be same per component render
-export function actionHandlerComponent(action: Action) {
-  const handlerComponent = (props: {handler: HandlerRef}) => {
-    props.handler.current = useAction(action);
-    return <></>;
+  const FocusOn: ActionItem = {
+    id: 'focuson',
+    icon: 'target',
+    label: 'Focus on',
+    action: () => setOutlineState({focus: item.id}),
   };
-  return handlerComponent;
-}
 
-export const FocusOn: Action = {
-  id: 'focuson',
-  icon: 'target',
-  label: 'Focus on',
-  handle: () => {
-    const context = useContext(OutlinerContext);
-    const [outlineState, setOutlineState] = useOutlineState();
-    return () => {
-      if (!context || !context.item) {
-        return;
-      }
-      setOutlineState({focus: context.item.id});
-    };
-  },
-};
+  const Bump: ActionItem = {
+    id: 'bump',
+    icon: 'format-vertical-align-top',
+    label: 'Bump to top',
+    action: () => outliner.bump(item),
+  };
 
-export const Bump: Action = {
-  id: 'bump',
-  icon: 'format-vertical-align-top',
-  label: 'Bump to top',
-  handle: () => {
-    const user = requireLoggedInUser();
-    const context = useContext(OutlinerContext);
-    return () => {
-      if (!context || !context.item) {
-        return;
-      }
-      const item: OutlineItem = context.item;
-      context.getOutliner(user.id).bump(item);
-    };
-  },
-};
+  const Snooze: ActionItem = {
+    id: 'snooze',
+    icon: 'alarm-snooze',
+    label: 'Snooze',
+    action: actionHook(() => {
+      const waitDialog = WaitDialog.get();
+      return () => {
+        waitDialog.show(outliner, item);
+      };
+    }),
+  };
 
-export const Snooze: Action = {
-  id: 'snooze',
-  icon: 'alarm-snooze', //'timer-sand-empty',
-  label: 'Snooze',
-  handle: () => {
-    const outliner = useOutliner();
-    const context = useContext(OutlinerContext);
-    const waitDialog = WaitDialog.get();
-    return () => {
-      waitDialog.show(outliner, context.item);
-    };
-  },
-};
+  const Indent: ActionItem = {
+    id: 'indent',
+    icon: 'format-indent-increase',
+    label: 'Indent',
+    action: () => outliner.nest(item),
+  };
 
-export const Indent: Action = {
-  id: 'indent',
-  icon: 'format-indent-increase',
-  label: 'Indent',
-  handle: () => {
-    const user = requireLoggedInUser();
-    const context = useContext(OutlinerContext);
-    return () => {
-      if (!context || !context.item) {
-        return;
-      }
-      const item: OutlineItem = context.item;
-      context.getOutliner(user.id).nest(item);
-    };
-  },
-};
+  const Outdent: ActionItem = {
+    id: 'outdent',
+    icon: 'format-indent-decrease',
+    label: 'Outdent',
+    action: () => outliner.unnest(item),
+  };
 
-export const Outdent: Action = {
-  id: 'outdent',
-  icon: 'format-indent-decrease',
-  label: 'Outdent',
-  handle: () => {
-    const user = requireLoggedInUser();
-    const context = useContext(OutlinerContext);
-    return () => {
-      if (!context || !context.item) {
-        return;
-      }
-      const item: OutlineItem = context.item;
-      context.getOutliner(user.id).unnest(item);
-    };
-  },
-};
-
-export const Delete: Action = {
-  id: 'delete',
-  icon: 'delete-outline',
-  label: 'Delete',
-  handle: () => {
-    const user = requireLoggedInUser();
-    const context = useContext(OutlinerContext);
-    return () => {
-      if (!context || !context.item) {
-        return;
-      }
-      const item = context.item;
-
+  const DELETE_WARN = 'Are you sure you want to delete this item?';
+  const Delete: ActionItem = {
+    id: 'delete',
+    icon: 'delete-outline',
+    label: 'Delete',
+    action: () => {
       setTimeout(
-        () =>
-          BinaryAlert('Are you sure you want to delete this item?', null, () =>
-            context.getOutliner(user.id).deleteItem(item),
-          ),
+        () => BinaryAlert(DELETE_WARN, null, () => outliner.deleteItem(item)),
         0,
       );
-    };
-  },
-};
+    },
+  };
 
-export const Pin: Action = {
-  id: 'pin',
-  icon: 'pin',
-  label: 'Pin',
-  handle: () => {
-    const user = requireLoggedInUser();
-    const context = useContext(OutlinerContext);
-    return () => {
-      if (!context || !context.item) {
-        return;
-      }
-      const item = context.item;
-      context.getOutliner(user.id).updateOutlineItem(item, {pinned: true});
-    };
-  },
-};
+  const Pin: ActionItem = {
+    id: 'pin',
+    icon: 'pin',
+    label: 'Pin',
+    action: () => outliner.updateOutlineItem(item, {pinned: true}),
+  };
 
-export const Unpin: Action = {
-  id: 'unpin',
-  icon: 'pin', // This is weird but it's for a button that is shown when pinned
-  label: 'Unpin',
-  handle: () => {
-    const user = requireLoggedInUser();
-    const context = useContext(OutlinerContext);
-    return () => {
-      if (!context || !context.item) {
-        return;
-      }
-      const item = context.item;
-      context.getOutliner(user.id).updateOutlineItem(item, {pinned: false});
-    };
-  },
-};
+  const Unpin: ActionItem = {
+    id: 'unpin',
+    icon: 'pin', // This is weird but it's for a button that is shown when pinned
+    label: 'Unpin',
+    action: () => outliner.updateOutlineItem(item, {pinned: false}),
+  };
 
-export const Mover: Action = {
-  id: 'mover',
-  icon: 'arrow-top-right',
-  label: 'Move Item',
-  handle: () => {
-    const nav = useNav();
-    const context = useContext(OutlinerContext);
-    return () => {
-      if (!context || !context.item) {
-        return;
-      }
-      nav.navTo(OutlineMover, {focus: context.item.id});
-    };
-  },
-};
+  const Mover: ActionItem = {
+    id: 'mover',
+    icon: 'arrow-top-right',
+    label: 'Move Item',
+    action: () => nav.navTo(OutlineMover, {focus: item.id}),
+  };
 
-// Possibly make this part o what is returned?
-function withShortcut(key: string, action: () => void | Promise<void>) {
-  const shortcut = {key, action};
-  const shortcuts = Shortcuts.get();
-  React.useEffect(() => {
-    shortcuts.add(shortcut);
-    return () => shortcuts.remove(shortcut);
-  });
-  return action;
+  return {FocusOn, Bump, Snooze, Indent, Outdent, Delete, Pin, Unpin, Mover};
 }
 
-export const NewItem: Action = {
+export type ActionItemWithShortcut = ActionItem & {key?: string | string[]};
+
+export const NewItem: ActionItemWithShortcut = {
   id: 'new',
   icon: 'plus',
   label: 'New item',
   key: ['+'],
-  handle: () => {
+  action: actionHook(() => {
     const outliner = useOutliner();
     const [outlineState, setOutlineState] = useOutlineState();
     return () => {
@@ -232,15 +109,15 @@ export const NewItem: Action = {
       const kids = getChildren(parent);
       outliner.createItemAfter(kids[kids.length - 1], '');
     };
-  },
+  }),
 };
 
-export const Up: Action = {
+export const Up: ActionItemWithShortcut = {
   id: 'up',
   icon: 'arrow-up-bold-box-outline',
   label: 'Up',
   key: ['u', 'ArrowUp'],
-  handle: () => {
+  action: actionHook(() => {
     const outliner = useOutliner();
     const [outlineState, setOutlineState] = useOutlineState();
 
@@ -248,15 +125,15 @@ export const Up: Action = {
       const parent = outlineState.focusItem.parent;
       parent && setOutlineState({focus: parent.id});
     };
-  },
+  }),
 };
 
-export const Expand: Action = {
+export const Expand: ActionItemWithShortcut = {
   id: 'expand',
   icon: 'expand-all-outline',
   label: 'Expand All',
   key: 'x',
-  handle: () => {
+  action: actionHook(() => {
     const outliner = useOutliner();
     return () => {
       if (!outliner) {
@@ -265,15 +142,15 @@ export const Expand: Action = {
       const item: OutlineItem = outliner.getFocusItem();
       batch(() => outliner.expandAll(item));
     };
-  },
+  }),
 };
 
-export const Collapse: Action = {
+export const Collapse: ActionItemWithShortcut = {
   id: 'collapse',
   icon: 'collapse-all-outline',
   label: 'Collapse All',
   key: 'c',
-  handle: () => {
+  action: actionHook(() => {
     const outliner = useOutliner();
     return () => {
       if (!outliner) {
@@ -282,30 +159,30 @@ export const Collapse: Action = {
       const item: OutlineItem = outliner.getFocusItem();
       batch(() => outliner.collapseAll(item));
     };
-  },
+  }),
 };
 
-export const Home: Action = {
+export const Home: ActionItemWithShortcut = {
   id: 'home',
   icon: 'home',
   label: 'Home',
   key: 'h',
-  handle: () => {
-    const [outlineState, setOutlineState] = useOutlineState();
+  action: actionHook(() => {
+    const [, setOutlineState] = useOutlineState();
     return () => {
       setOutlineState({focus: undefined});
     };
-  },
+  }),
 };
 
-export const Settings: Action = {
+export const Settings: ActionItemWithShortcut = {
   id: 'settings',
   icon: 'ion:settings-outline',
   label: 'Settings',
-  handle: () => {
+  action: actionHook(() => {
     const {navTo} = useNav();
     return async () => {
       navTo(SettingsScreen);
     };
-  },
+  }),
 };

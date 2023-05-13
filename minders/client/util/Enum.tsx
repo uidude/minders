@@ -16,9 +16,9 @@ import {
   ViewStyle,
 } from 'react-native';
 import {unstable_batchedUpdates} from 'react-dom';
-import {type Action} from '@app/components/Actions';
+import {actionHook} from '@toolkit/core/client/Action';
+import {ActionItemWithShortcut} from '@app/components/Actions';
 import {IconButton, Menu} from '../components/AppComponents';
-import {useShortcut} from './Shortcuts';
 
 type Config = {icon: string; label: string; key?: string | string[]};
 
@@ -30,31 +30,14 @@ export type Props<T> = {
   onChange: (value: T) => void;
 };
 
-function useEnumShortcuts<T>(enums: EnumConfig<T>, fn: (t: T) => void) {
-  /** @ts-ignore */
-  for (const [enumValue, config] of enums) {
-    useEnumShortcut(enumValue, config, fn);
-  }
-}
-
-function useEnumShortcut<T>(enumValue: T, cfg: Config, fn: (t: T) => void) {
-  if (cfg.key) {
-    const keys: string[] = typeof cfg.key == 'string' ? [cfg.key] : cfg.key;
-    for (const key of keys) {
-      useShortcut({
-        key: key,
-        action: () => {
-          fn(enumValue);
-        },
-      });
-    }
-  }
+function capitalize(str: string) {
+  return str.slice(0, 1).toUpperCase() + str.slice(1);
 }
 
 export function enumActions<T>(
   enums: EnumConfig<T>,
   handler: (enumValue: T) => void,
-): Action[] {
+): ActionItemWithShortcut[] {
   function onEnumChange(enumValue: T) {
     unstable_batchedUpdates(() => {
       handler && handler(enumValue);
@@ -66,15 +49,15 @@ export function enumActions<T>(
       throw 'invalid enum config';
     }
     return {
-      id: 'change_' + String(enumValue),
+      id: 'Choose' + capitalize(String(enumValue)),
       icon: cfg.icon,
       label: cfg.label,
-      handle: () => {
-        useEnumShortcut(enumValue, cfg, onEnumChange);
+      key: cfg.key,
+      action: actionHook(() => {
         return () => {
           onEnumChange(enumValue);
         };
-      },
+      }),
     };
   });
 }
@@ -84,13 +67,6 @@ type Trigger = (onPress: () => void) => React.ReactNode;
 export function EnumMenu<T>(props: Props<T>) {
   const {enums, anchor, onChange} = props;
   const [menuVisible, setMenuVisible] = React.useState(false);
-
-  useEnumShortcuts(enums, enumValue => {
-    setMenuVisible(false);
-    unstable_batchedUpdates(() => {
-      onChange && onChange(enumValue);
-    });
-  });
 
   function openMenu() {
     setMenuVisible(true);
@@ -169,39 +145,3 @@ export function EnumTextButton<T>(props: EnumTextButtonProps<T>) {
     </TouchableHighlight>
   );
 }
-
-export function EnumDualButton<T>(props: EnumIconButtonProps<T>) {
-  const {enums, onPress, size, style, color} = props;
-  /* @ts-ignore */
-  const enumValue: T = props.value || enums.keys().next.value;
-
-  if (enums.size != 2) {
-    throw Error('Enum buttons must have two values... try using EnumMenu');
-  }
-
-  useEnumShortcuts(enums, () => {
-    // For now trying "toggle" behavior, where either
-    // shortcut toggles between. This helps when people
-    // toggle one way and then want to immediately toggle back
-    /* @ts-ignore */
-    for (const enumKey of enums.keys()) {
-      if (enumKey != enumValue) {
-        onPress();
-        return;
-      }
-    }
-  });
-
-  function myOnPress(): void {
-    const allEnums: Iterator<T> = enums.keys();
-    for (const curEnum in allEnums) {
-      if (curEnum != enumValue && onPress) {
-        onPress();
-      }
-    }
-  }
-
-  return <EnumIconButton {...props} onPress={myOnPress} />;
-}
-
-export default EnumMenu;

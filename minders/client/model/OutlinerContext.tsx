@@ -130,16 +130,6 @@ export function useOutlineStore(): OutlineStore {
   return outlines[user.id];
 }
 
-// Hack to return same context for same items
-// TODO: Find a cleaner way for this;=
-const itemContextMap: {[idx: number]: OutlinerEnvironment} = {};
-export function itemContext(item: OutlineItem) {
-  if (!itemContextMap[item.id]) {
-    itemContextMap[item.id] = new OutlinerEnvironment(item);
-  }
-  return itemContextMap[item.id];
-}
-
 const OutlinerContext = createContext<OutlinerEnvironment>(
   new OutlinerEnvironment(),
 );

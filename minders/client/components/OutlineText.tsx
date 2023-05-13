@@ -15,13 +15,14 @@ import {
   View,
 } from 'react-native';
 import {TextInput, Theme} from 'react-native-paper';
+import {useAction} from '@toolkit/core/client/Action';
 import {Opt} from '@toolkit/core/util/Types';
 import * as OutlineState from '../model/OutlineState';
 import {useOutliner} from '../model/OutlinerContext';
 import type {OutlineItem} from '../model/outliner';
 import {isChild, isParent} from '../model/outliner';
 import {textInputSelect} from '../util/Useful';
-import {FocusOn, useAction} from './Actions';
+import {useItemActions} from './Actions';
 
 export type Selection = {
   start: number;
@@ -45,7 +46,8 @@ function OutlineText(props: {
   let [value, setValueState] = React.useState(item.text || '');
   const [active, setActive] = React.useState(false);
   const outliner = useOutliner();
-  const focusItem = useAction(FocusOn);
+  const {FocusOn} = useItemActions(item);
+  const [focusItem] = useAction(FocusOn.action);
   const inputRef = React.useRef<NativeTextInput>();
 
   function setValue(newValue: string) {

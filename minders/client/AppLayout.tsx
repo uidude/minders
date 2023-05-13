@@ -16,14 +16,15 @@ import {useRoute} from '@react-navigation/native';
 import {Appbar} from 'react-native-paper';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {canLoggingInFix} from '@toolkit/core/api/Auth';
+import {ActionItem} from '@toolkit/core/client/Action';
 import {useStatus} from '@toolkit/core/client/Status';
 import TriState from '@toolkit/core/client/TriState';
 import {AdhocError} from '@toolkit/core/util/CodedError';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
-import ActionButton from '@app/components/ActionButton';
+import {ActionButton} from '@app/components/ActionButton';
 import ActionFAB from '@app/components/ActionFAB';
-import ActionMenu, {VerticalDots} from '@app/components/ActionMenu';
+import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
 import {
   Collapse,
   Expand,
@@ -31,7 +32,6 @@ import {
   NewItem,
   Settings,
   Up,
-  type Action,
 } from '@app/components/Actions';
 import OutlineFocusPicker from '@app/components/OutlineFocusPicker';
 import {
@@ -139,8 +139,8 @@ const TOP_ACTION_PROPS = {
   type: Appbar.Action,
 };
 
-function TopAction(props: {action: Action}) {
-  return <ActionButton action={props.action} {...TOP_ACTION_PROPS} />;
+function TopAction(props: {action: ActionItem}) {
+  return <ActionButton item={props.action} {...TOP_ACTION_PROPS} />;
 }
 
 export default function Layout(props: LayoutProps) {
@@ -186,7 +186,7 @@ export default function Layout(props: LayoutProps) {
           // TODO: Should show action bar while loading
           <TriState loadingView={Empty} errorView={Empty}>
             <Header {...props} />
-            <ActionFAB style={S.fab} small action={NewItem} />
+            <ActionFAB style={S.fab} small item={NewItem} />
           </TriState>
         )}
         <ScrollView style={S.scroll} contentContainerStyle={S.content}>
@@ -238,13 +238,7 @@ function Header(props: LayoutProps) {
   const viewMenuActions = enumActions(ViewMenuItems, value => {
     const choice = viewMenuChoices()[value];
     nav.replace(choice.view, {focus});
-    // TODO: This should probably be in URL?
     setOutlineState({filter: choice.filter});
-    /*
-    if (route.name != choice.view) {
-      nav.replace(choice.view, {focus});
-    }
-    */
   });
 
   const viewMenuEnum = viewFor(route.name, filter);
@@ -258,7 +252,7 @@ function Header(props: LayoutProps) {
           </View>
           <Text style={S.title}>{' > '}</Text>
           <ActionMenu
-            actions={viewMenuActions}
+            items={viewMenuActions}
             anchor={onPress => (
               <EnumTextButton
                 enums={ViewMenuItems}
@@ -278,7 +272,7 @@ function Header(props: LayoutProps) {
       <View style={S.row}>
         {!isTop && <TopAction action={Home} />}
         <ActionMenu
-          actions={actionMenuItems}
+          items={actionMenuItems}
           anchor={onPress => (
             <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
           )}

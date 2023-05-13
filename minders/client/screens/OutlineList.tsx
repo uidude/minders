@@ -18,16 +18,12 @@ import {
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import ActionMenu, {VerticalDots} from '@app/components/ActionMenu';
-import {Bump, Delete, Mover, Snooze} from '@app/components/Actions';
+import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
+import {useItemActions} from '@app/components/Actions';
 import OutlineUtil from '@app/model/OutlineUtil';
+import {useOutlineState, useOutliner} from '@app/model/OutlinerContext';
 import {EditableStatus} from '../components/EditableStatus';
 import * as OutlineState from '../model/OutlineState';
-import OutlinerContext, {
-  itemContext,
-  useOutlineState,
-  useOutliner,
-} from '../model/OutlinerContext';
 import {
   getChildren,
   hasVisibleKids,
@@ -64,8 +60,8 @@ export function OutlineListItem(props: {
 
   const isSel = OutlineState.isSelected(item);
   const cursor = isSel ? null : 'default';
-  const ctx = itemContext(item);
   const inputRef = React.useRef<TextInput>();
+  const {Snooze, Bump, Mover, Delete} = useItemActions(item);
 
   function backspace() {
     if (value == '' && isChild(item)) {
@@ -143,7 +139,7 @@ export function OutlineListItem(props: {
   }
 
   return (
-    <OutlinerContext.Provider value={ctx}>
+    <>
       <View style={[S.listItem, style]}>
         <View>
           <EditableStatus size={18} item={item} style={S.indicator} />
@@ -164,18 +160,16 @@ export function OutlineListItem(props: {
         </View>
         <View style={{justifyContent: 'flex-end'}}>
           <ActionMenu
-            actions={[Snooze, Bump, Mover, Delete]}
+            items={[Snooze, Bump, Mover, Delete]}
             anchor={onPress => (
               <VerticalDots style={S.actionsR} onPress={onPress} />
             )}
           />
         </View>
       </View>
-    </OutlinerContext.Provider>
+    </>
   );
 }
-
-//const OutlineListItemMemo = React.memo(OutlineListItem);
 
 function stableishList(newItems: OutlineItem[], oldItems: OutlineItem[]) {
   if (newItems.length == oldItems.length) {
@@ -250,6 +244,7 @@ const OutlineList: Screen<Props> = props => {
   );
 };
 OutlineList.title = 'Minders';
+OutlineList.id = 'OutlineList';
 
 export default OutlineList;
 
