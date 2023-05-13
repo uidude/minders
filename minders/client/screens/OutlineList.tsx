@@ -1,159 +1,43 @@
-/**
- * @format
- */
 
+import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
+import {useItemActions} from '@app/components/Actions';
+import {OutlineListTextInput} from '@app/components/OutlineListTextInput';
+import OutlineUtil from '@app/model/OutlineUtil';
+import {useOutlineState, useOutliner} from '@app/model/OutlinerContext';
+import {requireLoggedInUser} from '@toolkit/core/api/User';
+import {Screen} from '@toolkit/ui/screen/Screen';
 import React from 'react';
 import {
-  NativeSyntheticEvent,
   Platform,
   StyleProp,
   StyleSheet,
-  Text,
-  TextInput,
-  TextInputSelectionChangeEventData,
-  TextStyle,
-  View,
-  ViewStyle,
+  Text, View,
+  ViewStyle
 } from 'react-native';
-import {requireLoggedInUser} from '@toolkit/core/api/User';
-import {Opt} from '@toolkit/core/util/Types';
-import {Screen} from '@toolkit/ui/screen/Screen';
-import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
-import {useItemActions} from '@app/components/Actions';
-import OutlineUtil from '@app/model/OutlineUtil';
-import {useOutlineState, useOutliner} from '@app/model/OutlinerContext';
 import {EditableStatus} from '../components/EditableStatus';
-import * as OutlineState from '../model/OutlineState';
 import {
-  getChildren,
-  hasVisibleKids,
-  isChild,
-  pathTo,
-  type OutlineItem,
+  hasVisibleKids, pathTo,
+  type OutlineItem
 } from '../model/outliner';
-import {useShortcut} from '../util/Shortcuts';
-import {textInputSelect, useForceUpdate} from '../util/Useful';
 import {NoChildren} from './OutlineTop';
-
-function cursorStyle(cursor: Opt<String>): StyleProp<TextStyle> {
-  /** @ts-ignore */
-  return {cursor};
-}
-
-function lastChild(item: OutlineItem) {
-  const kids = getChildren(item);
-  return kids[kids.length - 1];
-}
 
 export function OutlineListItem(props: {
   item: OutlineItem;
-  listItem?: OutlineItem;
+  top?: OutlineItem;
   prev?: OutlineItem;
   style?: StyleProp<ViewStyle>;
 }) {
-  const {item, listItem, prev, style} = props;
+  const {item, top, prev, style} = props;
   const outliner = useOutliner();
-  const [value, setValue] = React.useState(item.text);
-  const [active, setActive] = React.useState(false);
   OutlineUtil.useRedrawOnItemUpdate(item.id);
-  const forceUpdate = useForceUpdate();
-
-  const isSel = OutlineState.isSelected(item);
-  const cursor = isSel ? null : 'default';
-  const inputRef = React.useRef<TextInput>();
   const {Snooze, Bump, Mover, Delete} = useItemActions(item);
-
-  function backspace() {
-    if (value == '' && isChild(item)) {
-      outliner.deleteItem(item, true, prev);
-      listItem && outliner.touch(listItem);
-      forceUpdate();
-      return false;
-    }
-    return true;
-  }
-
-  function enter() {
-    const selection = OutlineState.getSelection();
-    var beforeText = value.substring(0, selection.start) || '';
-    var afterText = value.substring(selection.start) || '';
-    setValue(beforeText);
-    const after = listItem || item;
-    outliner.createItemAfter(lastChild(after), afterText);
-    listItem && outliner.touch(listItem);
-    return false;
-  }
-
-  useShortcut({key: 'Backspace', action: backspace, inText: true}, isSel);
-  useShortcut({key: 'Enter', action: enter, shift: false, inText: true}, isSel);
-  useShortcut({key: 'Enter', action: submit, shift: true, inText: true}, isSel);
-
-  function onSelectionChange(
-    e: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
-  ) {
-    if (active) {
-      OutlineState.setSelection(item, {...e.nativeEvent.selection});
-    }
-  }
-
-  function checkNewSelection() {
-    const newSelection = OutlineState.shouldSelectText(item);
-    // We select twice to capture before and after the auto selection
-    function selector() {
-      if (newSelection && inputRef.current) {
-        textInputSelect(inputRef.current, newSelection);
-      }
-    }
-    selector();
-    setTimeout(selector, 10);
-  }
-
-  function onBlur() {
-    OutlineState.clearSelection();
-    setActive(false);
-    const trimmed = value.trim();
-    outliner.updateOutlineItem(item, {state: item.state, text: trimmed});
-    setValue(trimmed);
-  }
-
-  function onFocus() {
-    checkNewSelection();
-    OutlineState.setSelection(item);
-    setActive(true);
-  }
-
-  const setInput = (input: TextInput) => {
-    inputRef.current = input;
-    if (input && OutlineState.isSelected(item)) {
-      if (active) {
-        checkNewSelection();
-      } else {
-        input.focus();
-      }
-    }
-  };
-
-  function submit() {
-    // This will commit values
-    inputRef.current?.blur();
-  }
 
   return (
     <>
       <View style={[S.listItem, style]}>
         <EditableStatus size={18} item={item} style={S.indicator} />
         <View style={S.textContainer}>
-          <TextInput
-            value={value}
-            style={[S.listItemText, cursorStyle(cursor)]}
-            onChangeText={val => setValue(val)}
-            onBlur={onBlur}
-            onFocus={onFocus}
-            onSubmitEditing={submit}
-            onSelectionChange={onSelectionChange}
-            ref={setInput}
-            selectTextOnFocus={true}
-          />
+          <OutlineListTextInput item={item} top={top} prev={prev} />
           <Text style={S.parent}>{pathTo(outliner, item.parent)}</Text>
         </View>
         <View>
@@ -232,7 +116,7 @@ const OutlineList: Screen<Props> = props => {
       {orderedItems.map((item, idx) => (
         <OutlineListItem
           item={item}
-          listItem={topItem}
+          top={topItem}
           prev={outlineItems[idx - 1]}
           key={item.id}
           style={idx % 2 == 1 && S.odd}
@@ -274,11 +158,6 @@ const S = StyleSheet.create({
   parent: {
     fontSize: 10,
     opacity: 0.5,
-  },
-  listItemText: {
-    fontSize: 16,
-    opacity: 0.85,
-    fontWeight: '500',
   },
   listItemDescription: {
     fontFamily: getFontFamily(),
