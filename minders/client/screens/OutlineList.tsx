@@ -141,10 +141,8 @@ export function OutlineListItem(props: {
   return (
     <>
       <View style={[S.listItem, style]}>
-        <View>
-          <EditableStatus size={18} item={item} style={S.indicator} />
-        </View>
-        <View style={{flex: 1, paddingLeft: 2, alignSelf: 'center'}}>
+        <EditableStatus size={18} item={item} style={S.indicator} />
+        <View style={S.textContainer}>
           <TextInput
             value={value}
             style={[S.listItemText, cursorStyle(cursor)]}
@@ -158,7 +156,7 @@ export function OutlineListItem(props: {
           />
           <Text style={S.parent}>{pathTo(outliner, item.parent)}</Text>
         </View>
-        <View style={{justifyContent: 'flex-end'}}>
+        <View>
           <ActionMenu
             items={[Snooze, Bump, Mover, Delete]}
             anchor={onPress => (
@@ -262,6 +260,7 @@ const S = StyleSheet.create({
     flexWrap: 'nowrap',
     backgroundColor: '#FFF',
     flexDirection: 'row',
+    alignItems: 'center',
   },
   odd: {
     backgroundColor: '#F0F0F0',
@@ -297,5 +296,10 @@ const S = StyleSheet.create({
     marginHorizontal: 0,
     marginLeft: -6,
     marginRight: 6,
+  },
+  textContainer: {
+    flexBasis: 50,
+    flexGrow: 1,
+    paddingLeft: 2,
   },
 });
