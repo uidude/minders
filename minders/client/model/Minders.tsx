@@ -17,15 +17,45 @@ import {
   useDataStore,
 } from '@toolkit/data/DataStore';
 import {OutlineView} from '@app/AppLayout';
-import {
-  STATE_PRIORITY,
-  STATE_VISIBILITY,
-  type OutlineItem,
-  type OutlineItemState,
-  type OutlineItemVisibilityFilter,
-} from '@app/model/outliner';
-import {INITIAL_OUTLINE} from './InitialOutline';
+import {INITIAL_OUTLINE, LegacyOutlineItem} from './InitialOutline';
 
+export const STATE_VISIBILITY: Record<string, OutlineItemState[]> = {
+  focus: ['cur', 'top'],
+  review: ['new', 'waiting', 'soon'],
+  pile: ['soon', 'later'],
+  waiting: ['waiting'],
+  all: ['cur', 'top', 'waiting', 'new', 'soon', 'later', 'done'],
+  notdone: ['cur', 'top', 'new', 'soon', 'later'],
+  done: ['done'],
+};
+
+export const STATE_PRIORITY = [
+  'waiting',
+  'new',
+  'top',
+  'cur',
+  'soon',
+  'later',
+  'done',
+];
+
+export type OutlineItemState =
+  | 'waiting'
+  | 'new'
+  | 'top'
+  | 'cur'
+  | 'soon'
+  | 'later'
+  | 'done';
+
+export type OutlineItemVisibilityFilter =
+  | 'focus'
+  | 'review'
+  | 'pile'
+  | 'waiting'
+  | 'all'
+  | 'notdone'
+  | 'done';
 /**
  * Project is a home for multiple minders.
  *
@@ -182,7 +212,7 @@ export function useMinderStore() {
           name: project.text,
         });
         await addAll(
-          project.sub as any as Partial<OutlineItem>[],
+          project.sub as any as Partial<LegacyOutlineItem>[],
           newProject,
           null,
         );
@@ -271,7 +301,7 @@ export function useMinderStore() {
   }
 
   async function addAll(
-    items: Partial<OutlineItem>[],
+    items: Partial<LegacyOutlineItem>[],
     project: MinderProject,
     parent: Opt<Minder>,
   ) {

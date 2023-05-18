@@ -8,10 +8,6 @@ import {
   TextStyle,
 } from 'react-native';
 import {Opt} from '@toolkit/core/util/Types';
-import * as OutlineState from '@app/model/OutlineState';
-import OutlineUtil from '@app/model/OutlineUtil';
-import {useOutliner} from '@app/model/OutlinerContext';
-import {OutlineItem, getChildren, isChild} from '@app/model/outliner';
 import {useShortcut} from '@app/util/Shortcuts';
 import {textInputSelect, useForceUpdate} from '@app/util/Useful';
 

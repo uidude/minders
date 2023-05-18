@@ -8,8 +8,6 @@ import {useRoute} from '@react-navigation/native';
 import {withAsyncLoad} from '@toolkit/core/util/Loadable';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {MinderProject, useMinderStore} from '@app/model/Minders';
-import {useOutlineState, useOutliner} from '../model/OutlinerContext';
-import {OutlineItem} from '../model/outliner';
 import {useShortcut} from '../util/Shortcuts';
 import {Menu} from './AppComponents';
 
@@ -22,9 +20,6 @@ type Props = {
 function OutlineFocusPicker(props: Props) {
   const {style} = props;
   const {projects} = props.async;
-  const outliner = useOutliner();
-  const [outlineState, setOutlineState] = useOutlineState();
-  const title = outlineState.focusItem.text;
   const [menuVisible, setMenuVisible] = React.useState(false);
   const route = useRoute();
   const nav = useNav();
@@ -36,6 +31,8 @@ function OutlineFocusPicker(props: Props) {
     let fullProjectId = `minderProject:${projectid}`;
     curIndex = projects.findIndex(p => p.id == fullProjectId);
   }
+  const title = projects[curIndex].name;
+
   useShortcut({
     key: 'ArrowDown',
     action: () => {

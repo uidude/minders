@@ -6,9 +6,6 @@ import * as React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Button, Dialog, Portal} from 'react-native-paper';
 import {Opt} from '@toolkit/core/util/Types';
-import {Updater} from '@toolkit/data/DataStore';
-import {Minder, useMinderStore} from '@app/model/Minders';
-import Outliner, {type OutlineItem} from '../model/outliner';
 import {useShortcut} from '../util/Shortcuts';
 import {useUiTool, type UiTool} from '../util/UiTools';
 

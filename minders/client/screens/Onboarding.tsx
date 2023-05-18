@@ -15,7 +15,7 @@ import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {useUpdateUserAndProfile} from '@app/common/AppLogic';
 import {Profile} from '@app/common/DataTypes';
-import OutlineList from '@app/screens/OutlineList';
+import MinderList from '@app/screens/MinderList';
 import {ProfilePicEditor} from './EditProfile';
 
 type Props = {
@@ -27,7 +27,6 @@ type Props = {
 
 const Onboarding: Screen<Props> = props => {
   const {user} = props;
-  const {profile} = props.async;
   const nav = useNav();
   const [NameInput, name] = useTextInput(user.name);
   const [pic, setPic] = React.useState<Opt<string>>(user.pic);
@@ -40,11 +39,11 @@ const Onboarding: Screen<Props> = props => {
     await updateUserAndProfile(user.id, {name, pic}, {});
     await auth.checkLogin();
     // TODO Show error if checkLogin() fails
-    nav.reset(OutlineList);
+    nav.reset(MinderList);
   }
 
   function onCancel() {
-    nav.navTo(OutlineList);
+    nav.navTo(MinderList);
   }
 
   // TODO implement skip

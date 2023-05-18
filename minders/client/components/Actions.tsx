@@ -9,95 +9,10 @@ import {Opt} from '@toolkit/core/util/Types';
 import {UpdaterValue} from '@toolkit/data/DataStore';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Minder, useMinderScreenState, useMinderStore} from '@app/model/Minders';
-import {useOutlineState, useOutliner} from '@app/model/OutlinerContext';
-import OutlineMover from '@app/screens/OutlineMover';
 import SettingsScreen from '@app/screens/SettingsScreen';
 import {BinaryAlert} from '@app/util/Alert';
 import {batch} from '@app/util/Useful';
-import {OutlineItem, getChildren} from '../model/outliner';
 import {WaitDialog} from './WaitDialog';
-
-export function useItemActions(item: OutlineItem) {
-  const [, setOutlineState] = useOutlineState();
-  const outliner = useOutliner();
-  const nav = useNav();
-
-  const FocusOn: ActionItem = {
-    id: 'focuson',
-    icon: 'target',
-    label: 'Focus on',
-    action: () => setOutlineState({focus: item.id}),
-  };
-
-  const Bump: ActionItem = {
-    id: 'bump',
-    icon: 'format-vertical-align-top',
-    label: 'Bump to top',
-    action: () => outliner.bump(item),
-  };
-
-  const Snooze: ActionItem = {
-    id: 'snooze',
-    icon: 'alarm-snooze',
-    label: 'Snooze',
-    action: actionHook(() => {
-      const waitDialog = WaitDialog.get();
-      return () => {
-        //waitDialog.show(outliner, item);
-      };
-    }),
-  };
-
-  const Indent: ActionItem = {
-    id: 'indent',
-    icon: 'format-indent-increase',
-    label: 'Indent',
-    action: () => outliner.nest(item),
-  };
-
-  const Outdent: ActionItem = {
-    id: 'outdent',
-    icon: 'format-indent-decrease',
-    label: 'Outdent',
-    action: () => outliner.unnest(item),
-  };
-
-  const DELETE_WARN = 'Are you sure you want to delete this item?';
-  const Delete: ActionItem = {
-    id: 'delete',
-    icon: 'delete-outline',
-    label: 'Delete',
-    action: () => {
-      setTimeout(
-        () => BinaryAlert(DELETE_WARN, null, () => outliner.deleteItem(item)),
-        0,
-      );
-    },
-  };
-
-  const Pin: ActionItem = {
-    id: 'pin',
-    icon: 'pin',
-    label: 'Pin',
-    action: () => outliner.updateOutlineItem(item, {pinned: true}),
-  };
-
-  const Unpin: ActionItem = {
-    id: 'unpin',
-    icon: 'pin', // This is weird but it's for a button that is shown when pinned
-    label: 'Unpin',
-    action: () => outliner.updateOutlineItem(item, {pinned: false}),
-  };
-
-  const Mover: ActionItem = {
-    id: 'mover',
-    icon: 'arrow-top-right',
-    label: 'Move Item',
-    action: () => nav.navTo(OutlineMover, {focus: item.id}),
-  };
-
-  return {FocusOn, Bump, Snooze, Indent, Outdent, Delete, Pin, Unpin, Mover};
-}
 
 export function useIndent(minder: Minder, prev: Opt<Minder>) {
   const reload = useReload();
@@ -221,26 +136,17 @@ export const NewItem: ActionItemWithShortcut = {
   label: 'New item',
   key: ['+'],
   action: actionHook(() => {
-    const route = useRoute();
-    const outliner = useOutliner();
-    const [outlineState] = useOutlineState();
     const minderStore = useMinderStore();
     const {requestSelect} = useMinderScreenState();
     return async () => {
-      if (route.name === 'MinderList') {
-        // TODO: Bind NewItem to a project
-        const {projects} = await minderStore.getAll();
-        const minder = await minderStore.create({
-          project: projects[0],
-          text: '',
-          state: 'new',
-        });
-        requestSelect(minder.id, 'start');
-      } else {
-        const parent = outlineState.focusItem;
-        const kids = getChildren(parent);
-        outliner.createItemAfter(kids[kids.length - 1], '');
-      }
+      // TODO: Bind NewItem to a project
+      const {projects} = await minderStore.getAll();
+      const minder = await minderStore.create({
+        project: projects[0],
+        text: '',
+        state: 'new',
+      });
+      requestSelect(minder.id, 'start');
     };
   }),
 };
@@ -251,12 +157,15 @@ export const Up: ActionItemWithShortcut = {
   label: 'Up',
   key: ['u', 'ArrowUp'],
   action: actionHook(() => {
+    return () => {};
+    /*
     const [outlineState, setOutlineState] = useOutlineState();
 
     return () => {
       const parent = outlineState.focusItem.parent;
       parent && setOutlineState({focus: parent.id});
     };
+    */
   }),
 };
 
@@ -266,6 +175,8 @@ export const Expand: ActionItemWithShortcut = {
   label: 'Expand All',
   key: 'x',
   action: actionHook(() => {
+    return () => {};
+    /*
     const outliner = useOutliner();
     return () => {
       if (!outliner) {
@@ -273,7 +184,7 @@ export const Expand: ActionItemWithShortcut = {
       }
       const item: OutlineItem = outliner.getFocusItem();
       batch(() => outliner.expandAll(item));
-    };
+    };*/
   }),
 };
 
@@ -283,6 +194,8 @@ export const Collapse: ActionItemWithShortcut = {
   label: 'Collapse All',
   key: 'c',
   action: actionHook(() => {
+    return () => {};
+    /*
     const outliner = useOutliner();
     return () => {
       if (!outliner) {
@@ -290,7 +203,7 @@ export const Collapse: ActionItemWithShortcut = {
       }
       const item: OutlineItem = outliner.getFocusItem();
       batch(() => outliner.collapseAll(item));
-    };
+    };*/
   }),
 };
 
@@ -300,10 +213,12 @@ export const Home: ActionItemWithShortcut = {
   label: 'Home',
   key: 'h',
   action: actionHook(() => {
+    return () => {};
+    /*
     const [, setOutlineState] = useOutlineState();
     return () => {
       setOutlineState({focus: undefined});
-    };
+    };*/
   }),
 };
 

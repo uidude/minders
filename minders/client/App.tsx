@@ -67,9 +67,6 @@ import DevSettings from './screens/DevSettings';
 import EditProfile from './screens/EditProfile';
 import MinderList from './screens/MinderList';
 import Onboarding from './screens/Onboarding';
-import OutlineList from './screens/OutlineList';
-import OutlineMover from './screens/OutlineMover';
-import OutlineTop from './screens/OutlineTop';
 import {ShortcutTool} from './util/Shortcuts';
 import {UsingUiTools} from './util/UiTools';
 
@@ -110,10 +107,7 @@ const ROUTES: Routes = {
   WebViewScreen,
   AboutScreen,
   NotificationSettingsScreen,
-  outline: OutlineTop,
-  list: OutlineList,
   MinderList,
-  mover: OutlineMover,
   DevSettings,
   Onboarding,
   EditProfile,

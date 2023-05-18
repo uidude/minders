@@ -18,6 +18,7 @@ import {useIndent, useMinderActions, useOutdent} from '@app/components/Actions';
 import {EditableStatusM} from '@app/components/EditableStatus';
 import {
   Minder,
+  OutlineItemVisibilityFilter,
   getChildren,
   hasVisibleKids,
   isParent,
@@ -25,7 +26,6 @@ import {
   useLiveData,
   useMinderStore,
 } from '@app/model/Minders';
-import type {OutlineItemVisibilityFilter} from '../model/outliner';
 import {ActionButton} from './ActionButton';
 import {ActionMenu, VerticalDots} from './ActionMenu';
 import {MinderTextInput} from './MinderTextInput';

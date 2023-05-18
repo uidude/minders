@@ -1,5 +1,24 @@
 // @ flow
 
+import {Opt} from '@toolkit/core/util/Types';
+import {OutlineItemState} from './Minders';
+
+// Can we make this a class and still have
+// useful data object semantics (e.g. safe to serialize)?
+// We're already starting on this with "parent"...
+export type LegacyOutlineItem = {
+  parent: Opt<LegacyOutlineItem>;
+  text: string;
+  id: number;
+  sub: Array<LegacyOutlineItem>;
+  state: OutlineItemState;
+  created: Date;
+  modified: Date;
+  snoozeTil?: Opt<Date>;
+  snoozeState?: Opt<OutlineItemState>;
+  pinned?: boolean;
+};
+
 export const INITIAL_OUTLINE = {
   top: {
     sub: [

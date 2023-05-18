@@ -12,20 +12,10 @@ import {Image, Linking, StyleSheet, Text, View} from 'react-native';
 import AppIcon from '@assets/splash.png';
 import Constants from 'expo-constants';
 import {useAuth} from '@toolkit/core/api/Auth';
-import {useDataStore} from '@toolkit/data/DataStore';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import {OutlineView, viewMenuChoices} from '@app/AppLayout';
 import {FIREBASE_CONFIG} from '@app/common/Config';
-import {
-  MinderProject,
-  MinderUiState,
-  getSavedUiState,
-  useMinderStore,
-} from '@app/model/Minders';
-import OutlinerContext from '@app/model/OutlinerContext';
-import OutlineList from '@app/screens/OutlineList';
-import OutlineTop from '@app/screens/OutlineTop';
+import {getSavedUiState, useMinderStore} from '@app/model/Minders';
 import {useDontAnimate} from '@app/util/Useful';
 import LoginScreen from './LoginScreen';
 import MinderList from './MinderList';
@@ -62,7 +52,6 @@ const StartupScreen: Screen<{}> = () => {
   const appChecks = newAppChecks();
   const dontAnimateNextTransition = useDontAnimate();
   const minderStore = useMinderStore();
-  const ctx = React.useContext(OutlinerContext);
 
   // Async initialization that occurs before redirecting to main app
   async function waitForInitialization() {
@@ -73,8 +62,6 @@ const StartupScreen: Screen<{}> = () => {
         nav.reset(LoginScreen);
         return;
       }
-
-      await ctx.getOutlinerPromise(user.id);
 
       // Oh where do we get the ?#? project id from?
       let uiState = await getSavedUiState();

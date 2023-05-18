@@ -19,13 +19,13 @@ import {
   Minder,
   MinderProject,
   MinderUiState,
+  OutlineItemVisibilityFilter,
   isVisible,
   parentsOf,
   useDataListen,
   useLiveData,
   useMinderStore,
 } from '@app/model/Minders';
-import {OutlineItemVisibilityFilter} from '@app/model/outliner';
 import MinderOutline from '../components/MinderOutline';
 
 export function NoChildren(props: {

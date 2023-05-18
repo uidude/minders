@@ -36,19 +36,10 @@ import {
 } from '@app/components/Actions';
 import OutlineFocusPicker from '@app/components/OutlineFocusPicker';
 import {
-  useOutlineState,
-  useOutlineStore,
-  useOutliner,
-} from '@app/model/OutlinerContext';
-import type {
+  MinderScreenContextProvider,
   OutlineItemVisibilityFilter,
-  OutlineStyle,
-} from '@app/model/outliner';
-import {getItemUi} from '@app/model/outliner';
-import LoginScreen from '@app/screens/LoginScreen';
-import OutlineList from '@app/screens/OutlineList';
-import OutlineTop from '@app/screens/OutlineTop';
-import {MinderScreenContextProvider} from './model/Minders';
+} from '@app/model/Minders';
+import LoginScreen from './screens/LoginScreen';
 import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
 import {useDontAnimate, useSetPageTitle} from './util/Useful';
 
@@ -67,12 +58,6 @@ export const Filters: EnumConfig<OutlineItemVisibilityFilter> = new Map([
   ['notdone', {icon: 'check-circle', label: 'Not Done', key: 'n'}],
 ]);
 
-// Cheating and reversing the icons... really should have a toggle button
-const ViewTypes: EnumConfig<OutlineStyle> = new Map([
-  ['list', {icon: 'format-list-bulleted', label: 'Outline View', key: 'l'}],
-  ['outline', {icon: 'format-align-justify', label: 'List View', key: 'o'}],
-]);
-
 export type OutlineView =
   | 'focus'
   | 'review'
@@ -85,18 +70,17 @@ export type OutlineView =
 // New menu config for menu that selects filter *and* view
 type ViewMenuChoice = {
   filter: OutlineItemVisibilityFilter;
-  view: typeof OutlineTop | typeof OutlineList;
 };
 
 // Function for lazy loading of view types
 export const viewMenuChoices = (): Record<OutlineView, ViewMenuChoice> => ({
-  focus: {filter: 'focus', view: OutlineList},
-  review: {filter: 'review', view: OutlineList},
-  pile: {filter: 'pile', view: OutlineList},
-  waiting: {filter: 'waiting', view: OutlineList},
-  done: {filter: 'done', view: OutlineList},
-  outline: {filter: 'notdone', view: OutlineTop},
-  outlineall: {filter: 'all', view: OutlineTop},
+  focus: {filter: 'focus'},
+  review: {filter: 'review'},
+  pile: {filter: 'pile'},
+  waiting: {filter: 'waiting'},
+  done: {filter: 'done'},
+  outline: {filter: 'notdone'},
+  outlineall: {filter: 'all'},
 });
 
 export function filterFor(view: OutlineView) {
@@ -217,13 +201,10 @@ export default function Layout(props: LayoutProps) {
 
 // TODO: Back button
 function Header(props: LayoutProps) {
-  const outliner = useOutliner();
-  const loader = useOutlineStore();
-  const outlineUiState = getItemUi(outliner.getData());
   const route = useRoute();
   /** @ts-ignore */
   const viewParam = route.params?.view;
-  const view = viewParam ?? outlineUiState.view ?? 'focus';
+  const view = viewParam ?? 'focus';
   const nav = useNav();
   const setPageTitle = useSetPageTitle();
   const {setError} = useStatus();
@@ -237,34 +218,26 @@ function Header(props: LayoutProps) {
 
   const routeName = route.name;
 
-  const [{focus, focusItem}, setOutlineState] = useOutlineState();
-  const isTop = focusItem == outliner.getData();
-  const count =
-    routeName == 'list'
-      ? outliner.getFlatList(focusItem).filter(item => !item.ui?.hidden).length
-      : null; //getChildren(focusItem).length;
+  // TODO: Calculate count
+  const count = 0;
+
+  // TODO: Set isTop
+  const isTop = false;
 
   const actionMenuItems = [Expand, Collapse, Settings];
+  /*
   if (!isTop) {
     actionMenuItems.splice(0, 0, Up);
-  }
+  }*/
 
-  loader.setErrorReporter((e: Error) => {
-    setError(AdhocError('Failure saving outline - please reload.'));
-  });
-
+  /*
   if (screen === OutlineTop || screen === OutlineList) {
     setPageTitle(focusItem.text);
-  }
+  }*/
 
   const viewMenuActions = enumActions(ViewMenuItems, value => {
-    const choice = viewMenuChoices()[value];
-    if (route.name === 'MinderList') {
-      nav.setParams({view: value});
-    } else {
-      nav.replace(choice.view, {focus});
-    }
-    setOutlineState({filter: choice.filter});
+    nav.setParams({view: value});
+    // TODO: Save new default
   });
 
   return (
