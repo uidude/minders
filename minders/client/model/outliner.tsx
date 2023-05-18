@@ -5,7 +5,7 @@
 import {Opt} from '@toolkit/core/util/Types';
 import * as OutlineState from './OutlineState';
 
-const STATE_VISIBILITY: Record<string, OutlineItemState[]> = {
+export const STATE_VISIBILITY: Record<string, OutlineItemState[]> = {
   focus: ['cur', 'top'],
   review: ['new', 'waiting', 'soon'],
   pile: ['soon', 'later'],
@@ -15,7 +15,7 @@ const STATE_VISIBILITY: Record<string, OutlineItemState[]> = {
   done: ['done'],
 };
 
-const STATE_PRIORITY = [
+export const STATE_PRIORITY = [
   'waiting',
   'new',
   'top',
@@ -33,7 +33,7 @@ export type OutlineItemState =
   | 'soon'
   | 'later'
   | 'done';
-export type OutlineViewType = 'list' | 'outline';
+export type OutlineStyle = 'list' | 'outline';
 export type OutlineItemVisibilityFilter =
   | 'focus'
   | 'review'
@@ -44,7 +44,7 @@ export type OutlineItemVisibilityFilter =
   | 'done';
 
 type OutlineItemUi = {
-  view?: OutlineViewType;
+  view?: OutlineStyle;
   visibilityFilter?: OutlineItemVisibilityFilter;
   hidden?: boolean;
   kidsHidden?: boolean;
@@ -61,7 +61,6 @@ export type OutlineItem = {
   sub: Array<OutlineItem>;
   ui: OutlineItemUi;
   state: OutlineItemState;
-  snoozedState?: OutlineItemState;
   created: Date;
   modified: Date;
   snoozeTil?: Opt<Date>;
@@ -72,7 +71,7 @@ export type OutlineItem = {
 export type OutlineItemShape = Partial<OutlineItem>;
 
 export type Outline = {
-  top: Partial<OutlineItem>;
+  top: OutlineItem;
   version: number;
   baseVersion: number;
   focus?: number;
@@ -567,7 +566,7 @@ export default class Outliner {
     this.save();
   }
 
-  setView(view: OutlineViewType) {
+  setView(view: OutlineStyle) {
     this.updateOutlineItemUi(this.getData(), {view: view});
   }
 

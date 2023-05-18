@@ -24,9 +24,11 @@ function applies(val: Opt<boolean>, match: boolean) {
 }
 
 const ShortcutComponent = () => {
-  const shortcuts = Shortcuts.get();
+  const shortcutApi = Shortcuts.get();
 
   async function onKey(e: KeyboardEvent) {
+    // Copying values as they can change while iterating
+    const shortcuts = [...shortcutApi.values];
     const eventTypeToMatch = KeyEventTypes[e.key] || DefaultKeyEventType;
     if (eventTypeToMatch != e.type) {
       return;
@@ -36,7 +38,7 @@ const ShortcutComponent = () => {
     // @ts-ignore
     const nodeType = e.srcElement.nodeName;
     const inText = nodeType == 'INPUT' || nodeType == 'TEXTAREA';
-    for (const shortcut of shortcuts.values) {
+    for (const shortcut of shortcuts) {
       if (shortcut.inText || !inText) {
         // TODO: modifier state
         if (shortcut.key == e.key && applies(shortcut.shift, e.shiftKey)) {
@@ -52,8 +54,8 @@ const ShortcutComponent = () => {
 
   React.useEffect(() => {
     if (window && window.document) {
-      window.document.addEventListener('keydown', onKey, true);
       window.document.addEventListener('keypress', onKey, true);
+      window.document.addEventListener('keydown', onKey, true);
       return () => {
         window.document.removeEventListener('keypress', onKey, true);
         window.document.removeEventListener('keydown', onKey, true);
@@ -64,10 +66,11 @@ const ShortcutComponent = () => {
   return <></>;
 };
 
-type Shortcut = {
+export type ShortcutAction = () => boolean | void | Promise<boolean | void>;
+export type Shortcut = {
   key: string;
   // If true, continue the processing
-  action: () => boolean | void | Promise<boolean | void>;
+  action: ShortcutAction;
   shift?: boolean;
   inText?: boolean;
 };
@@ -100,6 +103,20 @@ export function useShortcut(shortcut: Shortcut, enable: boolean = true) {
     }
     shortcuts.add(shortcut);
     return () => shortcuts.remove(shortcut);
+  });
+}
+
+export function useShortcuts(cuts: Shortcut[]) {
+  const shortcuts = Shortcuts.get();
+  React.useEffect(() => {
+    for (const shortcut of cuts) {
+      shortcuts.add(shortcut);
+    }
+    return () => {
+      for (const shortcut of cuts) {
+        shortcuts.remove(shortcut);
+      }
+    };
   });
 }
 

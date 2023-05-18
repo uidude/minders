@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import {Appbar} from 'react-native-paper';
@@ -41,12 +42,13 @@ import {
 } from '@app/model/OutlinerContext';
 import type {
   OutlineItemVisibilityFilter,
-  OutlineViewType,
+  OutlineStyle,
 } from '@app/model/outliner';
 import {getItemUi} from '@app/model/outliner';
 import LoginScreen from '@app/screens/LoginScreen';
 import OutlineList from '@app/screens/OutlineList';
 import OutlineTop from '@app/screens/OutlineTop';
+import {MinderScreenContextProvider} from './model/Minders';
 import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
 import {useDontAnimate, useSetPageTitle} from './util/Useful';
 
@@ -62,15 +64,16 @@ export const Filters: EnumConfig<OutlineItemVisibilityFilter> = new Map([
   /* ['all', {icon: 'earth', label: 'All', key: 'a'}],*/
   ['waiting', {icon: 'timer-sand-empty', label: 'Waiting', key: 'w'}],
   ['done', {icon: 'check-circle-outline', label: 'Done', key: 'd'}],
+  ['notdone', {icon: 'check-circle', label: 'Not Done', key: 'n'}],
 ]);
 
 // Cheating and reversing the icons... really should have a toggle button
-const ViewTypes: EnumConfig<OutlineViewType> = new Map([
+const ViewTypes: EnumConfig<OutlineStyle> = new Map([
   ['list', {icon: 'format-list-bulleted', label: 'Outline View', key: 'l'}],
   ['outline', {icon: 'format-align-justify', label: 'List View', key: 'o'}],
 ]);
 
-type OutlineView =
+export type OutlineView =
   | 'focus'
   | 'review'
   | 'pile'
@@ -86,7 +89,7 @@ type ViewMenuChoice = {
 };
 
 // Function for lazy loading of view types
-const viewMenuChoices = (): Record<OutlineView, ViewMenuChoice> => ({
+export const viewMenuChoices = (): Record<OutlineView, ViewMenuChoice> => ({
   focus: {filter: 'focus', view: OutlineList},
   review: {filter: 'review', view: OutlineList},
   pile: {filter: 'pile', view: OutlineList},
@@ -95,6 +98,10 @@ const viewMenuChoices = (): Record<OutlineView, ViewMenuChoice> => ({
   outline: {filter: 'notdone', view: OutlineTop},
   outlineall: {filter: 'all', view: OutlineTop},
 });
+
+export function filterFor(view: OutlineView) {
+  return viewMenuChoices()[view].filter;
+}
 
 export const ViewMenuItems: EnumConfig<OutlineView> = new Map([
   ['focus', {icon: 'eye-outline', label: 'In Focus', key: 'f'}],
@@ -152,6 +159,7 @@ export default function Layout(props: LayoutProps) {
   const navStyle = style?.nav ?? 'full';
   const navType = style?.type ?? 'std';
   const key = route.key;
+  const {width} = useWindowDimensions();
 
   function onError(err: Error) {
     // If you can fix the error by logging back in, redirect to login
@@ -162,40 +170,48 @@ export default function Layout(props: LayoutProps) {
     return false;
   }
 
+  const borderRadius = isMobile() || width < 800 ? 0 : 24;
+
   if (navType === 'modal') {
     // Modal views are just the content: No SafeAreaView, Header, or Tabs
     return (
-      <View style={S.top}>
-        {navStyle == 'full' && <Header title={title} />}
-        <ScrollView style={S.container} contentContainerStyle={S.modalContent}>
-          <TriState key={key} onError={onError} loadingView={loadingView}>
-            <View style={{flex: 1}}>{children}</View>
-          </TriState>
-        </ScrollView>
-      </View>
+      <MinderScreenContextProvider>
+        <View style={[S.top, {borderRadius}]} onLayout={e => console.log(e)}>
+          {navStyle == 'full' && <Header title={title} />}
+          <ScrollView
+            style={S.container}
+            contentContainerStyle={S.modalContent}>
+            <TriState key={key} onError={onError} loadingView={loadingView}>
+              <View style={{flex: 1}}>{children}</View>
+            </TriState>
+          </ScrollView>
+        </View>
+      </MinderScreenContextProvider>
     );
   }
 
   return (
-    <SafeAreaView style={S.top}>
-      <KeyboardAvoidingView
-        style={{flex: 1}}
-        behavior="position"
-        contentContainerStyle={{flex: 1}}>
-        {navStyle === 'full' && (
-          // TODO: Should show action bar while loading
-          <TriState loadingView={Empty} errorView={Empty}>
-            <Header {...props} />
-            <ActionFAB style={S.fab} small item={NewItem} />
-          </TriState>
-        )}
-        <ScrollView style={S.scroll} contentContainerStyle={S.content}>
-          <TriState key={key} onError={onError} loadingView={loadingView}>
-            <View style={{flex: 1}}>{children}</View>
-          </TriState>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    <MinderScreenContextProvider>
+      <SafeAreaView style={[S.top, {borderRadius}]}>
+        <KeyboardAvoidingView
+          style={{flex: 1}}
+          behavior="position"
+          contentContainerStyle={{flex: 1}}>
+          {navStyle === 'full' && (
+            // TODO: Should show action bar while loading
+            <TriState loadingView={Empty} errorView={Empty}>
+              <Header {...props} />
+              <ActionFAB style={S.fab} small item={NewItem} />
+            </TriState>
+          )}
+          <ScrollView style={S.scroll} contentContainerStyle={S.content}>
+            <TriState key={key} onError={onError} loadingView={loadingView}>
+              <View style={{flex: 1}}>{children}</View>
+            </TriState>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </MinderScreenContextProvider>
   );
 }
 
@@ -204,8 +220,10 @@ function Header(props: LayoutProps) {
   const outliner = useOutliner();
   const loader = useOutlineStore();
   const outlineUiState = getItemUi(outliner.getData());
-  const filter = outlineUiState.visibilityFilter || 'focus';
   const route = useRoute();
+  /** @ts-ignore */
+  const viewParam = route.params?.view;
+  const view = viewParam ?? outlineUiState.view ?? 'focus';
   const nav = useNav();
   const setPageTitle = useSetPageTitle();
   const {setError} = useStatus();
@@ -213,12 +231,16 @@ function Header(props: LayoutProps) {
     location: {screen},
   } = useNavState();
 
-  const view = route.name;
+  if (viewParam !== view) {
+    setTimeout(() => nav.setParams({view}), 0);
+  }
+
+  const routeName = route.name;
 
   const [{focus, focusItem}, setOutlineState] = useOutlineState();
   const isTop = focusItem == outliner.getData();
   const count =
-    view == 'list'
+    routeName == 'list'
       ? outliner.getFlatList(focusItem).filter(item => !item.ui?.hidden).length
       : null; //getChildren(focusItem).length;
 
@@ -237,11 +259,13 @@ function Header(props: LayoutProps) {
 
   const viewMenuActions = enumActions(ViewMenuItems, value => {
     const choice = viewMenuChoices()[value];
-    nav.replace(choice.view, {focus});
+    if (route.name === 'MinderList') {
+      nav.setParams({view: value});
+    } else {
+      nav.replace(choice.view, {focus});
+    }
     setOutlineState({filter: choice.filter});
   });
-
-  const viewMenuEnum = viewFor(route.name, filter);
 
   return (
     <View style={S.topBar}>
@@ -256,7 +280,7 @@ function Header(props: LayoutProps) {
             anchor={onPress => (
               <EnumTextButton
                 enums={ViewMenuItems}
-                value={viewMenuEnum}
+                value={view}
                 style={S.title}
                 onPress={onPress}
               />
@@ -391,7 +415,6 @@ const S = StyleSheet.create({
     flex: 1,
     alignSelf: 'stretch',
     backgroundColor: '#123',
-    borderRadius: isMobile() ? 0 : 24,
     shadowColor: '#C0C0C0',
     shadowRadius: 4,
     overflow: 'hidden',

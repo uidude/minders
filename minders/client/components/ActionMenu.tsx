@@ -5,7 +5,7 @@
 import * as React from 'react';
 import {StyleProp, ViewStyle} from 'react-native';
 import {ActionItem, useAction} from '@toolkit/core/client/Action';
-import {useShortcut} from '@app/util/Shortcuts';
+import {Shortcut, useShortcuts} from '@app/util/Shortcuts';
 import {ActionItemWithShortcut} from './Actions';
 import {IconButton, Menu} from './AppComponents';
 
@@ -47,12 +47,15 @@ function ActionMenuImpl(props: {
     const [handler] = useAction(item.id, item.action);
     return handler;
   });
+  const shortcuts: Shortcut[] = [];
   items.forEach((item, index) => {
     const keys = (typeof item.key == 'string' ? [item.key] : item.key) ?? [];
     for (const key of keys) {
-      useShortcut({key, action: handlers[index]});
+      shortcuts.push({key, action: handlers[index]});
     }
   });
+  useShortcuts(shortcuts);
+
   const [menuVisible, setMenuVisible] = React.useState(false);
 
   function menuItemSelected(index: number): void {

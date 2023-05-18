@@ -65,6 +65,7 @@ import {APP_CONFIG, APP_INFO, NOTIF_CHANNELS_CONTEXT} from './Config';
 import {WaitDialogTool} from './components/WaitDialog';
 import DevSettings from './screens/DevSettings';
 import EditProfile from './screens/EditProfile';
+import MinderList from './screens/MinderList';
 import Onboarding from './screens/Onboarding';
 import OutlineList from './screens/OutlineList';
 import OutlineMover from './screens/OutlineMover';
@@ -111,6 +112,7 @@ const ROUTES: Routes = {
   NotificationSettingsScreen,
   outline: OutlineTop,
   list: OutlineList,
+  MinderList,
   mover: OutlineMover,
   DevSettings,
   Onboarding,

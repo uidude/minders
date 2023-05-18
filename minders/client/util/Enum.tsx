@@ -9,6 +9,7 @@
 
 import * as React from 'react';
 import {
+  ActivityIndicator,
   StyleProp,
   Text,
   TextStyle,
@@ -107,12 +108,19 @@ export type EnumIconButtonProps<T> = {
   style?: StyleProp<ViewStyle>;
   color?: string;
   onPress: () => void;
+  loading?: boolean;
 };
 // Icon button tied to an enum from an EnumConfig
 export function EnumIconButton<T>(props: EnumIconButtonProps<T>) {
-  const {enums, size, style, color, onPress} = props;
+  const {enums, size, style, color, onPress, loading = false} = props;
   /** @ts-ignore */
   const enumValue: T = props.value || enums.keys().next.value;
+
+  if (loading) {
+    return (
+      <ActivityIndicator size={size} style={[{width: 39, height: 39}, style]} />
+    );
+  }
 
   return (
     <IconButton

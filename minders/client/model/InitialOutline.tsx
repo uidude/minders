@@ -94,6 +94,26 @@ export const INITIAL_OUTLINE = {
               hidden: false,
               closed: false,
             },
+            sub: [
+              {
+                state: 'top',
+                text: 'Test child item two',
+                id: 12,
+                ui: {
+                  hidden: false,
+                  closed: false,
+                },
+              },
+              {
+                state: 'top',
+                text: 'Test child item',
+                id: 11,
+                ui: {
+                  hidden: false,
+                  closed: false,
+                },
+              },
+            ],
           },
         ],
       },

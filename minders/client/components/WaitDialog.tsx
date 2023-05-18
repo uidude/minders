@@ -6,30 +6,35 @@ import * as React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Button, Dialog, Portal} from 'react-native-paper';
 import {Opt} from '@toolkit/core/util/Types';
+import {Updater} from '@toolkit/data/DataStore';
+import {Minder, useMinderStore} from '@app/model/Minders';
 import Outliner, {type OutlineItem} from '../model/outliner';
 import {useShortcut} from '../util/Shortcuts';
 import {useUiTool, type UiTool} from '../util/UiTools';
 
 type SnoozeUnit = 'days' | 'hours';
 
+type Callback = (result: {snoozeTil: number}) => void;
+type CallbackHolder = {callback: Opt<Callback>};
+
 const WaitDialogComponent = () => {
-  const [item, setItem] = React.useState<OutlineItem | null>();
-  const [outliner, setOutliner] = React.useState<Outliner>();
+  const [{callback}, setCallback] = React.useState<CallbackHolder>({
+    callback: null,
+  });
   const waitDialog = WaitDialog.get();
-  const visible = item != null;
+  const visible = callback != null;
 
   useShortcut({
     key: 'Escape',
     action: dismiss,
   });
 
-  waitDialog.handler = (outliner, item) => {
-    setOutliner(outliner);
-    setItem(item);
+  waitDialog.handler = newCallback => {
+    setCallback({callback: newCallback});
   };
 
   function dismiss() {
-    setItem(null);
+    setCallback({callback: null});
   }
 
   const UNIT_TO_MS = {
@@ -37,16 +42,12 @@ const WaitDialogComponent = () => {
     hours: 3600 * 1000,
   };
 
-  function snooze(amt: number, unit: 'days' | 'hours') {
-    if (!item || !outliner) {
+  async function snooze(amt: number, unit: 'days' | 'hours') {
+    if (!callback) {
       return;
     }
-    const update: Partial<OutlineItem> = {
-      snoozeTil: new Date(Date.now() + UNIT_TO_MS[unit] * amt),
-      state: 'waiting',
-    };
-    outliner.updateOutlineItem(item, update);
-    setItem(null);
+    callback({snoozeTil: Date.now() + UNIT_TO_MS[unit] * amt});
+    dismiss();
   }
 
   function SnoozeButton(props: {amt: number; unit: SnoozeUnit}) {
@@ -94,10 +95,11 @@ const WaitDialogComponent = () => {
 };
 
 export class WaitDialog {
-  handler: (outliner: Outliner, item: Opt<OutlineItem>) => void;
+  handler: (callback?: Callback) => void;
 
-  show(outliner: Outliner, item: Opt<OutlineItem>) {
-    this.handler && this.handler(outliner, item);
+  // TODO: This is hacky, we should update to a cleaner API pattern
+  show(callback: Callback) {
+    this.handler?.(callback);
   }
 
   static get(): WaitDialog {

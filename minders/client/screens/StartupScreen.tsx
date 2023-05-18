@@ -12,13 +12,23 @@ import {Image, Linking, StyleSheet, Text, View} from 'react-native';
 import AppIcon from '@assets/splash.png';
 import Constants from 'expo-constants';
 import {useAuth} from '@toolkit/core/api/Auth';
+import {useDataStore} from '@toolkit/data/DataStore';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
+import {OutlineView, viewMenuChoices} from '@app/AppLayout';
 import {FIREBASE_CONFIG} from '@app/common/Config';
+import {
+  MinderProject,
+  MinderUiState,
+  getSavedUiState,
+  useMinderStore,
+} from '@app/model/Minders';
 import OutlinerContext from '@app/model/OutlinerContext';
 import OutlineList from '@app/screens/OutlineList';
 import OutlineTop from '@app/screens/OutlineTop';
 import {useDontAnimate} from '@app/util/Useful';
+import LoginScreen from './LoginScreen';
+import MinderList from './MinderList';
 
 /**
  * Checks that new apps have been initiatlized sufficiently so that they can run.
@@ -51,6 +61,7 @@ const StartupScreen: Screen<{}> = () => {
   const auth = useAuth();
   const appChecks = newAppChecks();
   const dontAnimateNextTransition = useDontAnimate();
+  const minderStore = useMinderStore();
   const ctx = React.useContext(OutlinerContext);
 
   // Async initialization that occurs before redirecting to main app
@@ -59,17 +70,22 @@ const StartupScreen: Screen<{}> = () => {
       dontAnimateNextTransition();
       const user = await auth.getLoggedInUser();
       if (user == null) {
-        nav.reset(OutlineList);
+        nav.reset(LoginScreen);
         return;
       }
+
       await ctx.getOutlinerPromise(user.id);
-      const outliner = ctx.getOutliner(user.id);
-      // TODO: Remember last view?
-      const focusItem = outliner.getFocusItem();
-      const defaultFocusItem = outliner.getData();
-      const focus =
-        focusItem.id != defaultFocusItem.id ? focusItem.id : undefined;
-      nav.reset(OutlineTop, {focus});
+
+      // Oh where do we get the ?#? project id from?
+      let uiState = await getSavedUiState();
+      if (uiState == null) {
+        const projects = await minderStore.getProjects();
+        // TODO: What if there are no projects?
+        uiState = {view: 'focus', filter: 'focus', project: projects[0].id};
+      }
+
+      const project = uiState.project?.replace('minderProject:', '');
+      nav.reset(MinderList, {view: uiState.view, project});
     }
   }
 

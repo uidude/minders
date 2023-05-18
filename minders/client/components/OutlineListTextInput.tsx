@@ -1,14 +1,3 @@
-import * as OutlineState from '@app/model/OutlineState';
-import OutlineUtil from '@app/model/OutlineUtil';
-import {useOutliner} from '@app/model/OutlinerContext';
-import {
-  OutlineItem,
-  getChildren,
-  isChild
-} from '@app/model/outliner';
-import {useShortcut} from '@app/util/Shortcuts';
-import {textInputSelect, useForceUpdate} from '@app/util/Useful';
-import {Opt} from '@toolkit/core/util/Types';
 import React from 'react';
 import {
   NativeSyntheticEvent,
@@ -16,29 +5,35 @@ import {
   StyleSheet,
   TextInput,
   TextInputSelectionChangeEventData,
-  TextStyle
+  TextStyle,
 } from 'react-native';
+import {Opt} from '@toolkit/core/util/Types';
+import * as OutlineState from '@app/model/OutlineState';
+import OutlineUtil from '@app/model/OutlineUtil';
+import {useOutliner} from '@app/model/OutlinerContext';
+import {OutlineItem, getChildren, isChild} from '@app/model/outliner';
+import {useShortcut} from '@app/util/Shortcuts';
+import {textInputSelect, useForceUpdate} from '@app/util/Useful';
 
-
-type Props =  {
+type Props = {
   item: OutlineItem;
   top?: OutlineItem;
   prev?: OutlineItem;
-}
+};
 
 /**
  * All of the logic for editing text inside an outline list item.
- * 
+ *
  * Includes logic for special characters
  * - Backspace deletes if no text remains
  * - Enter creates a new item
  * - Shift-enter submits the new item
- * 
+ *
  * Also includes logic for checking for current selection. This is
  * surprisingly complicated because you want to pick up the new selection
  * when another item is blurred or deleted, and this is not handled consistently
  * across different text inputs on different platforms.
- * 
+ *
  * Keeping side-by-side with OutlineText (the version for hierarchical display)
  * so we can hopefully unify.
  */

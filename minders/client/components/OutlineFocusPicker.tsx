@@ -4,20 +4,38 @@
 
 import * as React from 'react';
 import {StyleProp, Text, TextStyle, TouchableHighlight} from 'react-native';
+import {useRoute} from '@react-navigation/native';
+import {withAsyncLoad} from '@toolkit/core/util/Loadable';
+import {useNav} from '@toolkit/ui/screen/Nav';
+import {MinderProject, useMinderStore} from '@app/model/Minders';
 import {useOutlineState, useOutliner} from '../model/OutlinerContext';
 import {OutlineItem} from '../model/outliner';
 import {useShortcut} from '../util/Shortcuts';
 import {Menu} from './AppComponents';
 
-function OutlineFocusPicker(props: {style?: StyleProp<TextStyle>}) {
+type Props = {
+  style?: StyleProp<TextStyle>;
+  async: {
+    projects: MinderProject[];
+  };
+};
+function OutlineFocusPicker(props: Props) {
   const {style} = props;
+  const {projects} = props.async;
   const outliner = useOutliner();
   const [outlineState, setOutlineState] = useOutlineState();
   const title = outlineState.focusItem.text;
   const [menuVisible, setMenuVisible] = React.useState(false);
-  const items = outliner.getTopItems(true);
-  const curIndex = items.indexOf(outlineState.focusItem);
+  const route = useRoute();
+  const nav = useNav();
+  /** @ts-ignore */
+  const projectid = route.params?.project;
 
+  let curIndex = 0;
+  if (projectid != null) {
+    let fullProjectId = `minderProject:${projectid}`;
+    curIndex = projects.findIndex(p => p.id == fullProjectId);
+  }
   useShortcut({
     key: 'ArrowDown',
     action: () => {
@@ -30,24 +48,22 @@ function OutlineFocusPicker(props: {style?: StyleProp<TextStyle>}) {
   // These should probably go in a general util, but is fine here for now
   useShortcut({
     key: 'ArrowRight',
-    action: () => {
-      const toFocus =
-        curIndex == -1 || curIndex == items.length - 1 ? 0 : curIndex + 1;
-      setOutlineState({focus: items[toFocus].id});
-    },
-  });
-  useShortcut({
-    key: 'ArrowLeft',
-    action: () => {
-      const toFocus =
-        curIndex == -1 || curIndex == 0 ? items.length - 1 : curIndex - 1;
-      setOutlineState({focus: items[toFocus].id});
-    },
+    action: () => nav.setParams({project: projectIdFor(curIndex + 1)}),
   });
 
-  function focusSelected(item: OutlineItem) {
+  useShortcut({
+    key: 'ArrowLeft',
+    action: () => nav.setParams({project: projectIdFor(curIndex - 1)}),
+  });
+
+  function select(project: MinderProject) {
     setMenuVisible(false);
-    setTimeout(() => setOutlineState({focus: item.id}), 0);
+    nav.setParams({project: project.id.replace(/^minderProject:/, '')});
+  }
+
+  function projectIdFor(index: number) {
+    const bounded = Math.max(0, Math.min(index, projects.length - 1));
+    return projects[bounded].id.replace(/^minderProject:/, '');
   }
 
   return (
@@ -61,17 +77,22 @@ function OutlineFocusPicker(props: {style?: StyleProp<TextStyle>}) {
           </Text>
         </TouchableHighlight>
       }>
-      {items.map((item, idx) => {
-        return (
-          <Menu.Item
-            key={item.id}
-            onPress={() => focusSelected(item)}
-            title={item.text}
-          />
-        );
-      })}
+      {projects.map(project => (
+        <Menu.Item
+          key={project.id}
+          onPress={() => select(project)}
+          title={project.name}
+        />
+      ))}
     </Menu>
   );
 }
 
-export default OutlineFocusPicker;
+// TODO: Use new load() primitives
+OutlineFocusPicker.load = async () => {
+  const minderStore = useMinderStore();
+  const projects = await minderStore.getProjects();
+  return {projects};
+};
+
+export default withAsyncLoad(OutlineFocusPicker);

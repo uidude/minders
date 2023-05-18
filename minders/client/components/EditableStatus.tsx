@@ -4,6 +4,8 @@
 
 import React from 'react';
 import {StyleProp, View, ViewStyle} from 'react-native';
+import {useAction} from '@toolkit/core/client/Action';
+import {Minder, useMinderStore} from '@app/model/Minders';
 import OutlineUtil from '@app/model/OutlineUtil';
 import {useOutliner} from '../model/OutlinerContext';
 import type {OutlineItem, OutlineItemState} from '../model/outliner';
@@ -47,5 +49,43 @@ export function EditableStatus(props: Props) {
         )}
       />
     </View>
+  );
+}
+
+type PropsM = {
+  minder: Minder;
+  size?: number;
+  style?: StyleProp<ViewStyle>;
+};
+
+export function EditableStatusM(props: PropsM) {
+  const {minder, size, style} = props;
+  const minderStore = useMinderStore();
+  const [onChange, loading] = useAction('UpdateState', updateState);
+  const [state, setState] = React.useState(minder.state);
+
+  async function updateState(newState: OutlineItemState) {
+    if (newState !== state) {
+      await minderStore.update(minder, {id: minder.id, state: newState});
+    }
+    setState(newState);
+  }
+
+  // This is inefficient (too many menus, but I guess OK for now?)
+  return (
+    <EnumMenu
+      enums={VisibilityStateEnums}
+      onChange={onChange}
+      anchor={onPress => (
+        <EnumIconButton
+          enums={VisibilityStateEnums}
+          value={state}
+          size={size}
+          style={style}
+          loading={loading}
+          onPress={onPress}
+        />
+      )}
+    />
   );
 }
