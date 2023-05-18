@@ -236,16 +236,6 @@ const MinderFlatList: Screen<Props> = props => {
     return <NoChildren project={project} filter={filter} />;
   }
 
-  async function testUpdate() {
-    setTimeout(async () => {
-      const id = 'minder:88a3db25-bd36-45a9-a05c-dfd2bc6551e2';
-      const minder = await minderStore.get(id);
-      if (minder) {
-        await minderStore.update(minder, {text: minder.text + '!'});
-      }
-    }, 500);
-  }
-
   return (
     <View>
       {minders.map((minder, idx) => (
@@ -257,11 +247,6 @@ const MinderFlatList: Screen<Props> = props => {
           style={idx % 2 == 1 && S.odd}
         />
       ))}
-      <Button
-        style={{alignSelf: 'flex-end', marginTop: 20, marginRight: 20}}
-        onPress={testUpdate}>
-        Test update
-      </Button>
     </View>
   );
 };
