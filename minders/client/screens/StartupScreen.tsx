@@ -71,8 +71,8 @@ const StartupScreen: Screen<{}> = () => {
         uiState = {view: 'focus', filter: 'focus', project: projects[0].id};
       }
 
-      const project = uiState.project?.replace('minderProject:', '');
-      nav.reset(MinderList, {view: uiState.view, project});
+      const top = uiState.project?.replace(':', '>');
+      nav.reset(MinderList, {view: uiState.view, top});
     }
   }
 

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useRoute} from '@react-navigation/native';
 import {User, requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
 import {
@@ -61,7 +62,7 @@ export type OutlineItemVisibilityFilter =
  *
  * Users can have one or more top-level projects.
  */
-@Model({name: 'minderProject'})
+@Model({name: 'project'})
 export class MinderProject extends BaseModel {
   /** Person who owns the project */
   @Field() owner: User;
@@ -727,4 +728,15 @@ export function MinderScreenContextProvider(props: {
 export function useMinderScreenState() {
   const screenContext = React.useContext(MinderScreenContext)!;
   return screenContext;
+}
+
+export function useMinderListParams() {
+  const route = useRoute();
+  const params = route.params as any;
+
+  const view = params?.view ?? 'focus';
+  const top = params?.top.replace('>', ':');
+  const isProject = top && top.startsWith('project:');
+
+  return {view, top, isProject};
 }

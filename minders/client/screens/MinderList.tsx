@@ -24,6 +24,7 @@ import {
   parentsOf,
   useDataListen,
   useLiveData,
+  useMinderListParams,
   useMinderStore,
 } from '@app/model/Minders';
 import MinderOutline from '../components/MinderOutline';
@@ -148,7 +149,7 @@ type Props = {
 };
 
 const MinderList: Screen<Props> = props => {
-  const {view = 'focus', project: projectId} = props;
+  const {view = 'focus'} = props;
   if (view === 'outline' || view === 'outlineall') {
     return <MinderOutlineList {...props} />;
   }
@@ -199,19 +200,19 @@ const MinderOutlineList: Screen<Props> = props => {
 
 const MinderFlatList: Screen<Props> = props => {
   requireLoggedInUser();
-  const {view = 'focus', project: projectId} = props;
+  const {view, top} = useMinderListParams();
   const {project} = props.async;
   const {Button} = useComponents();
   const minderStore = useMinderStore();
   const [minders, setMinders] = React.useState(props.async.minders);
   const filter = filterFor(view);
   const prevFilter = React.useRef(filter);
-  const prevProjectId = React.useRef(projectId);
+  const prevTop = React.useRef(top);
   useDataListen(Minder, ['*'], onMinderChange);
 
-  if (prevFilter.current !== filter || prevProjectId.current !== projectId) {
+  if (prevFilter.current !== filter || prevTop.current !== top) {
     prevFilter.current = filter;
-    prevProjectId.current = projectId;
+    prevTop.current = top;
     setTimeout(() => setMinders(props.async.minders), 0);
   }
 
@@ -219,7 +220,7 @@ const MinderFlatList: Screen<Props> = props => {
     // TODO: Only do this on add / delete
     // TODO: Prevent reload cascades
     const {projects: newProjects} = await minderStore.getAll();
-    const project = newProjects.find(p => p.id === projectId) ?? newProjects[0];
+    const project = newProjects.find(p => p.id === top) ?? newProjects[0];
     const filtered = project.minders?.filter(m => isVisible(m, filter)) ?? [];
     const newMinders = keepOrder(filtered, minders);
     setMinders(newMinders);
@@ -256,8 +257,8 @@ MinderList.id = 'MinderList';
 MinderList.load = async props => {
   const {view = 'focus'} = props;
   const minderStore = useMinderStore();
+  const {top: projectId} = useMinderListParams();
   const {projects, uiState} = await minderStore.getAll();
-  const projectId = `minderProject:${props.project}`;
   const project = projects.find(p => p.id === projectId) ?? projects[0];
   const filter = filterFor(view);
   const minders = project.minders?.filter(m => isVisible(m, filter)) ?? [];

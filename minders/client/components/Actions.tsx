@@ -60,8 +60,6 @@ export function useOutdent(minder: Minder, grandparent: Opt<Minder>) {
 
 export function useMinderActions(minder: Minder) {
   const minderStore = useMinderStore();
-  const reload = useReload(); // TODO:Remove this
-  const nav = useNav();
 
   const FocusOn: ActionItem = {
     id: 'focuson',
@@ -74,7 +72,9 @@ export function useMinderActions(minder: Minder) {
     id: 'bump',
     icon: 'format-vertical-align-top',
     label: 'Bump to top',
-    action: () => {}, //outliner.bump(item),
+    action: async () => {
+      await minderStore.update(minder, {updatedAt: Date.now()});
+    },
   };
 
   const Snooze: ActionItem = {

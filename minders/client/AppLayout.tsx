@@ -38,6 +38,7 @@ import OutlineFocusPicker from '@app/components/OutlineFocusPicker';
 import {
   MinderScreenContextProvider,
   OutlineItemVisibilityFilter,
+  useMinderListParams,
 } from '@app/model/Minders';
 import LoginScreen from './screens/LoginScreen';
 import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
@@ -202,19 +203,13 @@ export default function Layout(props: LayoutProps) {
 // TODO: Back button
 function Header(props: LayoutProps) {
   const route = useRoute();
-  /** @ts-ignore */
-  const viewParam = route.params?.view;
-  const view = viewParam ?? 'focus';
+  const {view} = useMinderListParams();
   const nav = useNav();
   const setPageTitle = useSetPageTitle();
   const {setError} = useStatus();
   const {
     location: {screen},
   } = useNavState();
-
-  if (viewParam !== view) {
-    setTimeout(() => nav.setParams({view}), 0);
-  }
 
   const routeName = route.name;
 
