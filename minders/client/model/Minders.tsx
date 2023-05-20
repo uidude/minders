@@ -224,7 +224,6 @@ export function useMinderStore() {
    */
   async function getAll(
     topId: string,
-    filter: OutlineItemVisibilityFilter,
   ): Promise<{top: Top; project: MinderProject}> {
     let project, minders, top: Top;
 
@@ -249,7 +248,7 @@ export function useMinderStore() {
         type: 'project',
         id: topId,
         text: project.name,
-        children: project.minders!,
+        children: project.minders!.filter(m => m.parentId == null),
       };
     }
 

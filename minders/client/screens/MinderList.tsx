@@ -181,7 +181,7 @@ const MinderOutlineList: Screen<Props> = props => {
   async function onMinderChange() {
     // TODO: Only do this on add / delete
     // TODO: Prevent reload cascades
-    const {top: newTop} = await minderStore.getAll(topId, filter);
+    const {top: newTop} = await minderStore.getAll(topId);
     setTop(newTop);
   }
 
@@ -227,7 +227,7 @@ const MinderFlatList: Screen<Props> = props => {
     // TODO: Only do this on add / delete
     // TODO: Prevent reload cascades
 
-    const {top: newTop} = await minderStore.getAll(topId, filter);
+    const {top: newTop} = await minderStore.getAll(topId);
     setTop(newTop);
   }
 
@@ -266,7 +266,7 @@ MinderList.load = async props => {
   const {top: topId} = useMinderListParams();
   const filter = filterFor(view);
 
-  const {project, top} = await minderStore.getAll(topId, filter);
+  const {project, top} = await minderStore.getAll(topId);
   return {project, top};
 };
 
