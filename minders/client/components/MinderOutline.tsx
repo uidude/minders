@@ -190,7 +190,6 @@ export default function MinderOutline(props: MinderOutlineProps) {
           <MinderTextInput
             /* backgroundColor={backgroundColor} */
             /* textColor={level === 0 ? '#404040' : undefined} */
-            /* TODO: Text only if parent? */
             minder={minder}
             prev={prev}
             mode="outline"

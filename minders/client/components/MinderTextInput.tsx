@@ -3,6 +3,7 @@ import {
   NativeSyntheticEvent,
   StyleProp,
   StyleSheet,
+  Text,
   TextInput,
   TextInputSelectionChangeEventData,
   TextStyle,
@@ -216,17 +217,20 @@ export function MinderTextInput(props: Props) {
   }
 
   return (
-    <TextInput
-      value={value}
-      style={[S.listItemText, cursorStyle(cursor)]}
-      onChangeText={val => setValue(val)}
-      onBlur={onBlur}
-      onFocus={onFocus}
-      onSubmitEditing={submit}
-      onSelectionChange={onSelectionChange}
-      ref={setInput}
-      selectTextOnFocus={true}
-    />
+    <>
+      <TextInput
+        value={value}
+        style={[S.listItemText, cursorStyle(cursor)]}
+        onChangeText={val => setValue(val)}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        onSubmitEditing={submit}
+        onSelectionChange={onSelectionChange}
+        ref={setInput}
+        selectTextOnFocus={true}
+      />
+      <Text>{minder.id}</Text>
+    </>
   );
 }
 
