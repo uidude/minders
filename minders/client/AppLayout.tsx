@@ -137,7 +137,7 @@ export default function Layout(props: LayoutProps) {
   const navStyle = style?.nav ?? 'full';
   const navType = style?.type ?? 'std';
   const key = route.key;
-  const {width} = useWindowDimensions();
+  const {width, height: maxHeight} = useWindowDimensions();
 
   function onError(err: Error) {
     // If you can fix the error by logging back in, redirect to login
@@ -154,7 +154,9 @@ export default function Layout(props: LayoutProps) {
     // Modal views are just the content: No SafeAreaView, Header, or Tabs
     return (
       <MinderScreenContextProvider>
-        <View style={[S.top, {borderRadius}]} onLayout={e => console.log(e)}>
+        <View
+          style={[S.top, {borderRadius, maxHeight}]}
+          onLayout={e => console.log(e)}>
           {navStyle == 'full' && <Header title={title} />}
           <ScrollView
             style={S.container}
@@ -170,7 +172,7 @@ export default function Layout(props: LayoutProps) {
 
   return (
     <MinderScreenContextProvider>
-      <SafeAreaView style={[S.top, {borderRadius}]}>
+      <SafeAreaView style={[S.top, {borderRadius, maxHeight}]}>
         <KeyboardAvoidingView
           style={{flex: 1}}
           behavior="position"
