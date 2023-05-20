@@ -4,9 +4,9 @@
 
 import * as React from 'react';
 import {StyleProp, Text, TextStyle, TouchableHighlight} from 'react-native';
-import {useRoute} from '@react-navigation/native';
 import {withAsyncLoad} from '@toolkit/core/util/Loadable';
-import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
+import {Opt} from '@toolkit/core/util/Types';
+import {useNav} from '@toolkit/ui/screen/Nav';
 import {
   MinderProject,
   useMinderListParams,
@@ -18,23 +18,23 @@ import {Menu} from './AppComponents';
 type Props = {
   style?: StyleProp<TextStyle>;
   async: {
-    title: string;
+    title: Opt<string>;
     projects: MinderProject[];
   };
 };
 function OutlineFocusPicker(props: Props) {
   const {style} = props;
-  const {projects, title} = props.async;
+  let {projects, title = ''} = props.async;
   const [menuVisible, setMenuVisible] = React.useState(false);
   const {top: topId} = useMinderListParams();
   const nav = useNav();
-  const {location} = useNavState();
 
   let curIndex = -1;
   if (top != null) {
     const foundIndex = projects.findIndex(p => p.id == topId);
     if (foundIndex !== -1) {
       curIndex = foundIndex;
+      title = projects[foundIndex].name;
     }
   }
 
@@ -105,9 +105,6 @@ OutlineFocusPicker.load = async () => {
   if (topId.indexOf('minder:') === 0) {
     const minder = (await minderStore.get(topId))!;
     title = minder.text;
-  } else {
-    const project = projects.find(p => p.id == topId)!;
-    title = project.name;
   }
 
   return {projects, title};
