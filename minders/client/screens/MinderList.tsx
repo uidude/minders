@@ -122,7 +122,6 @@ export function ParentPath(props: ParentPathProps) {
  * come back to the screen.
  */
 function keepOrder(minders: Minder[], oldMinders: Minder[]) {
-  console.log(minders.length, oldMinders.length);
   const ordered: Minder[] = [];
 
   const newIds = minders.map(m => m.id);
@@ -138,7 +137,6 @@ function keepOrder(minders: Minder[], oldMinders: Minder[]) {
       ordered.push(newMinder);
     }
   }
-  console.log(ordered);
 
   return ordered;
 }
@@ -169,7 +167,6 @@ const MinderOutlineList: Screen<Props> = props => {
   const [top, setTop] = React.useState(props.async.top);
   const minderStore = useMinderStore();
   useDataListen(Minder, ['*'], onMinderChange);
-  console.log(top.children.length);
   const children = top.children.filter(m => isVisible(m, filter));
 
   const prevFilter = React.useRef(filter);
