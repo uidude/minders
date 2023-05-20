@@ -99,23 +99,30 @@ export class Shortcuts {
     return useUiTool(ShortcutTool);
   }
 }
-
+/**
+ * Add a shortcut for the scope of this component being mounted and
+ * part of a focused screen.
+ *
+ * `enabled` params should be used for conditional shortcuts - if set
+ * to false, the shortcut isn't enabled but the React hook order is maintained.
+ */
 export function useShortcut(shortcut: Shortcut, enable: boolean = true) {
-  const shortcuts = Shortcuts.get();
-  /*
-  React.useEffect(() => {
-    if (!enable) {
-      return;
-    }
-    shortcuts.add(shortcut);
-    return () => shortcuts.remove(shortcut);
-  });*/
+  useShortcuts([shortcut], enable);
 }
 
-export function useShortcuts(cuts: Shortcut[]) {
+/**
+ * Use a list of shortcuts.
+ * To support keeping React hook usage constant, if there are a variable
+ * number of shortcuts
+ * If `enable` is false, shortcuts are not used but neededt
+ * @param cuts Use
+ * @param enable
+ */
+export function useShortcuts(cuts: Shortcut[], enable: boolean = true) {
   const shortcuts = Shortcuts.get();
   const navigation = useNavigation();
   const focused = React.useRef(false);
+  const enabled = enable && cuts.length > 0;
 
   function onFocus() {
     if (!focused.current) {
@@ -135,7 +142,7 @@ export function useShortcuts(cuts: Shortcut[]) {
   }
 
   React.useEffect(() => {
-    if (cuts.length > 0) {
+    if (enabled) {
       onFocus();
 
       const unsub = navigation.addListener('focus', onFocus);

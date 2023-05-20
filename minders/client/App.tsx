@@ -165,12 +165,12 @@ export default function App() {
     <AppContextProvider ctx={APP_CONTEXT}>
       <PaperProvider theme={BLACK_AND_WHITE} settings={{icon: Icon}}>
         <StatusContainer top={true}>
-          <UsingUiTools tools={[ShortcutTool, WaitDialogTool]}>
-            <AuthConfig>
-              <View style={S.background}>
-                <SafeAreaProvider style={S.container}>
-                  <SimpleUserMessaging style={S.messaging} />
-                  <NavigationContainer linking={linking} theme={navTheme}>
+          <AuthConfig>
+            <View style={S.background}>
+              <SafeAreaProvider style={S.container}>
+                <SimpleUserMessaging style={S.messaging} />
+                <NavigationContainer linking={linking} theme={navTheme}>
+                  <UsingUiTools tools={[ShortcutTool, WaitDialogTool]}>
                     <StatusBar style="auto" />
                     <NavContext routes={ROUTES} />
                     <Stack.Navigator
@@ -178,11 +178,11 @@ export default function App() {
                       initialRouteName="StartupScreen">
                       {navScreens}
                     </Stack.Navigator>
-                  </NavigationContainer>
-                </SafeAreaProvider>
-              </View>
-            </AuthConfig>
-          </UsingUiTools>
+                  </UsingUiTools>
+                </NavigationContainer>
+              </SafeAreaProvider>
+            </View>
+          </AuthConfig>
         </StatusContainer>
       </PaperProvider>
     </AppContextProvider>
