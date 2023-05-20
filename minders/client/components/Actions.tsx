@@ -151,14 +151,19 @@ export const NewItem: ActionItemWithShortcut = {
     const {requestSelect} = useMinderScreenState();
     const {top: topId} = useMinderListParams();
     return async () => {
-      // TODO: More efficient call to get project
-      const {project} = await minderStore.getAll(topId, 'all');
-      const minder = await minderStore.create({
-        project: project,
+      let projectId = topId;
+      if (topId.indexOf('minder') === 0) {
+        const minder = (await minderStore.get(topId, {
+          edges: [MinderProject],
+        }))!;
+        projectId = minder.project!.id;
+      }
+      const newMinder = await minderStore.create({
+        project: {id: projectId},
         text: '',
         state: 'new',
       });
-      requestSelect(minder.id, 'start');
+      requestSelect(newMinder.id, 'start');
     };
   }),
 };
