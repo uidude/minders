@@ -169,14 +169,15 @@ const MinderOutlineList: Screen<Props> = props => {
   const [top, setTop] = React.useState(props.async.top);
   const minderStore = useMinderStore();
   useDataListen(Minder, ['*'], onMinderChange);
+  console.log(top.children.length);
   const children = top.children.filter(m => isVisible(m, filter));
 
   const prevFilter = React.useRef(filter);
-  const prevTop = React.useRef(top);
+  const prevTopId = React.useRef(topId);
 
-  if (prevFilter.current !== filter || prevTop.current !== top) {
+  if (prevFilter.current !== filter || prevTopId.current !== topId) {
     prevFilter.current = filter;
-    prevTop.current = top;
+    prevTopId.current = top;
     setTimeout(() => setTop(props.async.top), 0);
   }
 
