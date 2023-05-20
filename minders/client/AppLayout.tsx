@@ -26,14 +26,7 @@ import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import {ActionButton} from '@app/components/ActionButton';
 import ActionFAB from '@app/components/ActionFAB';
 import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
-import {
-  Collapse,
-  Expand,
-  Home,
-  NewItem,
-  Settings,
-  Up,
-} from '@app/components/Actions';
+import {NewItem, useGlobalActions} from '@app/components/Actions';
 import OutlineFocusPicker from '@app/components/OutlineFocusPicker';
 import {
   MinderScreenContextProvider,
@@ -210,6 +203,7 @@ function Header(props: LayoutProps) {
   const {
     location: {screen},
   } = useNavState();
+  const {Collapse, Expand, Home, Settings, Up} = useGlobalActions();
 
   const routeName = route.name;
 

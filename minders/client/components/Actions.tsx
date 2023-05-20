@@ -140,6 +140,7 @@ export function useMinderActions(minder: Minder) {
 
 export type ActionItemWithShortcut = ActionItem & {key?: string | string[]};
 
+// Separate from global actions as it is rendered without suspense
 export const NewItem: ActionItemWithShortcut = {
   id: 'new',
   icon: 'plus',
@@ -162,39 +163,35 @@ export const NewItem: ActionItemWithShortcut = {
   }),
 };
 
-export const Up: ActionItemWithShortcut = {
-  id: 'up',
-  icon: 'arrow-up-bold-box-outline',
-  label: 'Up',
-  key: ['u', 'ArrowUp'],
-  action: actionHook(() => {
-    const minderStore = useMinderStore();
-    const {top: topId} = useMinderListParams();
-    const nav = useNav();
-    const {location} = useNavState();
+export function useGlobalActions() {
+  const minderStore = useMinderStore();
+  const {top: topId} = useMinderListParams();
+  const nav = useNav();
+  const {location} = useNavState();
 
-    return async () => {
+  const Up: ActionItemWithShortcut = {
+    id: 'up',
+    icon: 'arrow-up-bold-box-outline',
+    label: 'Up',
+    key: ['u', 'ArrowUp'],
+    action: async () => {
       const isProject = topId.indexOf('project') == 0;
       if (isProject) {
         return;
       }
       const minder = (await minderStore.get(topId, {edges: [MinderProject]}))!;
-
       const newTopId = minder.parentId ?? minder.project!.id;
-
       const newTop = newTopId.replace(':', '>');
       nav.navTo(location.screen, {...location.params, top: newTop});
-    };
-  }),
-};
+    },
+  };
 
-export const Expand: ActionItemWithShortcut = {
-  id: 'expand',
-  icon: 'expand-all-outline',
-  label: 'Expand All',
-  key: 'x',
-  action: actionHook(() => {
-    return () => {};
+  const Expand: ActionItemWithShortcut = {
+    id: 'expand',
+    icon: 'expand-all-outline',
+    label: 'Expand All',
+    key: 'x',
+    action: async () => {},
     /*
     const outliner = useOutliner();
     return () => {
@@ -204,16 +201,14 @@ export const Expand: ActionItemWithShortcut = {
       const item: OutlineItem = outliner.getFocusItem();
       batch(() => outliner.expandAll(item));
     };*/
-  }),
-};
+  };
 
-export const Collapse: ActionItemWithShortcut = {
-  id: 'collapse',
-  icon: 'collapse-all-outline',
-  label: 'Collapse All',
-  key: 'c',
-  action: actionHook(() => {
-    return () => {};
+  const Collapse: ActionItemWithShortcut = {
+    id: 'collapse',
+    icon: 'collapse-all-outline',
+    label: 'Collapse All',
+    key: 'c',
+    action: async () => {},
     /*
     const outliner = useOutliner();
     return () => {
@@ -223,32 +218,27 @@ export const Collapse: ActionItemWithShortcut = {
       const item: OutlineItem = outliner.getFocusItem();
       batch(() => outliner.collapseAll(item));
     };*/
-  }),
-};
+  };
 
-export const Home: ActionItemWithShortcut = {
-  id: 'home',
-  icon: 'home',
-  label: 'Home',
-  key: 'h',
-  action: actionHook(() => {
-    return () => {};
+  const Home: ActionItemWithShortcut = {
+    id: 'home',
+    icon: 'home',
+    label: 'Home',
+    key: 'h',
+    action: async () => {},
     /*
     const [, setOutlineState] = useOutlineState();
     return () => {
       setOutlineState({focus: undefined});
     };*/
-  }),
-};
+  };
 
-export const Settings: ActionItemWithShortcut = {
-  id: 'settings',
-  icon: 'ion:settings-outline',
-  label: 'Settings',
-  action: actionHook(() => {
-    const {navTo} = useNav();
-    return async () => {
-      navTo(SettingsScreen);
-    };
-  }),
-};
+  const Settings: ActionItemWithShortcut = {
+    id: 'settings',
+    icon: 'ion:settings-outline',
+    label: 'Settings',
+    action: async () => nav.navTo(SettingsScreen),
+  };
+
+  return {Collapse, Expand, Home, NewItem, Settings, Up};
+}
