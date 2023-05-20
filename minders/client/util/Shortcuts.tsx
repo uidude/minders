@@ -3,6 +3,7 @@
  */
 
 import * as React from 'react';
+import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
 import {Opt} from '@toolkit/core/util/Types';
 import {UiToolsContext, useUiTool, type UiTool} from './UiTools';
 
@@ -90,6 +91,10 @@ export class Shortcuts {
     }
   }
 
+  length() {
+    return this.values.length;
+  }
+
   static get() {
     return useUiTool(ShortcutTool);
   }
@@ -97,27 +102,51 @@ export class Shortcuts {
 
 export function useShortcut(shortcut: Shortcut, enable: boolean = true) {
   const shortcuts = Shortcuts.get();
+  /*
   React.useEffect(() => {
     if (!enable) {
       return;
     }
     shortcuts.add(shortcut);
     return () => shortcuts.remove(shortcut);
-  });
+  });*/
 }
 
 export function useShortcuts(cuts: Shortcut[]) {
   const shortcuts = Shortcuts.get();
-  React.useEffect(() => {
-    for (const shortcut of cuts) {
-      shortcuts.add(shortcut);
+  const navigation = useNavigation();
+  const focused = React.useRef(false);
+
+  function onFocus() {
+    if (!focused.current) {
+      focused.current = true;
+      for (const shortcut of cuts) {
+        shortcuts.add(shortcut);
+      }
     }
-    return () => {
+  }
+  function onBlur() {
+    if (focused.current) {
+      focused.current = false;
       for (const shortcut of cuts) {
         shortcuts.remove(shortcut);
       }
-    };
-  });
+    }
+  }
+
+  React.useEffect(() => {
+    if (cuts.length > 0) {
+      onFocus();
+
+      const unsub = navigation.addListener('focus', onFocus);
+      const unsub2 = navigation.addListener('blur', onBlur);
+      return () => {
+        onBlur();
+        unsub();
+        unsub2();
+      };
+    }
+  }, []);
 }
 
 // Something wrong here about using an instance of messaging...
