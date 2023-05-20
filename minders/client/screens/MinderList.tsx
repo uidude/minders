@@ -122,6 +122,7 @@ export function ParentPath(props: ParentPathProps) {
  * come back to the screen.
  */
 function keepOrder(minders: Minder[], oldMinders: Minder[]) {
+  console.log(minders.length, oldMinders.length);
   const ordered: Minder[] = [];
 
   const newIds = minders.map(m => m.id);
@@ -137,6 +138,7 @@ function keepOrder(minders: Minder[], oldMinders: Minder[]) {
       ordered.push(newMinder);
     }
   }
+  console.log(ordered);
 
   return ordered;
 }
@@ -208,29 +210,28 @@ const MinderOutlineList: Screen<Props> = props => {
 const MinderFlatList: Screen<Props> = props => {
   requireLoggedInUser();
   const {view, top: topId} = useMinderListParams();
-  const {project} = props.async;
+  const {project, top} = props.async;
   const minderStore = useMinderStore();
-  const [top, setTop] = React.useState(props.async.top);
   const filter = filterFor(view);
+  const [minders, setMinders] = React.useState(flatList(top.children, filter));
   const prevFilter = React.useRef(filter);
-  const prevTop = React.useRef(top);
-  useDataListen(Minder, ['*'], onMinderChange);
-  const minders = flatList(top.children, filter);
 
-  if (prevFilter.current !== filter || prevTop.current !== top) {
+  useDataListen(Minder, ['*'], onMinderChange);
+  if (prevFilter.current !== filter) {
     prevFilter.current = filter;
-    prevTop.current = top;
-    setTimeout(() => setTop(props.async.top), 0);
+    const newMinders = flatList(top.children, filter);
+    setTimeout(() => setMinders(newMinders), 0);
   }
 
   async function onMinderChange() {
     // TODO: Only do this on add / delete
     // TODO: Prevent reload cascades
-
-    const {top: newTop} = await minderStore.getAll(topId);
-    setTop(newTop);
+    const {
+      top: {children},
+    } = await minderStore.getAll(topId);
+    const newMinders = flatList(children, filter);
+    setMinders(keepOrder(newMinders, minders));
   }
-
   /*
     TODO:
     - Get better keepOrder logic than previously, so it works in list view
