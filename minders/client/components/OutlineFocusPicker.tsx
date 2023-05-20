@@ -6,7 +6,7 @@ import * as React from 'react';
 import {StyleProp, Text, TextStyle, TouchableHighlight} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import {withAsyncLoad} from '@toolkit/core/util/Loadable';
-import {useNav} from '@toolkit/ui/screen/Nav';
+import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import {
   MinderProject,
   useMinderListParams,
@@ -18,24 +18,25 @@ import {Menu} from './AppComponents';
 type Props = {
   style?: StyleProp<TextStyle>;
   async: {
+    title: string;
     projects: MinderProject[];
   };
 };
 function OutlineFocusPicker(props: Props) {
   const {style} = props;
-  const {projects} = props.async;
+  const {projects, title} = props.async;
   const [menuVisible, setMenuVisible] = React.useState(false);
+  const {top: topId} = useMinderListParams();
   const nav = useNav();
-  const {top: projectId} = useMinderListParams();
+  const {location} = useNavState();
 
-  let curIndex = 0;
+  let curIndex = -1;
   if (top != null) {
-    const foundIndex = projects.findIndex(p => p.id == projectId);
+    const foundIndex = projects.findIndex(p => p.id == topId);
     if (foundIndex !== -1) {
       curIndex = foundIndex;
     }
   }
-  const title = projects[curIndex].name;
 
   useShortcut({
     key: 'ArrowDown',
@@ -51,9 +52,10 @@ function OutlineFocusPicker(props: Props) {
     key: 'ArrowRight',
     action: () => nav.setParams({top: projectIdFor(curIndex + 1)}),
   });
-
+  //nav.navTo(location.screen, {...location.params, top: newTop});
   useShortcut({
     key: 'ArrowLeft',
+    // TODO: Left arrow from -1 == end of list
     action: () => nav.setParams({top: projectIdFor(curIndex - 1)}),
   });
 
@@ -95,8 +97,20 @@ function OutlineFocusPicker(props: Props) {
 // TODO: Use new load() primitives
 OutlineFocusPicker.load = async () => {
   const minderStore = useMinderStore();
+  const {top: topId} = useMinderListParams();
+
   const projects = await minderStore.getProjects();
-  return {projects};
+
+  let title;
+  if (topId.indexOf('minder:') === 0) {
+    const minder = (await minderStore.get(topId))!;
+    title = minder.text;
+  } else {
+    const project = projects.find(p => p.id == topId)!;
+    title = project.name;
+  }
+
+  return {projects, title};
 };
 
 export default withAsyncLoad(OutlineFocusPicker);
