@@ -8,18 +8,19 @@ import {
   ViewStyle,
 } from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
-import {useComponents} from '@toolkit/ui/components/Components';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {Filters, OutlineView, filterFor} from '@app/AppLayout';
 import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
 import {useMinderActions} from '@app/components/Actions';
 import {EditableStatusM} from '@app/components/EditableStatus';
+import MinderOutline from '@app/components/MinderOutline';
 import {MinderTextInput} from '@app/components/MinderTextInput';
 import {
   Minder,
   MinderProject,
-  MinderUiState,
   OutlineItemVisibilityFilter,
+  Top,
+  flatList,
   isVisible,
   parentsOf,
   useDataListen,
@@ -27,7 +28,6 @@ import {
   useMinderListParams,
   useMinderStore,
 } from '@app/model/Minders';
-import MinderOutline from '../components/MinderOutline';
 
 export function NoChildren(props: {
   project: MinderProject;
@@ -45,16 +45,19 @@ export function NoChildren(props: {
   );
 }
 
-/**
- * Show a flat list of all outline items with a given top-level parent.
- */
-export function MinderListItem(props: {
+type MinderListItemProps = {
   minder: Minder;
   parents: Minder[];
   prev?: Minder;
   style?: StyleProp<ViewStyle>;
-}) {
-  const {minder, parents, prev, style} = props;
+  top: Top;
+};
+
+/**
+ * Show a flat list of all outline items with a given top-level parent.
+ */
+export function MinderListItem(props: MinderListItemProps) {
+  const {minder, parents, prev, style, top} = props;
   // const outliner = useOutliner();
   // OutlineUtil.useRedrawOnItemUpdate(item.id);
   //useWatchData(Minder, [minder.id]);
@@ -67,7 +70,7 @@ export function MinderListItem(props: {
 
         <View style={S.textContainer}>
           <MinderTextInput minder={minder} prev={prev} />
-          <ParentPath minder={minder} parents={parents} />
+          <ParentPath top={top} parents={parents} />
         </View>
         <View>
           <ActionMenu
@@ -83,21 +86,22 @@ export function MinderListItem(props: {
 }
 
 type ParentPathProps = {
+  top: Top;
   parents: Minder[];
-  minder: Minder;
 };
+
 /**
  * Component for rendering parent path of a Minder.
  * Separate component to localize re-rendering when parents change.
  */
 export function ParentPath(props: ParentPathProps) {
-  const {parents, minder} = props;
+  const {top, parents} = props;
   const liveParents = useLiveData(Minder, parents);
 
   //const parentKeys = parents.map(p => p.id);
   //useWatchData(Minder, parentKeys);
 
-  let path = minder.project!.name;
+  let path = top.text;
   for (const parent of liveParents) {
     path += ' : ' + parent.text;
   }
@@ -143,8 +147,7 @@ type Props = {
   view?: OutlineView;
   async: {
     project: MinderProject;
-    minders: Minder[];
-    uiState: MinderUiState;
+    top: Top;
   };
 };
 
@@ -157,40 +160,44 @@ const MinderList: Screen<Props> = props => {
 };
 
 const MinderOutlineList: Screen<Props> = props => {
-  const {view = 'focus', project: projectId} = props;
+  const {view, top: topId} = useMinderListParams();
   requireLoggedInUser();
   const filter = filterFor(view);
   const {project} = props.async;
-  const [minders, setMinders] = React.useState(props.async.minders);
+  const [top, setTop] = React.useState(props.async.top);
   const minderStore = useMinderStore();
   useDataListen(Minder, ['*'], onMinderChange);
+  const children = top.children.filter(m => isVisible(m, filter));
+
+  const prevFilter = React.useRef(filter);
+  const prevTop = React.useRef(top);
+
+  if (prevFilter.current !== filter || prevTop.current !== top) {
+    prevFilter.current = filter;
+    prevTop.current = top;
+    setTimeout(() => setTop(props.async.top), 0);
+  }
 
   async function onMinderChange() {
     // TODO: Only do this on add / delete
     // TODO: Prevent reload cascades
-    const {projects: newProjects} = await minderStore.getAll();
-    const project = newProjects.find(p => p.id === projectId) ?? newProjects[0];
-    const newMinders = project.minders?.filter(m => isVisible(m, filter)) ?? [];
-    //const newMinders = keepOrder(filtered, minders);
-    setMinders(newMinders);
+    const {top: newTop} = await minderStore.getAll(topId, filter);
+    setTop(newTop);
   }
-
-  /** const topItem = outlineState.focusItem; **/
-  const topChildren = minders.filter(m => m.parentId == null);
 
   /* OutlineUtil.useRedrawOnItemUpdate(topItem.id); */
 
-  if (topChildren.length === 0) {
+  if (top.children.length === 0) {
     return <NoChildren project={project} filter={filter} />;
   }
 
   return (
     <View style={{flex: 1}}>
-      {topChildren.map((minder, idx) => (
+      {children.map((minder, idx) => (
         <MinderOutline
           minder={minder}
           key={minder.id}
-          prev={topChildren[idx - 1]}
+          prev={top.children[idx - 1]}
           filter={filter}
         />
       ))}
@@ -200,30 +207,28 @@ const MinderOutlineList: Screen<Props> = props => {
 
 const MinderFlatList: Screen<Props> = props => {
   requireLoggedInUser();
-  const {view, top} = useMinderListParams();
+  const {view, top: topId} = useMinderListParams();
   const {project} = props.async;
-  const {Button} = useComponents();
   const minderStore = useMinderStore();
-  const [minders, setMinders] = React.useState(props.async.minders);
+  const [top, setTop] = React.useState(props.async.top);
   const filter = filterFor(view);
   const prevFilter = React.useRef(filter);
   const prevTop = React.useRef(top);
   useDataListen(Minder, ['*'], onMinderChange);
+  const minders = flatList(top.children, filter);
 
   if (prevFilter.current !== filter || prevTop.current !== top) {
     prevFilter.current = filter;
     prevTop.current = top;
-    setTimeout(() => setMinders(props.async.minders), 0);
+    setTimeout(() => setTop(props.async.top), 0);
   }
 
   async function onMinderChange() {
     // TODO: Only do this on add / delete
     // TODO: Prevent reload cascades
-    const {projects: newProjects} = await minderStore.getAll();
-    const project = newProjects.find(p => p.id === top) ?? newProjects[0];
-    const filtered = project.minders?.filter(m => isVisible(m, filter)) ?? [];
-    const newMinders = keepOrder(filtered, minders);
-    setMinders(newMinders);
+
+    const {top: newTop} = await minderStore.getAll(topId, filter);
+    setTop(newTop);
   }
 
   /*
@@ -246,6 +251,7 @@ const MinderFlatList: Screen<Props> = props => {
           prev={minders[idx - 1]}
           key={minder.id}
           style={idx % 2 == 1 && S.odd}
+          top={top}
         />
       ))}
     </View>
@@ -257,13 +263,11 @@ MinderList.id = 'MinderList';
 MinderList.load = async props => {
   const {view = 'focus'} = props;
   const minderStore = useMinderStore();
-  const {top: projectId} = useMinderListParams();
-  const {projects, uiState} = await minderStore.getAll();
-  const project = projects.find(p => p.id === projectId) ?? projects[0];
+  const {top: topId} = useMinderListParams();
   const filter = filterFor(view);
-  const minders = project.minders?.filter(m => isVisible(m, filter)) ?? [];
 
-  return {project, minders, uiState};
+  const {project, top} = await minderStore.getAll(topId, filter);
+  return {project, top};
 };
 
 export default MinderList;

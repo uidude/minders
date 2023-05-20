@@ -2,6 +2,7 @@ import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useRoute} from '@react-navigation/native';
 import {User, requireLoggedInUser} from '@toolkit/core/api/User';
+import {AdhocError} from '@toolkit/core/util/CodedError';
 import {Opt} from '@toolkit/core/util/Types';
 import {
   BaseModel,
@@ -95,13 +96,13 @@ export class Minder extends BaseModel {
   /* Parent minder - derived for now */
   parent?: Minder;
 
-  /** Relative order as a child of the parent minder  */
+  /* Relative order as a child of the parent minder  */
   @Field() order: number;
 
-  /** Child minders - derived for now */
+  /* Child minders - derived for now */
   children?: Minder[];
 
-  /** Snoozing hides a "waiting" item from most UI until past the date */
+  /* Snoozing hides a "waiting" item from most UI until past the date */
   @Field() snoozeTil?: number;
 
   /**
@@ -138,9 +139,27 @@ export class Minder extends BaseModel {
    */
   hidden?: boolean;
 
-  /** Caclulcated, sorted, visible children */
+  /* Caclulcated, sorted, visible children */
   visibleChildren?: Minder[];
 }
+
+/**
+ * Minder pages can have a top-level item that is either a Minder
+ * or a project. This type covers the common fields from both used for rendering.
+ */
+export type Top = {
+  /* The type */
+  type: 'minder' | 'project';
+
+  /* Datastore ID */
+  id: string;
+
+  /* Text */
+  text: string;
+
+  /* Children */
+  children: Minder[];
+};
 
 /**
  * The UI state of the project.
@@ -199,7 +218,45 @@ export function useMinderStore() {
     return projects;
   }
 
-  async function getAll() {
+  /**
+   * Get the project or minder of the given ID,
+   * as well as all of it's chilren.
+   */
+  async function getAll(
+    topId: string,
+    filter: OutlineItemVisibilityFilter,
+  ): Promise<{top: Top; project: MinderProject}> {
+    let project, minders, top: Top;
+
+    if (topId.indexOf('minder:') === 0) {
+      const minder = nonNull(
+        await minderStore.get(topId, {edges: [MinderProject]}),
+        'Minder not found',
+      );
+
+      project = (await getProject(minder.project!.id))!;
+      minders = project!.minders!;
+      const minderInProject: Minder = minders.find(m => m.id === topId)!;
+      top = {
+        type: 'minder',
+        id: topId,
+        text: minderInProject!.text,
+        children: minderInProject.children!,
+      };
+    } else {
+      project = nonNull(await getProject(topId), 'Project not found');
+      top = {
+        type: 'project',
+        id: topId,
+        text: project.name,
+        children: project.minders!,
+      };
+    }
+
+    return {top, project};
+  }
+
+  async function getAllDeprecated() {
     let projects = await projectStore.getMany({
       query: {where: [{field: 'owner', op: '==', value: user.id}]},
       edges: [[MinderProject, Minder, 1]],
@@ -229,13 +286,17 @@ export function useMinderStore() {
       project.minders = project.minders!.sort(minderSort);
     }
 
-    const uiState: MinderUiState = {
-      view: 'focus',
-      filter: 'focus',
-      project: projects[0].id,
-    };
-
-    return {projects, uiState};
+    return {projects};
+  }
+  async function getProject(id: string) {
+    const project = await projectStore.get(id, {
+      edges: [[MinderProject, Minder, 1]],
+    });
+    if (project) {
+      await linkAndFixMinders([project]);
+      project.minders = project.minders!.sort(minderSort);
+    }
+    return project;
   }
 
   async function forEachMinder(
@@ -327,7 +388,6 @@ export function useMinderStore() {
 
   // TODO disallow setting parent and project until they work.
   async function update(minder: Minder, fields: Updater<Minder>) {
-    const {project, children, parent, hidden, visibleChildren} = minder;
     if (fields.state != null && fields.state != 'waiting') {
       fields.snoozeTil = UpdaterValue.fieldDelete();
       fields.unsnoozedState = UpdaterValue.fieldDelete();
@@ -347,24 +407,18 @@ export function useMinderStore() {
       const newFields = await minderStore.update(fields);
       triggerData(Minder, fields.id!);
     }
-
-    /*
-    // This is kind of a hack to keep using existing minder object
-    const newMinder = {
-      ...newFields,
-      project,
-      children,
-      parent,
-      hidden,
-      visibleChildren,
-    };
-    for (const key of Object.keys(minder)) {
-      delete minder[key as keyof Minder];
-    }
-    Object.assign(minder, newMinder);*/
   }
 
-  return {get, create, update, remove, getAll, getProjects};
+  return {
+    get,
+    create,
+    update,
+    remove,
+    getAll,
+    getAllDeprecated,
+    getProject,
+    getProjects,
+  };
 }
 
 // TODO: Move these to a utilty
@@ -580,6 +634,30 @@ export function getVisibleChildren(minder: Minder) {
 
 export function getChildren(minder: Minder) {
   return minder.children ?? [];
+}
+
+export function nonNull<T>(value: Opt<T>, message: string): T {
+  if (value == null) {
+    throw AdhocError(message);
+  }
+  return value;
+}
+/**
+ * Create a flat array of all minders matching the filter, including recursive children.
+ */
+export function flatList(
+  minders: Opt<Minder[]>,
+  filter: OutlineItemVisibilityFilter,
+  out: Minder[] = [],
+) {
+  minders?.forEach(minder => {
+    //minders = project!.minders!.filter(m => isVisible(m, filter));
+    if (isVisible(minder, filter)) {
+      out.push(minder);
+    }
+    flatList(minder.children, filter, out);
+  });
+  return out;
 }
 
 // Can I jump straight to MinderStore?

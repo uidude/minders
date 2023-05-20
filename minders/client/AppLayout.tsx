@@ -219,11 +219,8 @@ function Header(props: LayoutProps) {
   // TODO: Set isTop
   const isTop = false;
 
-  const actionMenuItems = [Expand, Collapse, Settings];
-  /*
-  if (!isTop) {
-    actionMenuItems.splice(0, 0, Up);
-  }*/
+  // TODO: Filter out up when at project level
+  const actionMenuItems = [Up, Expand, Collapse, Settings];
 
   /*
   if (screen === OutlineTop || screen === OutlineList) {

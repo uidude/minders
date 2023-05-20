@@ -2,16 +2,21 @@
  * @format
  */
 
-import {useRoute} from '@react-navigation/native';
 import {ActionItem, actionHook} from '@toolkit/core/client/Action';
 import {useReload} from '@toolkit/core/client/Reload';
 import {Opt} from '@toolkit/core/util/Types';
 import {UpdaterValue} from '@toolkit/data/DataStore';
-import {useNav} from '@toolkit/ui/screen/Nav';
-import {Minder, useMinderScreenState, useMinderStore} from '@app/model/Minders';
+import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
+import {
+  Minder,
+  MinderProject,
+  nonNull,
+  useMinderListParams,
+  useMinderScreenState,
+  useMinderStore,
+} from '@app/model/Minders';
 import SettingsScreen from '@app/screens/SettingsScreen';
 import {BinaryAlert} from '@app/util/Alert';
-import {batch} from '@app/util/Useful';
 import {WaitDialog} from './WaitDialog';
 
 export function useIndent(minder: Minder, prev: Opt<Minder>) {
@@ -60,12 +65,17 @@ export function useOutdent(minder: Minder, grandparent: Opt<Minder>) {
 
 export function useMinderActions(minder: Minder) {
   const minderStore = useMinderStore();
+  const nav = useNav();
+  const {location} = useNavState();
 
   const FocusOn: ActionItem = {
     id: 'focuson',
     icon: 'target',
     label: 'Focus on',
-    action: () => {}, //setOutlineState({focus: item.id}),
+    action: () => {
+      const newTop = minder.id.replace(':', '>');
+      nav.navTo(location.screen, {...location.params, top: newTop});
+    },
   };
 
   const Bump: ActionItem = {
@@ -138,11 +148,12 @@ export const NewItem: ActionItemWithShortcut = {
   action: actionHook(() => {
     const minderStore = useMinderStore();
     const {requestSelect} = useMinderScreenState();
+    const {top: topId} = useMinderListParams();
     return async () => {
-      // TODO: Bind NewItem to a project
-      const {projects} = await minderStore.getAll();
+      // TODO: More efficient call to get project
+      const {project} = await minderStore.getAll(topId, 'all');
       const minder = await minderStore.create({
-        project: projects[0],
+        project: project,
         text: '',
         state: 'new',
       });
@@ -157,15 +168,23 @@ export const Up: ActionItemWithShortcut = {
   label: 'Up',
   key: ['u', 'ArrowUp'],
   action: actionHook(() => {
-    return () => {};
-    /*
-    const [outlineState, setOutlineState] = useOutlineState();
+    const minderStore = useMinderStore();
+    const {top: topId} = useMinderListParams();
+    const nav = useNav();
+    const {location} = useNavState();
 
-    return () => {
-      const parent = outlineState.focusItem.parent;
-      parent && setOutlineState({focus: parent.id});
+    return async () => {
+      const isProject = topId.indexOf('project') == 0;
+      if (isProject) {
+        return;
+      }
+      const minder = (await minderStore.get(topId, {edges: [MinderProject]}))!;
+
+      const newTopId = minder.parentId ?? minder.project!.id;
+
+      const newTop = newTopId.replace(':', '>');
+      nav.navTo(location.screen, {...location.params, top: newTop});
     };
-    */
   }),
 };
 
