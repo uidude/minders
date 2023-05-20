@@ -27,7 +27,7 @@ import {ActionButton} from '@app/components/ActionButton';
 import ActionFAB from '@app/components/ActionFAB';
 import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
 import {NewItem, useGlobalActions} from '@app/components/Actions';
-import OutlineFocusPicker from '@app/components/OutlineFocusPicker';
+import TopPicker from '@app/components/TopPicker';
 import {
   MinderScreenContextProvider,
   OutlineItemVisibilityFilter,
@@ -233,7 +233,7 @@ function Header(props: LayoutProps) {
       <View style={[S.row, {flexShrink: 1}]}>
         <View style={S.row}>
           <View style={{flexShrink: 1, overflow: 'hidden'}}>
-            <OutlineFocusPicker style={S.title} />
+            <TopPicker style={S.title} />
           </View>
           <Text style={S.title}>{' > '}</Text>
           <ActionMenu

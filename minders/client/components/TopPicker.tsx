@@ -22,7 +22,7 @@ type Props = {
     projects: MinderProject[];
   };
 };
-function OutlineFocusPicker(props: Props) {
+function TopPicker(props: Props) {
   const {style} = props;
   let {projects, title = ''} = props.async;
   const [menuVisible, setMenuVisible] = React.useState(false);
@@ -95,7 +95,7 @@ function OutlineFocusPicker(props: Props) {
 }
 
 // TODO: Use new load() primitives
-OutlineFocusPicker.load = async () => {
+TopPicker.load = async () => {
   const minderStore = useMinderStore();
   const {top: topId} = useMinderListParams();
 
@@ -110,4 +110,4 @@ OutlineFocusPicker.load = async () => {
   return {projects, title};
 };
 
-export default withAsyncLoad(OutlineFocusPicker);
+export default withAsyncLoad(TopPicker);
