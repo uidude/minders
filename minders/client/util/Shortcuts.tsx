@@ -122,6 +122,20 @@ export function useShortcuts(cuts: Shortcut[], enable: boolean = true) {
   const shortcuts = Shortcuts.get();
   const navigation = useNavigation();
   const focused = React.useRef(false);
+  const lastCuts = React.useRef(cuts);
+
+  if (cuts !== lastCuts.current) {
+    if (focused.current) {
+      for (const shortcut of lastCuts.current) {
+        shortcuts.remove(shortcut);
+      }
+      for (const shortcut of cuts) {
+        shortcuts.add(shortcut);
+      }
+    }
+    lastCuts.current = cuts;
+  }
+
   const enabled = enable && cuts.length > 0;
 
   function onFocus() {
