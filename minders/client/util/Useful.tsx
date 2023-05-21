@@ -6,7 +6,7 @@ import * as React from 'react';
 import {TextInput} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {unstable_batchedUpdates} from 'react-dom';
-import {Selection} from '../components/OutlineText';
+import {Selection} from '@app/legacy/OutlineText';
 
 // Consistent wrapper around batching to avoid exposing react
 // internals to everyone
