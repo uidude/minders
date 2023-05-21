@@ -231,28 +231,30 @@ function Header(props: LayoutProps) {
   return (
     <View style={S.topBar}>
       <View style={[S.row, {flexShrink: 1}]}>
-        <View style={S.row}>
-          <View style={{flexShrink: 1, overflow: 'hidden'}}>
-            <TopPicker style={S.title} />
+        <TriState>
+          <View style={S.row}>
+            <View style={{flexShrink: 1, overflow: 'hidden'}}>
+              <TopPicker style={S.title} />
+            </View>
+            <Text style={S.title}>{' > '}</Text>
+            <ActionMenu
+              items={viewMenuActions}
+              anchor={onPress => (
+                <EnumTextButton
+                  enums={ViewMenuItems}
+                  value={view}
+                  style={S.title}
+                  onPress={onPress}
+                />
+              )}
+            />
           </View>
-          <Text style={S.title}>{' > '}</Text>
-          <ActionMenu
-            items={viewMenuActions}
-            anchor={onPress => (
-              <EnumTextButton
-                enums={ViewMenuItems}
-                value={view}
-                style={S.title}
-                onPress={onPress}
-              />
-            )}
-          />
-        </View>
-        {count != null && (
-          <View style={S.badge}>
-            <Text style={{fontSize: 14, color: '#FFF'}}>{count}</Text>
-          </View>
-        )}
+          {count != null && (
+            <View style={S.badge}>
+              <Text style={{fontSize: 14, color: '#FFF'}}>{count}</Text>
+            </View>
+          )}
+        </TriState>
       </View>
       <View style={S.row}>
         {!isTop && <TopAction action={Home} />}
