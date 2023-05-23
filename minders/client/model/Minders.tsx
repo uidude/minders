@@ -13,6 +13,7 @@ import {
   Model,
   ModelClass,
   ModelUtil,
+  MutateOpts,
   TString,
   Updater,
   UpdaterValue,
@@ -386,7 +387,11 @@ export function useMinderStore() {
   }
 
   // TODO disallow setting parent and project until they work.
-  async function update(minder: Minder, fields: Updater<Minder>) {
+  async function update(
+    minder: Minder,
+    fields: Updater<Minder>,
+    opts?: MutateOpts,
+  ) {
     if (fields.state != null && fields.state != 'waiting') {
       fields.snoozeTil = UpdaterValue.fieldDelete();
       fields.unsnoozedState = UpdaterValue.fieldDelete();
@@ -403,7 +408,7 @@ export function useMinderStore() {
     }
 
     if (modified) {
-      const newFields = await minderStore.update(fields);
+      await minderStore.update(fields, opts);
       triggerData(Minder, fields.id!);
     }
   }

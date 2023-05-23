@@ -23,6 +23,7 @@ import {
 import {registerAppConfig} from '@toolkit/core/util/AppConfig';
 import {AppContextProvider} from '@toolkit/core/util/AppContext';
 import {filterHandledExceptions} from '@toolkit/core/util/Environment';
+import {IN_MEMORY_DATA_CACHE} from '@toolkit/data/DataCache';
 import {initializeFirebase} from '@toolkit/providers/firebase/Config';
 import {FIRESTORE_DATASTORE} from '@toolkit/providers/firebase/DataStore';
 import {firebaseFn} from '@toolkit/providers/firebase/client/FunctionsApi';
@@ -124,6 +125,7 @@ const APP_CONTEXT = [
   FIRESTORE_DATASTORE,
   LOGGER,
   NOTIF_CHANNELS_CONTEXT,
+  IN_MEMORY_DATA_CACHE,
 ];
 
 export default function App() {
