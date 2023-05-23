@@ -198,7 +198,7 @@ export default function Layout(props: LayoutProps) {
 // TODO: Back button
 function Header(props: LayoutProps) {
   const route = useRoute();
-  const {view} = useMinderListParams();
+  const {view, top: topId} = useMinderListParams();
   const nav = useNav();
   const setPageTitle = useSetPageTitle();
   const {setError} = useStatus();
@@ -234,7 +234,7 @@ function Header(props: LayoutProps) {
         <TriState>
           <View style={S.row}>
             <View style={{flexShrink: 1, overflow: 'hidden'}}>
-              <TopPicker style={S.title} />
+              <TopPicker style={S.title} topId={topId} />
             </View>
             <Text style={S.title}>{' > '}</Text>
             <ActionMenu

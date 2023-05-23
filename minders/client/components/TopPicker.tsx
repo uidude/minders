@@ -4,73 +4,27 @@
 
 import * as React from 'react';
 import {StyleProp, Text, TextStyle, TouchableHighlight} from 'react-native';
-import {withAsyncLoad} from '@toolkit/core/util/Loadable';
-import {Opt} from '@toolkit/core/util/Types';
 import {useNav} from '@toolkit/ui/screen/Nav';
-import {
-  MinderProject,
-  useMinderListParams,
-  useMinderStore,
-} from '@app/model/Minders';
+import {MinderProject, useMinderStore} from '@app/model/Minders';
+import {useLoad, withLoad} from '@app/util/UseLoad';
 import {useShortcut} from '../util/Shortcuts';
 import {Menu} from './AppComponents';
 
 type Props = {
   style?: StyleProp<TextStyle>;
-  async: {
-    title: Opt<string>;
-    projects: MinderProject[];
-  };
+  topId: string;
 };
-function TopPicker(props: Props) {
-  const {style} = props;
-  let {projects, title = ''} = props.async;
+
+const TopPicker = (props: Props) => {
+  const {style, topId} = props;
+  const minderStore = useMinderStore();
   const [menuVisible, setMenuVisible] = React.useState(false);
-  const {top: topId} = useMinderListParams();
   const nav = useNav();
+  const {projects, title, index} = useLoad(props, loadData);
 
-  let curIndex = -1;
-  if (top != null) {
-    const foundIndex = projects.findIndex(p => p.id == topId);
-    if (foundIndex !== -1) {
-      curIndex = foundIndex;
-      title = projects[foundIndex].name;
-    }
-  }
-
-  useShortcut({
-    key: 'ArrowDown',
-    action: () => {
-      if (!menuVisible) {
-        setMenuVisible(true);
-      }
-    },
-  });
-
-  // These should probably go in a general util, but is fine here for now
-  useShortcut({
-    key: 'ArrowRight',
-    action: () => nav.setParams({top: projectIdFor(curIndex + 1)}),
-  });
-  //nav.navTo(location.screen, {...location.params, top: newTop});
-  useShortcut({
-    key: 'ArrowLeft',
-    // TODO: Left arrow from -1 == end of list
-    action: () => nav.setParams({top: projectIdFor(curIndex - 1)}),
-  });
-
-  function select(project: MinderProject) {
-    setMenuVisible(false);
-    nav.setParams({top: project.id.replace(':', '>')});
-  }
-
-  function projectIdFor(index: number) {
-    let newIndex = index % projects.length;
-    if (newIndex < 0) {
-      newIndex += projects.length;
-    }
-    return projects[newIndex].id.replace(':', '>');
-  }
+  useShortcut({key: 'ArrowDown', action: showMenu});
+  useShortcut({key: 'ArrowRight', action: right});
+  useShortcut({key: 'ArrowLeft', action: left});
 
   return (
     <Menu
@@ -83,31 +37,56 @@ function TopPicker(props: Props) {
           </Text>
         </TouchableHighlight>
       }>
-      {projects.map(project => (
-        <Menu.Item
-          key={project.id}
-          onPress={() => select(project)}
-          title={project.name}
-        />
+      {projects.map(p => (
+        <Menu.Item key={p.id} onPress={() => select(p)} title={p.name} />
       ))}
     </Menu>
   );
-}
 
-// TODO: Use new load() primitives
-TopPicker.load = async () => {
-  const minderStore = useMinderStore();
-  const {top: topId} = useMinderListParams();
+  async function loadData() {
+    const projects = await minderStore.getProjects();
+    let index = -1;
 
-  const projects = await minderStore.getProjects();
+    let title = '';
+    if (topId!.indexOf('minder:') === 0) {
+      const minder = (await minderStore.get(topId!))!;
+      title = minder.text;
+    } else {
+      const foundIndex = projects.findIndex(p => p.id == topId);
+      if (foundIndex !== -1) {
+        index = foundIndex;
+        title = projects[foundIndex].name;
+      }
+    }
 
-  let title;
-  if (topId.indexOf('minder:') === 0) {
-    const minder = (await minderStore.get(topId))!;
-    title = minder.text;
+    return {projects, title, index};
   }
 
-  return {projects, title};
+  function showMenu() {
+    if (!menuVisible) {
+      setMenuVisible(true);
+    }
+  }
+  function right() {
+    nav.setParams({top: projectIdFor(index + 1)});
+  }
+
+  function left() {
+    const newIndex = index === -1 ? projects.length - 1 : index - 1;
+    nav.setParams({top: projectIdFor(newIndex)});
+  }
+  function select(project: MinderProject) {
+    setMenuVisible(false);
+    nav.setParams({top: project.id.replace(':', '>')});
+  }
+
+  function projectIdFor(index: number) {
+    let newIndex = index % projects.length;
+    if (newIndex < 0) {
+      newIndex += projects.length;
+    }
+    return projects[newIndex].id.replace(':', '>');
+  }
 };
 
-export default withAsyncLoad(TopPicker);
+export default withLoad(TopPicker);
