@@ -4,6 +4,7 @@ import {useRoute} from '@react-navigation/native';
 import {User, requireLoggedInUser} from '@toolkit/core/api/User';
 import {AdhocError} from '@toolkit/core/util/CodedError';
 import {Opt} from '@toolkit/core/util/Types';
+import {DataCallback} from '@toolkit/data/DataCache';
 import {
   BaseModel,
   EdgeSelector,
@@ -227,6 +228,7 @@ export function useMinderStore() {
     topId: string,
   ): Promise<{top: Top; project: MinderProject}> {
     let project, minders, top: Top;
+    topId = topId.replace('>', ':');
 
     if (topId.indexOf('minder:') === 0) {
       const minder = nonNull(
@@ -351,8 +353,8 @@ export function useMinderStore() {
     });
   }
 
-  async function create(value: Updater<Minder>) {
-    const minder = await minderStore.create(value);
+  async function create(value: Updater<Minder>, opts?: MutateOpts) {
+    const minder = await minderStore.create(value, opts);
     triggerData(Minder, minder.id!);
     return minder;
   }
@@ -413,6 +415,10 @@ export function useMinderStore() {
     }
   }
 
+  function listen(id: string, fn: DataCallback<Minder>) {
+    return minderStore.listen(id, fn);
+  }
+
   return {
     get,
     create,
@@ -422,6 +428,7 @@ export function useMinderStore() {
     getAllDeprecated,
     getProject,
     getProjects,
+    listen,
   };
 }
 
