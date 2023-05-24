@@ -121,53 +121,34 @@ export function useShortcut(shortcut: Shortcut, enable: boolean = true) {
 export function useShortcuts(cuts: Shortcut[], enable: boolean = true) {
   const shortcuts = Shortcuts.get();
   const navigation = useNavigation();
-  const focused = React.useRef(false);
-  const lastCuts = React.useRef(cuts);
+  const focused = React.useRef(true);
+  const activeShorcuts = React.useRef<Shortcut[]>([]);
 
-  if (cuts !== lastCuts.current) {
-    if (focused.current) {
-      for (const shortcut of lastCuts.current) {
-        shortcuts.remove(shortcut);
-      }
+  function addCuts() {
+    removeCuts();
+    if (enable) {
       for (const shortcut of cuts) {
         shortcuts.add(shortcut);
       }
+      activeShorcuts.current = cuts;
     }
-    lastCuts.current = cuts;
+    return () => removeCuts();
   }
 
-  const enabled = enable && cuts.length > 0;
-
-  function onFocus() {
-    if (!focused.current) {
-      focused.current = true;
-      for (const shortcut of cuts) {
-        shortcuts.add(shortcut);
-      }
-    }
-  }
-  function onBlur() {
-    if (focused.current) {
-      focused.current = false;
-      for (const shortcut of cuts) {
+  function removeCuts() {
+    if (activeShorcuts.current.length > 0) {
+      for (const shortcut of activeShorcuts.current) {
         shortcuts.remove(shortcut);
       }
+      activeShorcuts.current = [];
     }
   }
 
-  React.useEffect(() => {
-    if (enabled) {
-      onFocus();
+  addCuts();
 
-      const unsub = navigation.addListener('focus', onFocus);
-      const unsub2 = navigation.addListener('blur', onBlur);
-      return () => {
-        onBlur();
-        unsub();
-        unsub2();
-      };
-    }
-  }, []);
+  React.useEffect(addCuts, []);
+  React.useEffect(() => navigation.addListener('focus', () => addCuts()), []);
+  React.useEffect(() => navigation.addListener('blur', removeCuts), []);
 }
 
 // Something wrong here about using an instance of messaging...
