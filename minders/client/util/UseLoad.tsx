@@ -1,10 +1,16 @@
 import * as React from 'react';
+import {useReloadState} from '@toolkit/core/client/Reload';
 import Promised from '@toolkit/core/util/Promised';
 
+type WithSetter<T> = T & {
+  setData: (value: Partial<T>) => void;
+};
 type Loader<T> = () => T | Promise<T>;
 
-export function useLoad<T>(props: Record<string, any>, loader: Loader<T>): T {
-  const [loadCount, setLoadCount] = React.useState(0);
+export function useLoad<T>(
+  props: Record<string, any>,
+  loader: Loader<T>,
+): WithSetter<T> {
   const {_loadkey: key, _loadstate} = props;
   if (!key) {
     throw Error(
@@ -13,11 +19,6 @@ export function useLoad<T>(props: Record<string, any>, loader: Loader<T>): T {
   }
   const loadState = _loadstate as LoadState;
   const promises = loadState.promises;
-
-  function reload() {
-    delete promises[key];
-    setLoadCount(loadCount + 1);
-  }
 
   let promised = promises[key];
 
@@ -32,13 +33,23 @@ export function useLoad<T>(props: Record<string, any>, loader: Loader<T>): T {
   // - When pending, React Suspense will only re-render after value is set, so
   //   won't throw next time.
   // - When erroring, React Error bondary will render a fallback view
-  const value = promised.getValue();
-  return {...value, reload};
+  const [value, setValue] = React.useState(promised.getValue());
+
+  const lastKey = React.useRef(key);
+  if (lastKey.current !== key) {
+    setValue(promised.getValue());
+    lastKey.current = key;
+  }
+
+  function setData(newValues: Partial<T>) {
+    setValue({...value, ...newValues});
+  }
+
+  return {...value, setData};
 }
 
 type LoadState = {
   promises: Record<string, Promised<any>>;
-  refresh: () => void;
 };
 
 /**
@@ -52,29 +63,19 @@ type LoadState = {
  */
 export function withLoad<Props>(Component: React.ComponentType<Props>) {
   return (props: Props) => {
-    const [refreshCount, setRefreshCount] = React.useState(0);
     // Load state is state that is passed to the child component via props.
     // Includes both a persistent set of promises as well as methods
     // and future state / methods that will be updated on every render.
-    const loadState = React.useRef<LoadState>({promises: {}, refresh});
-    loadState.current.refresh = refresh;
+    const loadState = React.useRef<LoadState>({promises: {}});
+    const loadCount = useReloadState();
 
-    const propsForKey = {...props, _count: refreshCount} as Record<string, any>;
+    const propsForKey = {...props, _count: loadCount} as Record<string, any>;
     const loadKey = propsToKey(propsForKey, ['async', '_promises']);
 
     return (
       <Component {...props} _loadstate={loadState.current} _loadkey={loadKey} />
     );
-
-    function refresh() {
-      setRefreshCount(refreshCount + 1);
-    }
   };
-}
-
-export function useRefresh(props: Record<string, any>) {
-  const loadState = props._loadstate as LoadState;
-  return loadState.refresh;
 }
 
 export function useWithLoad<Props>(Component: React.ComponentType<Props>) {
