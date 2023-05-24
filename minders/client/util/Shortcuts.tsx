@@ -24,6 +24,15 @@ function applies(val: Opt<boolean>, match: boolean) {
   return val === undefined || match === val;
 }
 
+/**
+ * Cooloff after any user input in text before global shortcuts are accepted.
+ *
+ * There are a number of flows where text inputs are blurred while the user is typing,
+ * and it is easy to accidentally trigger a global shortcut.
+ */
+const COOLOFF_MS = 200;
+let lastInText = 0;
+
 const ShortcutComponent = () => {
   const shortcutApi = Shortcuts.get();
 
@@ -38,7 +47,13 @@ const ShortcutComponent = () => {
     // Bad logic for preventing shortcuts on text edits... need better
     // @ts-ignore
     const nodeType = e.srcElement.nodeName;
-    const inText = nodeType == 'INPUT' || nodeType == 'TEXTAREA';
+    const inTextNow = nodeType == 'INPUT' || nodeType == 'TEXTAREA';
+    const now = Date.now();
+    const wasJustInText = now < lastInText + COOLOFF_MS;
+    if (inTextNow) {
+      lastInText = now;
+    }
+    const inText = inTextNow || wasJustInText;
     for (const shortcut of shortcuts) {
       if (shortcut.inText || !inText) {
         // TODO: modifier state
