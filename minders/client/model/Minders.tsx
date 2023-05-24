@@ -738,13 +738,7 @@ type Selection = {
 /**
  * Context needed when rendering screens that show many minders.
  */
-export type MinderScreenContextType = {
-  /** Currently selected filter */
-  filter: OutlineItemVisibilityFilter;
-
-  /** Set the current filter */
-  setFilter(filter: OutlineItemVisibilityFilter): void;
-
+export type MinderSelectionApi = {
   /** Whether a minder is selected */
   isSelected(minderId: string): boolean;
 
@@ -761,18 +755,16 @@ export type MinderScreenContextType = {
   shouldSelect(minderId: string): Opt<Selection>;
 };
 
-export const MinderScreenContext =
-  React.createContext<Opt<MinderScreenContextType>>(null);
+export const MinderSelectionContext =
+  React.createContext<Opt<MinderSelectionApi>>(null);
 
-export function MinderScreenContextProvider(props: {
+export function MinderSelectionContextProvider(props: {
   children?: React.ReactNode;
 }) {
-  const [filter, setFilter] =
-    React.useState<OutlineItemVisibilityFilter>('all');
-  // Selection is tracked in a ref because it changes frequently and (currently)
-  // no-one needs to listen to re-renders.
+  // Selection is tracked in a ref because it changes frequently and
+  // no-one currently needs to listen to re-renders.
   const trackedSelection = React.useRef<Selection>({minderId: null});
-  const [newSelection, setNewSelection] = React.useState<Opt<Selection>>(null);
+  const newSelectionRef = React.useRef<Opt<Selection>>(null);
 
   function getSelection() {
     return trackedSelection.current;
@@ -783,8 +775,9 @@ export function MinderScreenContextProvider(props: {
   }
 
   function shouldSelect(minderId: string) {
+    const newSelection = newSelectionRef.current;
     if (minderId === newSelection?.minderId) {
-      setNewSelection(null);
+      newSelectionRef.current = null;
       return newSelection;
     }
   }
@@ -794,12 +787,10 @@ export function MinderScreenContextProvider(props: {
   }
 
   function requestSelect(minderId: string, selector?: Selector) {
-    setNewSelection({minderId, selector});
+    newSelectionRef.current = {minderId, selector};
   }
 
   const screenContext = {
-    filter,
-    setFilter,
     getSelection,
     isSelected,
     trackSelection,
@@ -808,14 +799,14 @@ export function MinderScreenContextProvider(props: {
   };
 
   return (
-    <MinderScreenContext.Provider value={screenContext}>
+    <MinderSelectionContext.Provider value={screenContext}>
       {props.children}
-    </MinderScreenContext.Provider>
+    </MinderSelectionContext.Provider>
   );
 }
 
-export function useMinderScreenState() {
-  const screenContext = React.useContext(MinderScreenContext)!;
+export function useMinderSelectionApi() {
+  const screenContext = React.useContext(MinderSelectionContext)!;
   return screenContext;
 }
 

@@ -10,9 +10,8 @@ import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import {
   Minder,
   MinderProject,
-  nonNull,
   useMinderListParams,
-  useMinderScreenState,
+  useMinderSelectionApi,
   useMinderStore,
 } from '@app/model/Minders';
 import SettingsScreen from '@app/screens/SettingsScreen';
@@ -149,7 +148,7 @@ export const NewItem: ActionItemWithShortcut = {
   key: ['+'],
   action: actionHook(() => {
     const minderStore = useMinderStore();
-    const {requestSelect} = useMinderScreenState();
+    const {requestSelect} = useMinderSelectionApi();
     const {top: topId} = useMinderListParams();
     return async () => {
       let projectId = topId;
@@ -164,9 +163,7 @@ export const NewItem: ActionItemWithShortcut = {
         text: '',
         state: 'new',
       };
-      timelog('Create one');
       await minderStore.create(fields, {optimistic: true});
-      timelog('Create two');
     };
   }),
 };

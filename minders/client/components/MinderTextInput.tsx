@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   NativeSyntheticEvent,
+  Pressable,
   StyleProp,
   StyleSheet,
   Text,
@@ -13,7 +14,7 @@ import {Updater} from '@toolkit/data/DataStore';
 import {
   Minder,
   dataListen,
-  useMinderScreenState,
+  useMinderSelectionApi,
   useMinderStore,
 } from '@app/model/Minders';
 import {ShortcutAction, useShortcut} from '@app/util/Shortcuts';
@@ -51,6 +52,7 @@ type Props = {
 export function MinderTextInput(props: Props) {
   const {minder, prev, grandparent, mode = 'list'} = props;
   const [value, setValue] = React.useState(minder.text);
+  // TODO: Make this a ref
   const [active, setActive] = React.useState(false);
   const {
     trackSelection,
@@ -58,7 +60,7 @@ export function MinderTextInput(props: Props) {
     getSelection,
     requestSelect,
     shouldSelect,
-  } = useMinderScreenState();
+  } = useMinderSelectionApi();
   const minderStore = useMinderStore();
   const {action: indent} = useIndent(minder, prev);
   const {action: outdent} = useOutdent(minder, grandparent);
@@ -76,6 +78,8 @@ export function MinderTextInput(props: Props) {
   const isSel = isSelected(minder.id);
   const cursor = isSel ? null : 'default';
   const inputRef = React.useRef<TextInput>();
+
+  //timelog('MinderTextInput render', isSel, minder.id);
 
   /*
   Different handling for list vs. outline
@@ -113,22 +117,23 @@ export function MinderTextInput(props: Props) {
 
     // Set the old minder values
     setValue(beforeText);
-    await minderStore.update(minder, {text: beforeText});
 
     // Create the new minder and request to be selected
+    // This goes first so the new field can be seleted and typed in immediately
     const fields: Updater<Minder> = {
       text: afterText,
       project: minder.project,
       state: 'new',
     };
-
     if (mode === 'outline') {
       // TODO: Add ordering
       fields.parentId = minder.parentId;
     }
+    await minderStore.create(fields, {optimistic: true});
 
-    const newMinder = await minderStore.create(fields);
-    requestSelect(newMinder.id, 'start');
+    await minderStore.update(minder, {text: beforeText});
+
+    // requestSelect(newMinder.id, 'start');
   }
 
   function backspace() {
@@ -167,33 +172,39 @@ export function MinderTextInput(props: Props) {
   function checkNewSelection() {
     const newSelection = shouldSelect(minder.id);
     if (!newSelection) {
-      return;
+      return false;
     }
-    inputRef.current?.focus();
+    const selector = newSelection?.selector;
+
+    const range =
+      selector === 'start'
+        ? {start: 0, end: 0}
+        : selector === 'end'
+        ? {start: value.length, end: value.length}
+        : {start: 0, end: value.length};
+    trackSelection(minder.id, range);
 
     // We select twice to capture before and after the auto selection
     function select() {
-      const selector = newSelection?.selector;
+      // Make sure selection hasn't changed during timeout
+      if (getSelection()?.minderId !== minder.id) {
+        return;
+      }
       if (!inputRef.current) {
         return;
       }
-      if (selector === 'start') {
-        textInputSelect(inputRef.current, {start: 0, end: 0});
-      } else if (selector === 'end') {
-        textInputSelect(inputRef.current, {
-          start: value.length,
-          end: value.length,
-        });
-      } else if (selector === 'all') {
-        textInputSelect(inputRef.current, {start: 0, end: value.length});
-      }
+      inputRef.current?.focus();
+      textInputSelect(inputRef.current, range);
+      setActive(true);
     }
-    select();
-    setTimeout(select, 10);
+    setTimeout(select, 0);
+    return true;
   }
 
   function onBlur() {
-    trackSelection(null);
+    if (isSelected(minder.id)) {
+      trackSelection(null);
+    }
     setActive(false);
     const trimmed = value.trim();
     minderStore.update(minder, {text: trimmed});
@@ -201,9 +212,10 @@ export function MinderTextInput(props: Props) {
   }
 
   function onFocus() {
-    trackSelection(minder.id, {start: 0, end: value.length});
-    setActive(true);
-    //checkNewSelection();
+    if (!checkNewSelection() && !isSelected(minder.id)) {
+      requestSelect(minder.id, 'all');
+      checkNewSelection();
+    }
   }
 
   const setInput = (input: TextInput) => {
@@ -227,7 +239,6 @@ export function MinderTextInput(props: Props) {
         onSubmitEditing={submit}
         onSelectionChange={onSelectionChange}
         ref={setInput}
-        selectTextOnFocus={true}
       />
       <Text>{minder.id}</Text>
     </>

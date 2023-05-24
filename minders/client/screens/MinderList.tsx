@@ -26,7 +26,7 @@ import {
   isVisible,
   parentsOf,
   useLiveData,
-  useMinderScreenState,
+  useMinderSelectionApi,
   useMinderStore,
 } from '@app/model/Minders';
 import {useLoad, withLoad} from '@app/util/UseLoad';
@@ -66,14 +66,6 @@ export function MinderListItem(props: MinderListItemProps) {
   // OutlineUtil.useRedrawOnItemUpdate(item.id);
   //useWatchData(Minder, [minder.id]);
   const {Snooze, Bump, Mover, Delete} = useMinderActions(minder);
-
-  React.useEffect(() => {
-    return minderStore.listen(minder.id, (value, op) => {
-      //('Updated', (Date.now() % 100000) / 1000, op);
-      //console.log(value);
-      //console.log(op, value);
-    });
-  }, []);
 
   return (
     <>
@@ -172,7 +164,7 @@ const MinderOutlineList: Screen<Props> = props => {
   const filter = filterFor(view);
   const minderStore = useMinderStore();
   const {project, top, setData} = useLoad(props, load);
-  const {requestSelect} = useMinderScreenState();
+  const {requestSelect} = useMinderSelectionApi();
   useListen(Minder, '*', onMinderChange);
 
   const children = top.children.filter(m => isVisible(m, filter));
@@ -214,9 +206,8 @@ const MinderFlatList: Screen<Props> = props => {
   const minderStore = useMinderStore();
   const filter = filterFor(view);
   const {project, top, minders, setData} = useLoad(props, load);
-  timelog('MinderFlatList render');
 
-  const {requestSelect} = useMinderScreenState();
+  const {requestSelect} = useMinderSelectionApi();
   useListen(Minder, '*', onMinderChange);
 
   /*
@@ -253,7 +244,6 @@ const MinderFlatList: Screen<Props> = props => {
   }
 
   async function onMinderChange(id: string, op: DataOp) {
-    console.log('onMinderChange', id, op);
     const newValue = await minderStore.get(id);
 
     if (op === 'remove') {
@@ -272,13 +262,10 @@ const MinderFlatList: Screen<Props> = props => {
     }
 
     if (op === 'add' && newValue) {
-      console.log('got add ', (Date.now() % 100000) / 1000);
       if (isVisible(newValue, filter)) {
         const updated = [...minders, newValue];
-        setData({minders: updated});
-
-        console.log('request selecto ', (Date.now() % 100000) / 1000);
         requestSelect(newValue.id, 'start');
+        setData({minders: updated});
       }
     }
   }

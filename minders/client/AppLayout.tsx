@@ -30,7 +30,7 @@ import {NewItem, useGlobalActions} from '@app/components/Actions';
 import TopPicker from '@app/components/TopPicker';
 import {
   Minder,
-  MinderScreenContextProvider,
+  MinderSelectionContextProvider,
   OutlineItemVisibilityFilter,
   flatList,
   useMinderListParams,
@@ -157,7 +157,7 @@ export default function Layout(props: LayoutProps) {
   if (navType === 'modal') {
     // Modal views are just the content: No SafeAreaView, Header, or Tabs
     return (
-      <MinderScreenContextProvider>
+      <MinderSelectionContextProvider>
         <View
           style={[S.top, {borderRadius, maxHeight}]}
           onLayout={e => console.log(e)}>
@@ -170,12 +170,12 @@ export default function Layout(props: LayoutProps) {
             </TriState>
           </ScrollView>
         </View>
-      </MinderScreenContextProvider>
+      </MinderSelectionContextProvider>
     );
   }
 
   return (
-    <MinderScreenContextProvider>
+    <MinderSelectionContextProvider>
       <SafeAreaView style={[S.top, {borderRadius, maxHeight}]}>
         <KeyboardAvoidingView
           style={{flex: 1}}
@@ -195,7 +195,7 @@ export default function Layout(props: LayoutProps) {
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </MinderScreenContextProvider>
+    </MinderSelectionContextProvider>
   );
 }
 
