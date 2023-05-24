@@ -26,11 +26,10 @@ import {
   isVisible,
   parentsOf,
   useLiveData,
-  useMinderSelectionApi,
   useMinderStore,
 } from '@app/model/Minders';
+import {requestSelect} from '@app/model/TextSelect';
 import {useLoad, withLoad} from '@app/util/UseLoad';
-import {timelog} from '@app/util/Useful';
 
 export function NoChildren(props: {
   project: MinderProject;
@@ -164,7 +163,6 @@ const MinderOutlineList: Screen<Props> = props => {
   const filter = filterFor(view);
   const minderStore = useMinderStore();
   const {project, top, setData} = useLoad(props, load);
-  const {requestSelect} = useMinderSelectionApi();
   useListen(Minder, '*', onMinderChange);
 
   const children = top.children.filter(m => isVisible(m, filter));
@@ -207,7 +205,6 @@ const MinderFlatList: Screen<Props> = props => {
   const filter = filterFor(view);
   const {project, top, minders, setData} = useLoad(props, load);
 
-  const {requestSelect} = useMinderSelectionApi();
   useListen(Minder, '*', onMinderChange);
 
   /*

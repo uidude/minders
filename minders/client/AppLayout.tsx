@@ -30,7 +30,6 @@ import {NewItem, useGlobalActions} from '@app/components/Actions';
 import TopPicker from '@app/components/TopPicker';
 import {
   Minder,
-  MinderSelectionContextProvider,
   OutlineItemVisibilityFilter,
   flatList,
   useMinderListParams,
@@ -157,45 +156,39 @@ export default function Layout(props: LayoutProps) {
   if (navType === 'modal') {
     // Modal views are just the content: No SafeAreaView, Header, or Tabs
     return (
-      <MinderSelectionContextProvider>
-        <View
-          style={[S.top, {borderRadius, maxHeight}]}
-          onLayout={e => console.log(e)}>
-          {navStyle == 'full' && <Header title={title} />}
-          <ScrollView
-            style={S.container}
-            contentContainerStyle={S.modalContent}>
-            <TriState key={key} onError={onError} loadingView={loadingView}>
-              <View style={{flex: 1}}>{children}</View>
-            </TriState>
-          </ScrollView>
-        </View>
-      </MinderSelectionContextProvider>
+      <View
+        style={[S.top, {borderRadius, maxHeight}]}
+        onLayout={e => console.log(e)}>
+        {navStyle == 'full' && <Header title={title} />}
+        <ScrollView style={S.container} contentContainerStyle={S.modalContent}>
+          <TriState key={key} onError={onError} loadingView={loadingView}>
+            <View style={{flex: 1}}>{children}</View>
+          </TriState>
+        </ScrollView>
+      </View>
     );
   }
 
   return (
-    <MinderSelectionContextProvider>
-      <SafeAreaView style={[S.top, {borderRadius, maxHeight}]}>
-        <KeyboardAvoidingView
-          style={{flex: 1}}
-          behavior="position"
-          contentContainerStyle={{flex: 1}}>
-          {navStyle === 'full' && (
-            // TODO: Should show action bar while loading
-            <TriState loadingView={Empty} errorView={Empty}>
-              <Header {...props} />
-              <ActionFAB style={S.fab} small item={NewItem} />
-            </TriState>
-          )}
-          <ScrollView style={S.scroll} contentContainerStyle={S.content}>
-            <TriState key={key} onError={onError} loadingView={loadingView}>
-              <View style={{flex: 1}}>{children}</View>
-            </TriState>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </MinderSelectionContextProvider>
+    <SafeAreaView style={[S.top, {borderRadius, maxHeight}]}>
+      <KeyboardAvoidingView
+        style={{flex: 1}}
+        behavior="position"
+        contentContainerStyle={{flex: 1}}>
+        {navStyle === 'full' && (
+          // TODO: Should show action bar while loading
+          <TriState loadingView={Empty} errorView={Empty}>
+            <Header {...props} />
+            <ActionFAB style={S.fab} small item={NewItem} />
+          </TriState>
+        )}
+        <ScrollView style={S.scroll} contentContainerStyle={S.content}>
+          <TriState key={key} onError={onError} loadingView={loadingView}>
+            <View style={{flex: 1}}>{children}</View>
+          </TriState>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 

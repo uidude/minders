@@ -11,12 +11,10 @@ import {
   Minder,
   MinderProject,
   useMinderListParams,
-  useMinderSelectionApi,
   useMinderStore,
 } from '@app/model/Minders';
 import SettingsScreen from '@app/screens/SettingsScreen';
 import {BinaryAlert} from '@app/util/Alert';
-import {timelog} from '@app/util/Useful';
 import {WaitDialog} from './WaitDialog';
 
 export function useIndent(minder: Minder, prev: Opt<Minder>) {
@@ -148,7 +146,6 @@ export const NewItem: ActionItemWithShortcut = {
   key: ['+'],
   action: actionHook(() => {
     const minderStore = useMinderStore();
-    const {requestSelect} = useMinderSelectionApi();
     const {top: topId} = useMinderListParams();
     return async () => {
       let projectId = topId;

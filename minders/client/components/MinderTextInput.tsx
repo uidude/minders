@@ -11,14 +11,16 @@ import {
 } from 'react-native';
 import {Opt} from '@toolkit/core/util/Types';
 import {Updater} from '@toolkit/data/DataStore';
+import {Minder, dataListen, useMinderStore} from '@app/model/Minders';
 import {
-  Minder,
-  dataListen,
-  useMinderSelectionApi,
-  useMinderStore,
-} from '@app/model/Minders';
+  getSelection,
+  isSelected,
+  requestSelect,
+  shouldSelect,
+  textInputSelect,
+  trackSelection,
+} from '@app/model/TextSelect';
 import {ShortcutAction, useShortcut} from '@app/util/Shortcuts';
-import {textInputSelect} from '@app/util/Useful';
 import {useIndent, useOutdent} from './Actions';
 
 type Props = {
@@ -54,13 +56,6 @@ export function MinderTextInput(props: Props) {
   const [value, setValue] = React.useState(minder.text);
   // TODO: Make this a ref
   const [active, setActive] = React.useState(false);
-  const {
-    trackSelection,
-    isSelected,
-    getSelection,
-    requestSelect,
-    shouldSelect,
-  } = useMinderSelectionApi();
   const minderStore = useMinderStore();
   const {action: indent} = useIndent(minder, prev);
   const {action: outdent} = useOutdent(minder, grandparent);

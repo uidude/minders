@@ -3,10 +3,8 @@
  */
 
 import * as React from 'react';
-import {TextInput} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {unstable_batchedUpdates} from 'react-dom';
-import {Selection} from '@app/legacy/OutlineText';
 
 // Consistent wrapper around batching to avoid exposing react
 // internals to everyone
@@ -51,16 +49,6 @@ export function useSetPageTitle() {
     // while rendering another component
     setTimeout(() => reactNav.setOptions({title}), 0);
   };
-}
-
-// Select text in a TextInput, using platform-specific native methods
-export function textInputSelect(textInput: TextInput, sel: Selection) {
-  const input: any = textInput;
-  if (input.setSelectionRange) {
-    input.setSelectionRange(sel.start, sel.end);
-  } else if (input.setSelection) {
-    input.setSelection(sel.start, sel.end);
-  }
 }
 
 export function timelog(...args: any[]) {
