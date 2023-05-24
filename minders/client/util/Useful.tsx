@@ -62,3 +62,8 @@ export function textInputSelect(textInput: TextInput, sel: Selection) {
     input.setSelection(sel.start, sel.end);
   }
 }
+
+export function timelog(...args: any[]) {
+  args.push((Date.now() % 100000) / 1000);
+  console.log(...args);
+}
