@@ -8,6 +8,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
+import {DataOp} from '@toolkit/data/DataCache';
+import {useListen} from '@toolkit/data/DataStore';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {Filters, OutlineView, filterFor} from '@app/AppLayout';
 import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
@@ -23,11 +25,12 @@ import {
   flatList,
   isVisible,
   parentsOf,
-  useDataListen,
   useLiveData,
-  useMinderListParams,
+  useMinderScreenState,
   useMinderStore,
 } from '@app/model/Minders';
+import {useLoad, withLoad} from '@app/util/UseLoad';
+import {timelog} from '@app/util/Useful';
 
 export function NoChildren(props: {
   project: MinderProject;
@@ -58,10 +61,19 @@ type MinderListItemProps = {
  */
 export function MinderListItem(props: MinderListItemProps) {
   const {minder, parents, prev, style, top} = props;
+  const minderStore = useMinderStore();
   // const outliner = useOutliner();
   // OutlineUtil.useRedrawOnItemUpdate(item.id);
   //useWatchData(Minder, [minder.id]);
   const {Snooze, Bump, Mover, Delete} = useMinderActions(minder);
+
+  React.useEffect(() => {
+    return minderStore.listen(minder.id, (value, op) => {
+      //('Updated', (Date.now() % 100000) / 1000, op);
+      //console.log(value);
+      //console.log(op, value);
+    });
+  }, []);
 
   return (
     <>
@@ -142,50 +154,37 @@ function keepOrder(minders: Minder[], oldMinders: Minder[]) {
 }
 
 type Props = {
-  top?: string;
-  project?: string;
-  view?: OutlineView;
-  async: {
-    project: MinderProject;
-    top: Top;
-  };
+  top: string;
+  view: OutlineView;
 };
 
-const MinderList: Screen<Props> = props => {
+const MinderList: Screen<Props> = withLoad(props => {
   const {view = 'focus'} = props;
   if (view === 'outline' || view === 'outlineall') {
     return <MinderOutlineList {...props} />;
   }
   return <MinderFlatList {...props} />;
-};
+});
 
 const MinderOutlineList: Screen<Props> = props => {
-  const {view, top: topId} = useMinderListParams();
   requireLoggedInUser();
+  const {view, top: topId} = props;
   const filter = filterFor(view);
-  const {project} = props.async;
-  const [top, setTop] = React.useState(props.async.top);
   const minderStore = useMinderStore();
-  useDataListen(Minder, ['*'], onMinderChange);
+  const {project, top, setData} = useLoad(props, load);
+  const {requestSelect} = useMinderScreenState();
+  useListen(Minder, '*', onMinderChange);
+
   const children = top.children.filter(m => isVisible(m, filter));
 
-  const prevFilter = React.useRef(filter);
-  const prevTopId = React.useRef(topId);
-
-  if (prevFilter.current !== filter || prevTopId.current !== topId) {
-    prevFilter.current = filter;
-    prevTopId.current = top;
-    setTimeout(() => setTop(props.async.top), 0);
-  }
-
-  async function onMinderChange() {
-    // TODO: Only do this on add / delete
-    // TODO: Prevent reload cascades
+  async function onMinderChange(id: string, op: DataOp) {
+    // TODO: Consider modifying existing tree instead of reloading
     const {top: newTop} = await minderStore.getAll(topId);
-    setTop(newTop);
+    setData({top: newTop});
+    if (op === 'add') {
+      requestSelect(id, 'start');
+    }
   }
-
-  /* OutlineUtil.useRedrawOnItemUpdate(topItem.id); */
 
   if (top.children.length === 0) {
     return <NoChildren project={project} filter={filter} />;
@@ -203,33 +202,23 @@ const MinderOutlineList: Screen<Props> = props => {
       ))}
     </View>
   );
+  async function load() {
+    const {project, top} = await minderStore.getAll(topId);
+    return {project, top};
+  }
 };
 
 const MinderFlatList: Screen<Props> = props => {
   requireLoggedInUser();
-  const {view, top: topId} = useMinderListParams();
-  const {project, top} = props.async;
+  const {view, top: topId} = props;
   const minderStore = useMinderStore();
   const filter = filterFor(view);
-  const [minders, setMinders] = React.useState(flatList(top.children, filter));
-  const prevFilter = React.useRef(filter);
+  const {project, top, minders, setData} = useLoad(props, load);
+  timelog('MinderFlatList render');
 
-  useDataListen(Minder, ['*'], onMinderChange);
-  if (prevFilter.current !== filter) {
-    prevFilter.current = filter;
-    const newMinders = flatList(top.children, filter);
-    setTimeout(() => setMinders(newMinders), 0);
-  }
+  const {requestSelect} = useMinderScreenState();
+  useListen(Minder, '*', onMinderChange);
 
-  async function onMinderChange() {
-    // TODO: Only do this on add / delete
-    // TODO: Prevent reload cascades
-    const {
-      top: {children},
-    } = await minderStore.getAll(topId);
-    const newMinders = flatList(children, filter);
-    setMinders(keepOrder(newMinders, minders));
-  }
   /*
     TODO:
     - Get better keepOrder logic than previously, so it works in list view
@@ -255,19 +244,47 @@ const MinderFlatList: Screen<Props> = props => {
       ))}
     </View>
   );
+
+  async function load() {
+    const {project, top} = await minderStore.getAll(topId);
+
+    const minders = flatList(top.children, filter);
+    return {project, minders, top};
+  }
+
+  async function onMinderChange(id: string, op: DataOp) {
+    console.log('onMinderChange', id, op);
+    const newValue = await minderStore.get(id);
+
+    if (op === 'remove') {
+      const updated = minders.filter(m => m.id !== id);
+      setData({minders: updated});
+    }
+
+    if (op === 'update' && newValue) {
+      // If this would hide from current view, hide it
+      // Note that this doesn't cover project / top changes yet
+      if (!isVisible(newValue, filter)) {
+        const updated = minders.filter(m => m.id !== id);
+        setData({minders: updated});
+        // Note: Might be nice to have it fade out...
+      }
+    }
+
+    if (op === 'add' && newValue) {
+      console.log('got add ', (Date.now() % 100000) / 1000);
+      if (isVisible(newValue, filter)) {
+        const updated = [...minders, newValue];
+        setData({minders: updated});
+
+        console.log('request selecto ', (Date.now() % 100000) / 1000);
+        requestSelect(newValue.id, 'start');
+      }
+    }
+  }
 };
 MinderList.title = 'Minders';
 MinderList.id = 'MinderList';
-
-MinderList.load = async props => {
-  const {view = 'focus'} = props;
-  const minderStore = useMinderStore();
-  const {top: topId} = useMinderListParams();
-  const filter = filterFor(view);
-
-  const {project, top} = await minderStore.getAll(topId);
-  return {project, top};
-};
 
 export default MinderList;
 

@@ -5,7 +5,7 @@
 import {ActionItem, actionHook} from '@toolkit/core/client/Action';
 import {useReload} from '@toolkit/core/client/Reload';
 import {Opt} from '@toolkit/core/util/Types';
-import {UpdaterValue} from '@toolkit/data/DataStore';
+import {Updater, UpdaterValue} from '@toolkit/data/DataStore';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import {
   Minder,
@@ -17,6 +17,7 @@ import {
 } from '@app/model/Minders';
 import SettingsScreen from '@app/screens/SettingsScreen';
 import {BinaryAlert} from '@app/util/Alert';
+import {timelog} from '@app/util/Useful';
 import {WaitDialog} from './WaitDialog';
 
 export function useIndent(minder: Minder, prev: Opt<Minder>) {
@@ -158,12 +159,14 @@ export const NewItem: ActionItemWithShortcut = {
         }))!;
         projectId = minder.project!.id;
       }
-      const newMinder = await minderStore.create({
+      const fields: Updater<Minder> = {
         project: {id: projectId},
         text: '',
         state: 'new',
-      });
-      requestSelect(newMinder.id, 'start');
+      };
+      timelog('Create one');
+      await minderStore.create(fields, {optimistic: true});
+      timelog('Create two');
     };
   }),
 };
