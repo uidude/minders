@@ -20,7 +20,7 @@ import {canLoggingInFix} from '@toolkit/core/api/Auth';
 import {ActionItem} from '@toolkit/core/client/Action';
 import {useStatus} from '@toolkit/core/client/Status';
 import TriState from '@toolkit/core/client/TriState';
-import {AdhocError} from '@toolkit/core/util/CodedError';
+import {useListen} from '@toolkit/data/DataStore';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import {ActionButton} from '@app/components/ActionButton';
@@ -29,10 +29,14 @@ import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
 import {NewItem, useGlobalActions} from '@app/components/Actions';
 import TopPicker from '@app/components/TopPicker';
 import {
+  Minder,
   MinderScreenContextProvider,
   OutlineItemVisibilityFilter,
+  flatList,
   useMinderListParams,
+  useMinderStore,
 } from '@app/model/Minders';
+import {useLoad, useWithLoad, withLoad} from '@app/util/UseLoad';
 import LoginScreen from './screens/LoginScreen';
 import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
 import {useDontAnimate, useSetPageTitle} from './util/Useful';
@@ -209,9 +213,6 @@ function Header(props: LayoutProps) {
 
   const routeName = route.name;
 
-  // TODO: Calculate count
-  const count = 0;
-
   // TODO: Set isTop
   const isTop = false;
 
@@ -249,11 +250,7 @@ function Header(props: LayoutProps) {
               )}
             />
           </View>
-          {count != null && (
-            <View style={S.badge}>
-              <Text style={{fontSize: 14, color: '#FFF'}}>{count}</Text>
-            </View>
-          )}
+          <MinderCount view={view} topId={topId} />
         </TriState>
       </View>
       <View style={S.row}>
@@ -268,6 +265,38 @@ function Header(props: LayoutProps) {
     </View>
   );
 }
+
+type MinderCountProps = {view: OutlineView; topId: string};
+
+const MinderCount = withLoad((props: MinderCountProps) => {
+  const {view, topId} = props;
+  const minderStore = useMinderStore();
+  const filter = filterFor(view);
+  const {count, setData} = useLoad(props, load);
+
+  useListen(Minder, '*', async () => {
+    const {count} = await load();
+    setData({count});
+  });
+
+  return (
+    <>
+      {count && (
+        <View style={S.badge}>
+          <Text style={{fontSize: 14, color: '#FFF'}}>{count}</Text>
+        </View>
+      )}
+    </>
+  );
+
+  async function load() {
+    const {top} = await minderStore.getAll(topId);
+    // TODO: More efficient logic
+    const matching = flatList(top.children, filter);
+
+    return {count: matching.length};
+  }
+});
 
 function SpinnerLoading() {
   return (
