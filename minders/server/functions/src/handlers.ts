@@ -1,12 +1,6 @@
-import {
-  BroadcastNotif,
-  GetUser,
-  SendAdminNotif,
-  TestNotif,
-  UpdateUser,
-} from '@app/common/Api';
+import {ExportJob, GetUser, UpdateUser} from '@app/common/Api';
 import {Profile} from '@app/common/DataTypes';
-import {NOTIF_CHANNELS} from '@app/common/NotifChannels';
+import {ApiKey, serverApi} from '@toolkit/core/api/DataApi';
 import {User, UserRoles} from '@toolkit/core/api/User';
 import {CodedError} from '@toolkit/core/util/CodedError';
 import {Updater, getRequired} from '@toolkit/data/DataStore';
@@ -14,26 +8,23 @@ import {firebaseStore} from '@toolkit/providers/firebase/DataStore';
 import {
   requireAccountInfo,
   requireLoggedInUser,
+  requireRole,
   setAccountToUserCallback,
 } from '@toolkit/providers/firebase/server/Auth';
 import {getFirebaseConfig} from '@toolkit/providers/firebase/server/Config';
-import {
-  getAdminDataStore,
-  getDataStore,
-} from '@toolkit/providers/firebase/server/Firestore';
+import {getDataStore} from '@toolkit/providers/firebase/server/Firestore';
 import {registerHandler} from '@toolkit/providers/firebase/server/Handler';
-import {
-  apnsToFCMToken,
-  getSender,
-} from '@toolkit/providers/firebase/server/PushNotifications';
 import {getAllowlistMatchedRoles} from '@toolkit/providers/firebase/server/Roles';
-import {PushToken} from '@toolkit/services/notifications/NotificationTypes';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import {AuthData} from 'firebase-functions/lib/common/providers/https';
-const {defineSecret} = require('firebase-functions/params');
 
-const notificationApiKey = defineSecret('fcm_server_key');
+import 'firebase/functions';
+import {getFunction, toThrownError} from './lib';
+
+// Uncomment the next line to enable notifications
+// export * from './notifications'
+
 const firebaseConfig = getFirebaseConfig();
 
 function newProfileFor(user: Updater<User>): Updater<Profile> {
@@ -55,7 +46,6 @@ function addDerivedFields(user: User) {
  */
 async function accountToUser(auth: AuthData): Promise<User> {
   // TODO: Make `firestore` role-based (e.g. firestoreForRole('ACCOUNT_CREATOR'))
-  // @ts-ignore
   const users = await getDataStore(User);
   const profiles = await getDataStore(Profile);
   const userId = auth.uid;
@@ -132,79 +122,6 @@ async function accountToUser(auth: AuthData): Promise<User> {
 }
 setAccountToUserCallback(accountToUser);
 
-async function convertPushTokenImpl(pushToken: PushToken) {
-  if (pushToken.type !== 'ios') {
-    return;
-  }
-
-  const apnsToken = pushToken.token;
-  functions.logger.debug('Converting token: ', apnsToken);
-  const fcmTokenResp = Object.values(
-    await apnsToFCMToken(
-      pushToken.sandbox ? 'com.uidude.minders' : 'com.uidude.minders',
-
-      notificationApiKey.value(),
-      [apnsToken],
-      pushToken.sandbox,
-    ),
-  );
-  if (fcmTokenResp.length !== 1) {
-    throw new Error('Unexpected response when converting APNs token to FCM');
-  }
-  const fcmToken = fcmTokenResp[0];
-  return fcmToken;
-}
-
-/**
- * Send a test notification to the device associated with the
- * push token passed in. This is the simplest "lights-on" test that
- * notifications is working - if this fails then there are likely
- * configuration issues.
- *
- * TODO: Add link to notification setup docs
- */
-export const testNotif = registerHandler(
-  TestNotif,
-  async (pushToken: PushToken) => {
-    const fcm = await convertPushTokenImpl(pushToken);
-    if (!fcm) {
-      return;
-    }
-    functions.logger.debug('Got FCM Token: ', fcm);
-    const payload = {
-      notification: {title: 'Ahoy!', body: 'We have contact 🚀'},
-    };
-    const resp = await admin.messaging().sendToDevice(fcm, payload);
-    functions.logger.debug(resp.results[0]);
-  },
-  {secrets: [notificationApiKey]},
-);
-
-export const convertPushToken = functions
-  .runWith({secrets: [notificationApiKey]})
-  .firestore.document('instance/minders/push_tokens/{token}')
-  .onCreate(async (change, context) => {
-    if (change.get('type') !== 'ios') {
-      return;
-    }
-
-    const apnsToken = change.get('token');
-    const fcmTokenResp = Object.values(
-      await apnsToFCMToken(
-        change.get('sandbox') ? 'com.uidude.minders' : 'com.uidude.minders',
-        notificationApiKey.value(),
-        [apnsToken],
-        change.get('sandbox'),
-      ),
-    );
-    if (fcmTokenResp.length !== 1) {
-      throw new Error('Unexpected response when converting APNs token to FCM');
-    }
-    const fcmToken = fcmTokenResp[0];
-
-    return change.ref.set({fcmToken}, {merge: true});
-  });
-
 export const getUser = registerHandler(GetUser, async () => {
   const account = requireAccountInfo();
   const store = await getDataStore(User);
@@ -239,28 +156,42 @@ export const updateUser = registerHandler(
   },
 );
 
-export const sendAdminNotif = registerHandler(
-  SendAdminNotif,
-  async ({user, title, body}) => {
-    functions.logger.debug('<<<HELLO!>>>');
-    const channel = NOTIF_CHANNELS.admin;
-    const send = getSender();
-    await send(user.id, channel, {title: title != null ? title : ''}, {body});
-  },
-  {allowedRoles: ['admin']},
-);
+export const scheduled = functions.pubsub
+  .schedule('every hour')
+  .onRun(async () => {
+    functions.logger.log('Running scheduled export');
+    const exportJob = await getFunction(ExportJob, 'export');
+    try {
+      await exportJob();
+    } catch (e: any) {
+      throw toThrownError(e);
+    }
+  });
 
-export const broadcastNotif = registerHandler(
-  BroadcastNotif,
-  async ({title = '', body}) => {
-    const channel = NOTIF_CHANNELS.admin;
-    const userStore = await getAdminDataStore(User);
-    const allUsers = await userStore.getAll();
-    const send = getSender();
+export const exportJob = registerHandler(ExportJob, async () => {
+  requireRole('export');
 
-    await Promise.all(
-      allUsers.map(user => send(user.id, channel, {title}, {body})),
-    );
+  // TODO: Add export logic
+  functions.logger.log('Running Exporter');
+});
+
+/**
+ * Endpoint for manually triggering the export handler.
+ * TODO: Expose with role-based access in admin console.
+ */
+export const AdminExportTrigger = serverApi<void, void>('adminExportTrigger');
+
+export const adminExportTrigger = registerHandler(
+  AdminExportTrigger,
+  async () => {
+    functions.logger.log('Trying to call Exporter');
+
+    const exportJob = await getFunction(ExportJob, 'export');
+    try {
+      const result = await exportJob();
+      functions.logger.log('Result', result);
+    } catch (e: any) {
+      throw toThrownError(e);
+    }
   },
-  {allowedRoles: ['admin']},
 );

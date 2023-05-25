@@ -8,7 +8,9 @@ export const GetUser = serverApi<LoginUserInfo, User>(
   'getUser',
   useGetOrCreateUser,
 );
+
 export const UpdateUser = serverApi<Updater<User>, User>('updateUser');
+export const ExportJob = serverApi<void, void>('exportJob');
 
 export type ID = string;
 
