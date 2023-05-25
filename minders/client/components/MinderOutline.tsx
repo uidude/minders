@@ -14,8 +14,6 @@ import {
 } from 'react-native';
 import {IconButton} from 'react-native-paper';
 import {Opt} from '@toolkit/core/util/Types';
-import {useIndent, useMinderActions, useOutdent} from '@app/components/Actions';
-import {EditableStatusM} from '@app/components/EditableStatus';
 import {
   Minder,
   OutlineItemVisibilityFilter,
@@ -25,7 +23,9 @@ import {
   isVisible,
   useLiveData,
   useMinderStore,
-} from '@app/model/Minders';
+} from '@app/common/Minders';
+import {useIndent, useMinderActions, useOutdent} from '@app/components/Actions';
+import {EditableStatusM} from '@app/components/EditableStatus';
 import {ActionButton} from './ActionButton';
 import {ActionMenu, VerticalDots} from './ActionMenu';
 import {MinderTextInput} from './MinderTextInput';

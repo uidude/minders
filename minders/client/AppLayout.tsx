@@ -23,17 +23,17 @@ import TriState from '@toolkit/core/client/TriState';
 import {useListen} from '@toolkit/data/DataStore';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
-import {ActionButton} from '@app/components/ActionButton';
-import ActionFAB from '@app/components/ActionFAB';
-import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
-import {NewItem, useGlobalActions} from '@app/components/Actions';
-import TopPicker from '@app/components/TopPicker';
 import {
   Minder,
   OutlineItemVisibilityFilter,
   flatList,
   useMinderStore,
-} from '@app/model/Minders';
+} from '@app/common/Minders';
+import {ActionButton} from '@app/components/ActionButton';
+import ActionFAB from '@app/components/ActionFAB';
+import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
+import {NewItem, useGlobalActions} from '@app/components/Actions';
+import TopPicker from '@app/components/TopPicker';
 import {useLoad, useWithLoad, withLoad} from '@app/util/UseLoad';
 import LoginScreen from './screens/LoginScreen';
 import MinderList from './screens/MinderList';

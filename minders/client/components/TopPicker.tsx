@@ -5,7 +5,7 @@
 import * as React from 'react';
 import {StyleProp, Text, TextStyle, TouchableHighlight} from 'react-native';
 import {useNav} from '@toolkit/ui/screen/Nav';
-import {MinderProject, useMinderStore} from '@app/model/Minders';
+import {MinderProject, useMinderStore} from '@app/common/Minders';
 import {useLoad, withLoad} from '@app/util/UseLoad';
 import {useShortcut} from '../util/Shortcuts';
 import {Menu} from './AppComponents';

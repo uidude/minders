@@ -15,7 +15,7 @@ import {useAuth} from '@toolkit/core/api/Auth';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {FIREBASE_CONFIG} from '@app/common/Config';
-import {getSavedUiState, useMinderStore} from '@app/model/Minders';
+import {getSavedUiState, useMinderStore} from '@app/common/Minders';
 import {useDontAnimate} from '@app/util/Useful';
 import LoginScreen from './LoginScreen';
 import MinderList from './MinderList';

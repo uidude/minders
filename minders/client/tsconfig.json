@@ -1,7 +1,8 @@
 {
   "include": [
     ".",
-    "../project/types"
+    "../project/types",
+    "../common/Minders.tsx"
   ],
   "compilerOptions": {
     "baseUrl": ".",

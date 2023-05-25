@@ -20,7 +20,10 @@ import {
   useDataStore,
 } from '@toolkit/data/DataStore';
 import {OutlineView} from '@app/AppLayout';
-import {INITIAL_OUTLINE, LegacyOutlineItem} from './InitialOutline';
+import {
+  INITIAL_OUTLINE,
+  LegacyOutlineItem,
+} from '../client/model/InitialOutline';
 
 export const STATE_VISIBILITY: Record<string, OutlineItemState[]> = {
   focus: ['cur', 'top'],

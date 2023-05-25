@@ -12,11 +12,6 @@ import {DataOp} from '@toolkit/data/DataCache';
 import {useListen} from '@toolkit/data/DataStore';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {Filters, OutlineView, filterFor} from '@app/AppLayout';
-import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
-import {useMinderActions} from '@app/components/Actions';
-import {EditableStatusM} from '@app/components/EditableStatus';
-import MinderOutline from '@app/components/MinderOutline';
-import {MinderTextInput} from '@app/components/MinderTextInput';
 import {
   Minder,
   MinderProject,
@@ -28,7 +23,12 @@ import {
   parentsOf,
   useLiveData,
   useMinderStore,
-} from '@app/model/Minders';
+} from '@app/common/Minders';
+import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
+import {useMinderActions} from '@app/components/Actions';
+import {EditableStatusM} from '@app/components/EditableStatus';
+import MinderOutline from '@app/components/MinderOutline';
+import {MinderTextInput} from '@app/components/MinderTextInput';
 import {requestSelect} from '@app/model/TextSelect';
 import {useLoad, withLoad} from '@app/util/UseLoad';
 

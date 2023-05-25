@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import {Opt} from '@toolkit/core/util/Types';
 import {Updater} from '@toolkit/data/DataStore';
-import {Minder, dataListen, useMinderStore} from '@app/model/Minders';
+import {Minder, dataListen, useMinderStore} from '@app/common/Minders';
 import {
   getSelection,
   isSelected,

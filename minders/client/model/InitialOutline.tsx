@@ -1,7 +1,7 @@
 // @ flow
 
 import {Opt} from '@toolkit/core/util/Types';
-import {OutlineItemState} from './Minders';
+import {OutlineItemState} from '../../common/Minders';
 
 // Can we make this a class and still have
 // useful data object semantics (e.g. safe to serialize)?

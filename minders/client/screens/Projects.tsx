@@ -15,7 +15,7 @@ import {Updater, useDataStore} from '@toolkit/data/DataStore';
 import {useTextInput} from '@toolkit/ui/UiHooks';
 import {useComponents} from '@toolkit/ui/components/Components';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import {Minder, MinderProject, Top, useMinderStore} from '@app/model/Minders';
+import {Minder, MinderProject, Top, useMinderStore} from '@app/common/Minders';
 import {BinaryAlert} from '@app/util/Alert';
 import {useLoad, withLoad} from '@app/util/UseLoad';
 
