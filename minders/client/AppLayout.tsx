@@ -32,7 +32,6 @@ import {
   Minder,
   OutlineItemVisibilityFilter,
   flatList,
-  useMinderListParams,
   useMinderStore,
 } from '@app/model/Minders';
 import {useLoad, useWithLoad, withLoad} from '@app/util/UseLoad';
@@ -340,6 +339,17 @@ function getDeviceType() {
 
 function isMobile() {
   return Platform.OS !== 'web' || getDeviceType() === 'mobile';
+}
+
+export function useMinderListParams() {
+  const route = useRoute();
+  const params = route.params as any;
+
+  const view = params?.view ?? 'focus';
+  const top = params?.top.replace('>', ':');
+  const isProject = top && top.startsWith('project:');
+
+  return {view, top, isProject};
 }
 
 // TODO: Add action button styles

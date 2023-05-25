@@ -1,6 +1,5 @@
 import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useRoute} from '@react-navigation/native';
 import {User, requireLoggedInUser} from '@toolkit/core/api/User';
 import {AdhocError} from '@toolkit/core/util/CodedError';
 import {Opt} from '@toolkit/core/util/Types';
@@ -669,15 +668,4 @@ export function flatList(
     flatList(minder.children, filter, out);
   });
   return out;
-}
-
-export function useMinderListParams() {
-  const route = useRoute();
-  const params = route.params as any;
-
-  const view = params?.view ?? 'focus';
-  const top = params?.top.replace('>', ':');
-  const isProject = top && top.startsWith('project:');
-
-  return {view, top, isProject};
 }
