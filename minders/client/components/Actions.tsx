@@ -13,6 +13,7 @@ import {
   useMinderListParams,
   useMinderStore,
 } from '@app/model/Minders';
+import Projects from '@app/screens/Projects';
 import SettingsScreen from '@app/screens/SettingsScreen';
 import {BinaryAlert} from '@app/util/Alert';
 import {WaitDialog} from './WaitDialog';
@@ -242,5 +243,12 @@ export function useGlobalActions() {
     action: async () => nav.navTo(SettingsScreen),
   };
 
-  return {Collapse, Expand, Home, NewItem, Settings, Up};
+  const Import: ActionItem = {
+    id: 'projects',
+    icon: 'folder-multiple-outline',
+    label: 'Projects',
+    action: async () => nav.navTo(Projects),
+  };
+
+  return {Collapse, Expand, Home, NewItem, Settings, Up, Import};
 }

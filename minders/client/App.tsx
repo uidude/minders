@@ -68,6 +68,7 @@ import DevSettings from './screens/DevSettings';
 import EditProfile from './screens/EditProfile';
 import MinderList from './screens/MinderList';
 import Onboarding from './screens/Onboarding';
+import Projects from './screens/Projects';
 import {ShortcutTool} from './util/Shortcuts';
 import {UsingUiTools} from './util/UiTools';
 
@@ -112,6 +113,7 @@ const ROUTES: Routes = {
   DevSettings,
   Onboarding,
   EditProfile,
+  Projects,
 };
 const Stack = createStackNavigator();
 

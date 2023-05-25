@@ -37,6 +37,7 @@ import {
 } from '@app/model/Minders';
 import {useLoad, useWithLoad, withLoad} from '@app/util/UseLoad';
 import LoginScreen from './screens/LoginScreen';
+import MinderList from './screens/MinderList';
 import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
 import {useDontAnimate, useSetPageTitle} from './util/Useful';
 
@@ -194,6 +195,22 @@ export default function Layout(props: LayoutProps) {
 
 // TODO: Back button
 function Header(props: LayoutProps) {
+  const {title} = props;
+  const {
+    location: {screen},
+  } = useNavState();
+  const showMinderListHeader = screen === MinderList;
+
+  return (
+    <View style={S.topBar}>
+      {showMinderListHeader && <MinderListHeader {...props} />}
+      {!showMinderListHeader && <Text style={S.title}>{title}</Text>}
+    </View>
+  );
+}
+
+// TODO: Back button
+function MinderListHeader(props: LayoutProps) {
   const route = useRoute();
   const {view, top: topId} = useMinderListParams();
   const nav = useNav();
@@ -202,7 +219,7 @@ function Header(props: LayoutProps) {
   const {
     location: {screen},
   } = useNavState();
-  const {Collapse, Expand, Home, Settings, Up} = useGlobalActions();
+  const {Collapse, Expand, Home, Settings, Import, Up} = useGlobalActions();
 
   const routeName = route.name;
 
@@ -210,7 +227,9 @@ function Header(props: LayoutProps) {
   const isTop = false;
 
   // TODO: Filter out up when at project level
-  const actionMenuItems = [Up, Expand, Collapse, Settings];
+  const actionMenuItems = [Up, Expand, Collapse, Import, Settings];
+
+  const showCount = screen === MinderList;
 
   /*
   if (screen === OutlineTop || screen === OutlineList) {
@@ -223,7 +242,7 @@ function Header(props: LayoutProps) {
   });
 
   return (
-    <View style={S.topBar}>
+    <View style={S.minderTop}>
       <View style={[S.row, {flexShrink: 1}]}>
         <TriState>
           <View style={S.row}>
@@ -243,7 +262,7 @@ function Header(props: LayoutProps) {
               )}
             />
           </View>
-          <MinderCount view={view} topId={topId} />
+          {showCount && <MinderCount view={view} topId={topId} />}
         </TriState>
       </View>
       <View style={S.row}>
@@ -283,6 +302,7 @@ const MinderCount = withLoad((props: MinderCountProps) => {
   );
 
   async function load() {
+    return {count: 0};
     const {top} = await minderStore.getAll(topId);
     // TODO: More efficient logic
     const matching = flatList(top.children, filter);
@@ -358,6 +378,11 @@ const S = StyleSheet.create({
     elevation: 4,
     borderTopWidth: isMobile() ? 1 : 0,
     borderColor: '#385078',
+    justifyContent: 'space-between',
+  },
+  minderTop: {
+    flex: 1,
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   row: {
