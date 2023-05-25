@@ -224,19 +224,16 @@ export function MinderTextInput(props: Props) {
   }
 
   return (
-    <>
-      <TextInput
-        value={value}
-        style={[S.listItemText, cursorStyle(cursor)]}
-        onChangeText={val => setValue(val)}
-        onBlur={onBlur}
-        onFocus={onFocus}
-        onSubmitEditing={submit}
-        onSelectionChange={onSelectionChange}
-        ref={setInput}
-      />
-      <Text>{minder.id}</Text>
-    </>
+    <TextInput
+      value={value}
+      style={[S.listItemText, cursorStyle(cursor)]}
+      onChangeText={val => setValue(val)}
+      onBlur={onBlur}
+      onFocus={onFocus}
+      onSubmitEditing={submit}
+      onSelectionChange={onSelectionChange}
+      ref={setInput}
+    />
   );
 }
 
