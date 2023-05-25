@@ -11,7 +11,6 @@ import {APP_CONFIG, FIREBASE_CONFIG} from '@app/common/Config';
 import {initFirebaseServer} from '@toolkit/providers/firebase/server/Config';
 import {
   AuthenticateMiddleware,
-  ResultLoggerMiddleware,
   RolesCheckMiddleware,
   initMiddlewares,
 } from '@toolkit/providers/firebase/server/Handler';
@@ -20,10 +19,6 @@ import {
 // https://www.internalfb.com/intern/wiki/NPE/Central_Engineering/NPE_Kit/Guides/Enforcing_Security_Rules_in_Firebase_Functions_or_Server_Code/
 initFirebaseServer(FIREBASE_CONFIG, APP_CONFIG);
 
-initMiddlewares([
-  AuthenticateMiddleware,
-  ResultLoggerMiddleware,
-  RolesCheckMiddleware,
-]);
+initMiddlewares([AuthenticateMiddleware, RolesCheckMiddleware]);
 
 exports.minders = require('./handlers');
