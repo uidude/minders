@@ -1,37 +1,36 @@
 import {
-    AddThing,
-    BroadcastNotif,
-    GetUser,
-    SendAdminNotif,
-    TestNotif,
-    UpdateUser,
+  BroadcastNotif,
+  GetUser,
+  SendAdminNotif,
+  TestNotif,
+  UpdateUser,
 } from '@app/common/Api';
-import { Profile, } from '@app/common/DataTypes';
-import { NOTIF_CHANNELS } from '@app/common/NotifChannels';
-import { User, UserRoles } from '@toolkit/core/api/User';
-import { CodedError } from '@toolkit/core/util/CodedError';
-import { Updater, getRequired } from '@toolkit/data/DataStore';
-import { firebaseStore } from '@toolkit/providers/firebase/DataStore';
+import {Profile} from '@app/common/DataTypes';
+import {NOTIF_CHANNELS} from '@app/common/NotifChannels';
+import {User, UserRoles} from '@toolkit/core/api/User';
+import {CodedError} from '@toolkit/core/util/CodedError';
+import {Updater, getRequired} from '@toolkit/data/DataStore';
+import {firebaseStore} from '@toolkit/providers/firebase/DataStore';
 import {
-    requireAccountInfo,
-    requireLoggedInUser,
-    setAccountToUserCallback,
+  requireAccountInfo,
+  requireLoggedInUser,
+  setAccountToUserCallback,
 } from '@toolkit/providers/firebase/server/Auth';
-import { getFirebaseConfig } from '@toolkit/providers/firebase/server/Config';
+import {getFirebaseConfig} from '@toolkit/providers/firebase/server/Config';
 import {
-    getAdminDataStore,
-    getDataStore,
+  getAdminDataStore,
+  getDataStore,
 } from '@toolkit/providers/firebase/server/Firestore';
-import { registerHandler } from '@toolkit/providers/firebase/server/Handler';
+import {registerHandler} from '@toolkit/providers/firebase/server/Handler';
 import {
-    apnsToFCMToken,
-    getSender,
+  apnsToFCMToken,
+  getSender,
 } from '@toolkit/providers/firebase/server/PushNotifications';
-import { getAllowlistMatchedRoles } from '@toolkit/providers/firebase/server/Roles';
-import { PushToken } from '@toolkit/services/notifications/NotificationTypes';
+import {getAllowlistMatchedRoles} from '@toolkit/providers/firebase/server/Roles';
+import {PushToken} from '@toolkit/services/notifications/NotificationTypes';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
-import { AuthData } from 'firebase-functions/lib/common/providers/https';
+import {AuthData} from 'firebase-functions/lib/common/providers/https';
 const {defineSecret} = require('firebase-functions/params');
 
 const notificationApiKey = defineSecret('fcm_server_key');
@@ -142,9 +141,7 @@ async function convertPushTokenImpl(pushToken: PushToken) {
   functions.logger.debug('Converting token: ', apnsToken);
   const fcmTokenResp = Object.values(
     await apnsToFCMToken(
-      pushToken.sandbox
-        ? 'com.uidude.minders'
-        : 'com.uidude.minders',
+      pushToken.sandbox ? 'com.uidude.minders' : 'com.uidude.minders',
 
       notificationApiKey.value(),
       [apnsToken],
@@ -194,9 +191,7 @@ export const convertPushToken = functions
     const apnsToken = change.get('token');
     const fcmTokenResp = Object.values(
       await apnsToFCMToken(
-        change.get('sandbox')
-          ? 'com.uidude.minders'
-          : 'com.uidude.minders',
+        change.get('sandbox') ? 'com.uidude.minders' : 'com.uidude.minders',
         notificationApiKey.value(),
         [apnsToken],
         change.get('sandbox'),
@@ -209,7 +204,6 @@ export const convertPushToken = functions
 
     return change.ref.set({fcmToken}, {merge: true});
   });
-
 
 export const getUser = registerHandler(GetUser, async () => {
   const account = requireAccountInfo();

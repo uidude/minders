@@ -7,6 +7,8 @@
  * @format
  */
 
+import {APP_CONFIG_KEY} from '@toolkit/core/util/AppConfig';
+import {context} from '@toolkit/core/util/AppContext';
 import {FirebaseConfig} from '@toolkit/providers/firebase/Config';
 
 let localConf: Record<string, any> = {};
@@ -34,6 +36,12 @@ export const FIREBASE_CONFIG: FirebaseConfig = localConf['firebase'] ?? {
     },
   },
 };
+
+export const APP_CONFIG = context(APP_CONFIG_KEY, {
+  product: 'minders',
+  dataEnv: 'prod',
+  fbAppId: '',
+});
 
 /**
  * Fill in the client IDs from
