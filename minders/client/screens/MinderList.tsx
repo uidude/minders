@@ -24,6 +24,7 @@ import {
   Top,
   flatList,
   isVisible,
+  minderSort,
   parentsOf,
   useLiveData,
   useMinderStore,
@@ -236,7 +237,7 @@ const MinderFlatList: Screen<Props> = props => {
   async function load() {
     const {project, top} = await minderStore.getAll(topId);
 
-    const minders = flatList(top.children, filter);
+    const minders = flatList(top.children, filter).sort(minderSort);
     return {project, minders, top};
   }
 
