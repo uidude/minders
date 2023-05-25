@@ -13,6 +13,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useRoute} from '@react-navigation/native';
 import {Appbar} from 'react-native-paper';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -20,6 +21,7 @@ import {canLoggingInFix} from '@toolkit/core/api/Auth';
 import {ActionItem} from '@toolkit/core/client/Action';
 import {useStatus} from '@toolkit/core/client/Status';
 import TriState from '@toolkit/core/client/TriState';
+import {Opt} from '@toolkit/core/util/Types';
 import {useListen} from '@toolkit/data/DataStore';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
@@ -352,6 +354,45 @@ export function useMinderListParams() {
   return {view, top, isProject};
 }
 
+/**
+ * The UI state of the project.
+ *
+ *
+ * This is calculated from URL parameters, and the latest is stored
+ * locally on your device for when URL parameters aren't set.
+ */
+export type MinderUiState = {
+  /** Current view */
+  view?: OutlineView;
+
+  /** Current visibility filter, calculated from `view` */
+  filter?: OutlineItemVisibilityFilter;
+
+  /** The currently focused minder - only children of this minder are show */
+  top?: string;
+
+  /** The current project */
+  project?: string;
+};
+
+function parseJsonOr<T>(value: Opt<string>, defaultValue: T): T {
+  try {
+    if (value != null) {
+      return JSON.parse(value);
+    }
+  } catch (e) {}
+
+  return defaultValue;
+}
+
+export async function saveLatestUiState(minderUiState: Partial<MinderUiState>) {
+  await AsyncStorage.setItem('minderUiState', JSON.stringify(minderUiState));
+}
+
+export async function getSavedUiState(): Promise<Opt<MinderUiState>> {
+  const savedUiState = await AsyncStorage.getItem('minderUiState');
+  return parseJsonOr(savedUiState, null);
+}
 // TODO: Add action button styles
 const S = StyleSheet.create({
   action: {opacity: 0.5},

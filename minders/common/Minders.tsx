@@ -1,5 +1,4 @@
 import * as React from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {User, requireLoggedInUser} from '@toolkit/core/api/User';
 import {AdhocError} from '@toolkit/core/util/CodedError';
 import {Opt} from '@toolkit/core/util/Types';
@@ -19,7 +18,6 @@ import {
   UpdaterValue,
   useDataStore,
 } from '@toolkit/data/DataStore';
-import {OutlineView} from '@app/AppLayout';
 import {
   INITIAL_OUTLINE,
   LegacyOutlineItem,
@@ -164,46 +162,6 @@ export type Top = {
   /* Children */
   children: Minder[];
 };
-
-/**
- * The UI state of the project.
- *
- *
- * This is calculated from URL parameters, and the latest is stored
- * locally on your device for when URL parameters aren't set.
- */
-export type MinderUiState = {
-  /** Current view */
-  view?: OutlineView;
-
-  /** Current visibility filter, calculated from `view` */
-  filter?: OutlineItemVisibilityFilter;
-
-  /** The currently focused minder - only children of this minder are show */
-  top?: string;
-
-  /** The current project */
-  project?: string;
-};
-
-function parseJsonOr<T>(value: Opt<string>, defaultValue: T): T {
-  try {
-    if (value != null) {
-      return JSON.parse(value);
-    }
-  } catch (e) {}
-
-  return defaultValue;
-}
-
-export async function saveLatestUiState(minderUiState: Partial<MinderUiState>) {
-  await AsyncStorage.setItem('minderUiState', JSON.stringify(minderUiState));
-}
-
-export async function getSavedUiState(): Promise<Opt<MinderUiState>> {
-  const savedUiState = await AsyncStorage.getItem('minderUiState');
-  return parseJsonOr(savedUiState, null);
-}
 
 // Should this be set in React context? Would make life easier for user-based caching, etc... otherwise
 // we're using a big global map.
