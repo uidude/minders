@@ -211,8 +211,6 @@ const MinderFlatList: Screen<Props> = props => {
   /*
     TODO:
     - Get better keepOrder logic than previously, so it works in list view
-    - Add add / delete params to listen API
-    - Only trigger on add / delete
   */
 
   if (minders.length === 0) {
@@ -256,7 +254,7 @@ const MinderFlatList: Screen<Props> = props => {
         // Note: Might be nice to have it fade out...
       }
     } else if (op === 'add' && newValue) {
-      if (isVisible(newValue, filter)) {
+      if (isVisible(newValue, filter) && !minders.find(m => m.id === id)) {
         updated = [...minders, newValue];
         requestSelect(newValue.id, 'start');
       }
