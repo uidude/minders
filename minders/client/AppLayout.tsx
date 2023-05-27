@@ -300,7 +300,6 @@ const MinderCount = withLoad((props: MinderCountProps) => {
   );
 
   async function load() {
-    return {count: 0};
     const {top} = await minderStore.getAll(topId);
     // TODO: More efficient logic
     const matching = flatList(top.children, filter);

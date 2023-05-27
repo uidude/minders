@@ -51,6 +51,7 @@ export function useLoad<T>(
 }
 
 type LoadState = {
+  key: string;
   promises: Record<string, Promised<any>>;
 };
 
@@ -65,17 +66,33 @@ type LoadState = {
  */
 export function withLoad<Props>(Component: React.ComponentType<Props>) {
   return (props: Props) => {
-    // Load state is state that is passed to the child component via props.
-    // Includes both a persistent set of promises as well as methods
-    // and future state / methods that will be updated on every render.
-    const loadState = React.useRef<LoadState>({promises: {}});
     const loadCount = useReloadState();
 
     const propsForKey = {...props, _count: loadCount} as Record<string, any>;
     const loadKey = propsToKey(propsForKey, ['async', '_promises']);
 
+    // Load state is state that is passed to the child component via props.
+    // Includes both a persistent set of promises as well as methods
+    // and future state / methods that will be updated on every render.
+    const initialState: LoadState = {key: loadKey, promises: {}};
+
+    // Currently we reset the load state when keys change, becasue
+    // we don't have a way to update the cache for previously loaded items
+    // when the component using this data isn't mounted (`setData()` only
+    // operates a currently mounted component).
+    // TODO: Dynamic load state that is able to update the cached value
+    const loadState = React.useRef<LoadState>(initialState);
+    if (loadKey !== loadState.current.key) {
+      loadState.current = initialState;
+    }
+
     return (
-      <Component {...props} _loadstate={loadState.current} _loadkey={loadKey} />
+      <Component
+        {...props}
+        key={loadKey}
+        _loadstate={loadState.current}
+        _loadkey={loadKey}
+      />
     );
   };
 }
