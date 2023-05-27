@@ -17,6 +17,7 @@ import {
   MinderProject,
   OutlineItemVisibilityFilter,
   Top,
+  filterVisibleChildren,
   flatList,
   isVisible,
   minderSort,
@@ -166,8 +167,7 @@ const MinderOutlineList: Screen<Props> = props => {
   const {project, top, setData} = useLoad(props, load);
   useListen(Minder, '*', onMinderChange);
 
-  const children = top.children.filter(m => isVisible(m, filter));
-
+  filterVisibleChildren(top, filter);
   async function onMinderChange(id: string, op: DataOp) {
     // TODO: Consider modifying existing tree instead of reloading
     const {top: newTop} = await minderStore.getAll(topId);
@@ -183,7 +183,7 @@ const MinderOutlineList: Screen<Props> = props => {
 
   return (
     <View style={{flex: 1}}>
-      {children.map((minder, idx) => (
+      {top.children.map((minder, idx) => (
         <MinderOutline
           minder={minder}
           key={minder.id}
@@ -234,7 +234,7 @@ const MinderFlatList: Screen<Props> = props => {
 
   async function load() {
     const {project, top} = await minderStore.getAll(topId);
-
+    top.children.sort(minderSort);
     const minders = flatList(top.children, filter).sort(minderSort);
     return {project, minders, top};
   }

@@ -146,6 +146,11 @@ export class Minder extends BaseModel {
   visibleChildren?: Minder[];
 }
 
+/** Type for recursive operations on Minder trees that works with Top, Project, and Minder */
+export type HasMinderChildren = {
+  children?: Minder[];
+};
+
 /**
  * Minder pages can have a top-level item that is either a Minder
  * or a project. This type covers the common fields from both used for rendering.
@@ -242,7 +247,6 @@ export function useMinderStore(ctx?: MinderStoreContext) {
     });
     if (project) {
       await linkAndFixMinders([project]);
-      project.minders = project.minders!.sort(minderSort);
     }
     return project;
   }
@@ -335,30 +339,13 @@ export function useMinderStore(ctx?: MinderStoreContext) {
   }
 
   // TODO disallow setting parent and project until they work.
-  async function update(
-    minder: Minder,
-    fields: Updater<Minder>,
-    opts?: MutateOpts,
-  ) {
+  async function update(fields: Updater<Minder>, opts?: MutateOpts) {
     if (fields.state != null && fields.state != 'waiting') {
       fields.snoozeTil = UpdaterValue.fieldDelete();
       fields.unsnoozedState = UpdaterValue.fieldDelete();
     }
-    fields.id = minder.id;
-    // TODO: snooze that sets unsnoozed state and snoozeTil correctly
 
-    let modified;
-    for (const key of Object.keys(fields)) {
-      const typedKey = key as keyof Minder;
-      if (fields[typedKey] !== minder[typedKey]) {
-        modified = true;
-      }
-    }
-
-    if (modified) {
-      await minderStore.update(fields, opts);
-      triggerData(Minder, fields.id!);
-    }
+    return await minderStore.update(fields, opts);
   }
 
   function listen(id: string, fn: DataCallback<Minder>) {
@@ -491,7 +478,7 @@ export function triggerData(type: ModelClass<any>, key: string) {
  * Gets parents of minder, starting from the top-most
  *
  * Requires that parent tree is populated, which won't
- * be true on queries that get updated informatio.
+ * be true on queries that get updated information.
  */
 export function parentsOf(minder: Minder): Minder[] {
   const parents: Minder[] = [];
@@ -530,8 +517,43 @@ export function minderSort(lhs: Minder, rhs: Minder) {
   return rhsmod - lhsmod;
 }
 
+/**
+ * Filters the list of chilren on each item to only the visible items.
+ * For leaf nodes, this is whether the item is visible in the filter.
+ * For parent nodes, this is whether any child is visible.
+ */
+export function filterVisibleChildren(
+  item: HasMinderChildren,
+  filter: OutlineItemVisibilityFilter,
+) {
+  const newChildren: Minder[] = [];
+  let visible = false;
+
+  for (const child of item.children ?? []) {
+    if (child.children && child.children.length > 0) {
+      filterVisibleChildren(child, filter);
+      if (child.children.length > 0) {
+        newChildren.push(child);
+      }
+    } else {
+      if (isVisible(child, filter)) {
+        newChildren.push(child);
+        visible = true;
+      }
+    }
+  }
+  item.children = newChildren;
+}
+
+/**
+ * Returns true if a Minder has no children and is visible in the current filter.
+ */
 export function isVisible(minder: Minder, filter: OutlineItemVisibilityFilter) {
   const visibleStates = STATE_VISIBILITY[filter];
+
+  if (minder.children && minder.children.length > 0) {
+    return false;
+  }
 
   const now = Date.now();
 

@@ -34,7 +34,7 @@ export function useIndent(minder: Minder, prev: Opt<Minder>) {
           text: '-',
         });
       }
-      await minderStore.update(minder, {parentId: newParent.id});
+      await minderStore.update({id: minder.id, parentId: newParent.id});
       reload();
     },
   };
@@ -49,10 +49,11 @@ export function useOutdent(minder: Minder, grandparent: Opt<Minder>) {
     icon: 'format-indent-decrease',
     label: 'Outdent',
     action: async () => {
-      const updater = {
+      const fields = {
+        id: minder.id,
         parentId: grandparent ? grandparent.id : UpdaterValue.fieldDelete(),
       };
-      await minderStore.update(minder, updater);
+      await minderStore.update(fields);
       reload();
     },
   };
@@ -78,7 +79,7 @@ export function useMinderActions(minder: Minder) {
     icon: 'format-vertical-align-top',
     label: 'Bump to top',
     action: async () => {
-      await minderStore.update(minder, {updatedAt: Date.now()});
+      await minderStore.update({id: minder.id, updatedAt: Date.now()});
     },
   };
 
@@ -91,7 +92,11 @@ export function useMinderActions(minder: Minder) {
 
       return () => {
         waitDialog.show(async ({snoozeTil}) => {
-          await minderStore.update(minder, {snoozeTil, state: 'waiting'});
+          await minderStore.update({
+            id: minder.id,
+            snoozeTil,
+            state: 'waiting',
+          });
         });
       };
     }),

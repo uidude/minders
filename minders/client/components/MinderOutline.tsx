@@ -44,7 +44,7 @@ function CollapserButton(props: {
 
   const toggleState = async () => {
     if (!isDisabled) {
-      minderStore.update(minder, {collapsed: !closed});
+      minderStore.update({id: minder.id, collapsed: !closed});
     }
   };
 

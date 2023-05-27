@@ -125,10 +125,7 @@ export function MinderTextInput(props: Props) {
       fields.parentId = minder.parentId;
     }
     await minderStore.create(fields, {optimistic: true});
-
-    await minderStore.update(minder, {text: beforeText});
-
-    // requestSelect(newMinder.id, 'start');
+    await minderStore.update({id: minder.id, text: beforeText});
   }
 
   function backspace() {
@@ -202,7 +199,7 @@ export function MinderTextInput(props: Props) {
     }
     setActive(false);
     const trimmed = value.trim();
-    minderStore.update(minder, {text: trimmed});
+    minderStore.update({id: minder.id, text: trimmed});
     setValue(trimmed);
   }
 
