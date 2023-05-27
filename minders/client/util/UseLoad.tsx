@@ -42,7 +42,9 @@ export function useLoad<T>(
   }
 
   function setData(newValues: Partial<T>) {
-    setValue({...value, ...newValues});
+    const newData = {...value, ...newValues};
+    promises[key] = new Promised(newData);
+    setValue(newData);
   }
 
   return {...value, setData};
