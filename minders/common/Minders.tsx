@@ -53,7 +53,7 @@ export type OutlineItemState =
   | 'later'
   | 'done';
 
-export type OutlineItemVisibilityFilter =
+export type MinderFilter =
   | 'focus'
   | 'review'
   | 'pile'
@@ -524,7 +524,7 @@ export function minderSort(lhs: Minder, rhs: Minder) {
  */
 export function filterVisibleChildren(
   item: HasMinderChildren,
-  filter: OutlineItemVisibilityFilter,
+  filter: MinderFilter,
 ) {
   const newChildren: Minder[] = [];
   let visible = false;
@@ -548,7 +548,7 @@ export function filterVisibleChildren(
 /**
  * Returns true if a Minder has no children and is visible in the current filter.
  */
-export function isVisible(minder: Minder, filter: OutlineItemVisibilityFilter) {
+export function isVisible(minder: Minder, filter: MinderFilter) {
   const visibleStates = STATE_VISIBILITY[filter];
 
   if (minder.children && minder.children.length > 0) {
@@ -627,7 +627,7 @@ export function nonNull<T>(value: Opt<T>, message: string): T {
  */
 export function flatList(
   minders: Opt<Minder[]>,
-  filter: OutlineItemVisibilityFilter,
+  filter: MinderFilter,
   out: Minder[] = [],
 ) {
   minders?.forEach(minder => {

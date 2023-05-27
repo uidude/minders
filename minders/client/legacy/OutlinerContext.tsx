@@ -9,13 +9,13 @@ import {Opt} from '@toolkit/core/util/Types';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import {batch, useForceUpdate} from '../util/Useful';
 import OutlineStore from './OutlineStore';
-import type {OutlineItem, OutlineItemVisibilityFilter} from './outliner';
+import type {MinderFilter, OutlineItem} from './outliner';
 import Outliner from './outliner';
 
 export type OutlineState = {
   focus: number;
   focusItem: OutlineItem;
-  filter: OutlineItemVisibilityFilter;
+  filter: MinderFilter;
 };
 
 export function useOutlineState(): [

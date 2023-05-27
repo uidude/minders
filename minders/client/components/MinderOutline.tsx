@@ -16,7 +16,7 @@ import {IconButton} from 'react-native-paper';
 import {Opt} from '@toolkit/core/util/Types';
 import {
   Minder,
-  OutlineItemVisibilityFilter,
+  MinderFilter,
   getChildren,
   hasVisibleKids,
   isParent,
@@ -105,7 +105,7 @@ type ChildItemProps = {
   parents: Minder[];
   minder: Minder;
   level: number;
-  filter: OutlineItemVisibilityFilter;
+  filter: MinderFilter;
 };
 
 function ChildItems(props: ChildItemProps) {
@@ -136,7 +136,7 @@ type MinderOutlineProps = {
   prev: Opt<Minder>;
   parents?: Minder[];
   level?: number;
-  filter: OutlineItemVisibilityFilter;
+  filter: MinderFilter;
 };
 
 export default function MinderOutline(props: MinderOutlineProps) {

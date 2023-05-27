@@ -14,8 +14,8 @@ import {Screen} from '@toolkit/ui/screen/Screen';
 import {Filters, OutlineView, filterFor} from '@app/AppLayout';
 import {
   Minder,
+  MinderFilter,
   MinderProject,
-  OutlineItemVisibilityFilter,
   Top,
   filterVisibleChildren,
   flatList,
@@ -35,7 +35,7 @@ import {useLoad, withLoad} from '@app/util/UseLoad';
 
 export function NoChildren(props: {
   project: MinderProject;
-  filter: OutlineItemVisibilityFilter;
+  filter: MinderFilter;
 }) {
   const {project, filter} = props;
 

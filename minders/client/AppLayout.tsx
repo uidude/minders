@@ -27,7 +27,7 @@ import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import {
   Minder,
-  OutlineItemVisibilityFilter,
+  MinderFilter,
   flatList,
   useMinderStore,
 } from '@app/common/Minders';
@@ -42,7 +42,7 @@ import MinderList from './screens/MinderList';
 import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
 import {useDontAnimate, useSetPageTitle} from './util/Useful';
 
-export const Filters: EnumConfig<OutlineItemVisibilityFilter> = new Map([
+export const Filters: EnumConfig<MinderFilter> = new Map([
   /*['top', { icon: 'star-outline', label: 'Starred' }],*/
   ['focus', {icon: 'eye-outline', label: 'In Focus', key: 'f'}],
   ['review', {icon: 'timer', label: 'To review', key: 'r'}],
@@ -68,7 +68,7 @@ export type OutlineView =
 
 // New menu config for menu that selects filter *and* view
 type ViewMenuChoice = {
-  filter: OutlineItemVisibilityFilter;
+  filter: MinderFilter;
 };
 
 // Function for lazy loading of view types
@@ -102,10 +102,7 @@ export const ViewMenuItems: EnumConfig<OutlineView> = new Map([
   ],
 ]);
 
-function viewFor(
-  view: string,
-  filter: OutlineItemVisibilityFilter,
-): OutlineView {
+function viewFor(view: string, filter: MinderFilter): OutlineView {
   if (view == 'outline') {
     if (filter == 'all') {
       return 'outlineall';
@@ -366,7 +363,7 @@ export type MinderUiState = {
   view?: OutlineView;
 
   /** Current visibility filter, calculated from `view` */
-  filter?: OutlineItemVisibilityFilter;
+  filter?: MinderFilter;
 
   /** The currently focused minder - only children of this minder are show */
   top?: string;

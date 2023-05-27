@@ -34,7 +34,7 @@ export type OutlineItemState =
   | 'later'
   | 'done';
 export type OutlineStyle = 'list' | 'outline';
-export type OutlineItemVisibilityFilter =
+export type MinderFilter =
   | 'focus'
   | 'review'
   | 'pile'
@@ -45,7 +45,7 @@ export type OutlineItemVisibilityFilter =
 
 type OutlineItemUi = {
   view?: OutlineStyle;
-  visibilityFilter?: OutlineItemVisibilityFilter;
+  visibilityFilter?: MinderFilter;
   hidden?: boolean;
   kidsHidden?: boolean;
   closed?: boolean;
@@ -536,14 +536,11 @@ export default class Outliner {
     }
   }
 
-  getVisibilityFilter(): OutlineItemVisibilityFilter {
+  getVisibilityFilter(): MinderFilter {
     return this.getData().ui?.visibilityFilter || 'focus';
   }
 
-  setVisibilityFilter(
-    value: OutlineItemVisibilityFilter,
-    noSave: boolean = false,
-  ) {
+  setVisibilityFilter(value: MinderFilter, noSave: boolean = false) {
     this.visibleStates = STATE_VISIBILITY[value];
     this.updateOutlineItemUi(this.getData(), {visibilityFilter: value}, false);
     this._recursiveUpdateVisibility(this.getData());
