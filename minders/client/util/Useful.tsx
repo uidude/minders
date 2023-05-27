@@ -3,7 +3,9 @@
  */
 
 import * as React from 'react';
+import {Platform} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import * as Sharing from 'expo-sharing';
 import {unstable_batchedUpdates} from 'react-dom';
 
 // Consistent wrapper around batching to avoid exposing react
@@ -54,4 +56,28 @@ export function useSetPageTitle() {
 export function timelog(...args: any[]) {
   args.push((Date.now() % 100000) / 1000);
   console.log(...args);
+}
+
+export async function downloadOrShareJson(name: string, url: string) {
+  if (Platform.OS === 'web') {
+    downloadFile(`${name}.json`, url);
+  } else {
+    Sharing.shareAsync(jsonDataUrl(url));
+  }
+}
+
+export function downloadFile(filename: string, dataUrl: string) {
+  if (Platform.OS === 'web') {
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
+
+export function jsonDataUrl(jsonString: string) {
+  const base64 = btoa(jsonString);
+  return 'data:application/json;base64,' + base64;
 }

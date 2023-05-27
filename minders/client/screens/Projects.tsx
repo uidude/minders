@@ -3,10 +3,9 @@
  */
 
 import * as React from 'react';
-import {Platform, ScrollView, StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import * as DocumentPicker from 'expo-document-picker';
-import * as Sharing from 'expo-sharing';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {useAction} from '@toolkit/core/client/Action';
 import {useReload} from '@toolkit/core/client/Reload';
@@ -15,23 +14,30 @@ import {Updater, useDataStore} from '@toolkit/data/DataStore';
 import {useTextInput} from '@toolkit/ui/UiHooks';
 import {useComponents} from '@toolkit/ui/components/Components';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import {Minder, MinderProject, Top, useMinderStore} from '@app/common/Minders';
+import {
+  Minder,
+  MinderProject,
+  MinderStoreContext,
+  OutlineItemState,
+  useMinderStore,
+} from '@app/common/Minders';
 import {BinaryAlert} from '@app/util/Alert';
 import {useLoad, withLoad} from '@app/util/UseLoad';
+import {downloadOrShareJson, jsonDataUrl} from '@app/util/Useful';
 
 type Props = {};
 
 const Projects: Screen<Props> = withLoad(props => {
-  requireLoggedInUser();
+  const user = requireLoggedInUser();
   const {H2, Body, Button} = useComponents();
   const [projectId, setProjectId] = React.useState('');
-  const minderStore = useMinderStore();
+  const minderApi = useMinderStore();
+  const minderStore = useDataStore(Minder);
   const projectStore = useDataStore(MinderProject);
   const {projects} = useLoad(props, load);
-  const [ProjectTitleInput, projectTitle] = useTextInput('');
+  const [ProjectTitleInput, projectTitle, setProjectTitle] = useTextInput('');
   const [onImport, importing] = useAction(importData);
   const [onDelete, deleting] = useAction(deleteProject);
-  const createProjectFromJson = useCreateProjectFromJson();
   const reload = useReload();
 
   function onSelect(newId: string) {
@@ -64,7 +70,7 @@ const Projects: Screen<Props> = withLoad(props => {
           Delete
         </Button>
         <View style={{width: 10}} />
-        <Button type="primary" onPress={exportData} disabled={projectId == ''}>
+        <Button type="primary" onPress={exportIt} disabled={projectId == ''}>
           Export
         </Button>
       </View>
@@ -95,20 +101,13 @@ const Projects: Screen<Props> = withLoad(props => {
   );
 
   async function load() {
-    const projects = await minderStore.getProjects();
+    const projects = await minderApi.getProjects();
     return {projects};
   }
 
-  async function exportData() {
-    const {top, project: projectWithData} = await minderStore.getAll(projectId);
-    projectWithData.minders = top.children;
-
-    const dataUrl = jsonDataUrl(toJson(projectWithData!));
-    if (Platform.OS === 'web') {
-      downloadFile(`${projectWithData!.name}.json`, dataUrl);
-    } else {
-      Sharing.shareAsync(jsonDataUrl(toJson(projectWithData!)));
-    }
+  async function exportIt() {
+    const {name, json} = await minderApi.exportProject(projectId);
+    return downloadOrShareJson(name, jsonDataUrl(json));
   }
 
   async function importData() {
@@ -118,8 +117,10 @@ const Projects: Screen<Props> = withLoad(props => {
     if (doc.type !== 'cancel') {
       const data = await fetch(doc.uri);
       const json = await data.json();
-      await createProjectFromJson(projectTitle, json);
+      const ctx = {minderStore, projectStore, user};
+      await createProjectFromJson(ctx, projectTitle, json);
     }
+    setProjectTitle('');
     reload();
   }
 
@@ -130,7 +131,7 @@ const Projects: Screen<Props> = withLoad(props => {
   }
 
   async function deleteProject(id: string) {
-    const projectWithData = await minderStore.getProject(projectId);
+    const projectWithData = await minderApi.getProject(projectId);
 
     await Promise.all(
       projectWithData!.minders!.map(m => minderStore.remove(m.id)),
@@ -141,81 +142,107 @@ const Projects: Screen<Props> = withLoad(props => {
   }
 });
 
-const SERIALIZED_KEYS: (keyof Minder | keyof MinderProject)[] = [
-  'id',
-  'createdAt',
-  'updatedAt',
-  'name',
-  'minders',
-  'text',
-  'state',
-  'children',
-  'snoozeTil',
-  'unsnoozedState',
-  'pinned',
-];
+async function createProjectFromJson(
+  ctx: MinderStoreContext,
+  name: string,
+  json: Partial<MinderProject> | Partial<LegacyJson>,
+) {
+  const {projectStore, user} = ctx;
 
-function toJson(item: MinderProject | Minder | Top) {
-  return JSON.stringify(item, SERIALIZED_KEYS, 2);
-}
-
-function jsonDataUrl(jsonString: string) {
-  const base64 = btoa(jsonString);
-  return 'data:application/json;base64,' + base64;
-}
-
-function downloadFile(filename: string, dataUrl: string) {
-  if (Platform.OS === 'web') {
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-}
-
-function useCreateProjectFromJson() {
-  const projectStore = useDataStore(MinderProject);
-  const minderStore = useDataStore(Minder);
-  const user = requireLoggedInUser();
-
-  async function createProjectFromJson(
-    name: string,
-    json: Partial<MinderProject>,
-  ) {
-    const {id, minders, ...fields} = Object.assign(
-      json,
-    ) as Updater<MinderProject>;
-    fields.name = name;
-    fields.owner = {id: user.id};
-    const project = await projectStore.create(fields);
-
-    await createMindersFromJson(project, null, minders as Minder[]);
+  if ('sub' in json) {
+    await createProjectFromLegacyJson(ctx, name, json);
+    return;
   }
 
-  async function createMindersFromJson(
-    project: Partial<MinderProject>,
-    parent: Opt<Minder>,
-    minders: Partial<Minder>[],
-  ) {
-    async function createMinderAndChildren(item: Partial<Minder>) {
-      const {id, children, ...fields} = Object.assign(item) as Updater<Minder>;
-      fields.project = {id: project.id!};
-      fields.parentId = parent?.id;
-      const minder = await minderStore.create(fields);
+  const {id, minders, ...fields} = Object.assign(
+    json,
+  ) as Updater<MinderProject>;
+  fields.name = name;
+  fields.owner = {id: user.id};
+  const project = await projectStore.create(fields);
 
-      if (children) {
-        await createMindersFromJson(project, minder, children as Minder[]);
-      }
-      return minder;
+  await createMindersFromJson(ctx, project, null, minders as Minder[]);
+}
+
+async function createMindersFromJson(
+  ctx: MinderStoreContext,
+  project: Partial<MinderProject>,
+  parent: Opt<Minder>,
+  minders: Partial<Minder>[],
+) {
+  const {minderStore} = ctx;
+  async function createMinderAndChildren(item: Partial<Minder>) {
+    const {id, children, ...fields} = Object.assign(item) as Updater<Minder>;
+    fields.project = {id: project.id!};
+    fields.parentId = parent?.id;
+    const minder = await minderStore.create(fields);
+
+    if (children) {
+      await createMindersFromJson(ctx, project, minder, children as Minder[]);
     }
-
-    const promises = minders.map(item => createMinderAndChildren(item));
-    await Promise.all(promises);
+    return minder;
   }
 
-  return createProjectFromJson;
+  const promises = minders.map(item => createMinderAndChildren(item));
+  await Promise.all(promises);
+}
+
+type LegacyJson = {
+  text: string;
+  id: number;
+  sub?: LegacyJson[];
+  state?: OutlineItemState;
+  created?: number;
+  modified?: number;
+  snoozeTil?: number;
+  snoozeState?: Opt<OutlineItemState>;
+  pinned?: boolean;
+};
+
+async function createProjectFromLegacyJson(
+  ctx: MinderStoreContext,
+  name: string,
+  json: Partial<LegacyJson>,
+) {
+  const {projectStore, user} = ctx;
+  const fields = {
+    name,
+    createdAt: json.created,
+    updatedAt: json.modified,
+    owner: user,
+  };
+  const project = await projectStore.create(fields);
+  await createMindersFromLegacyJson(ctx, project, null, json.sub ?? []);
+}
+
+async function createMindersFromLegacyJson(
+  ctx: MinderStoreContext,
+  project: {id: string},
+  parent: Opt<{id: string}>,
+  items: LegacyJson[],
+) {
+  const {minderStore} = ctx;
+  async function createMinderAndChildren(item: Partial<LegacyJson>) {
+    const fields = {
+      project,
+      parentId: parent?.id,
+      text: item.text,
+      state: item.state,
+      createdAt: item.created,
+      updatedAt: item.modified,
+      snoozeTil: item.snoozeTil,
+      unsnoozeState: item.snoozeState,
+    };
+    const minder = await minderStore.create(fields);
+
+    if (item.sub) {
+      await createMindersFromLegacyJson(ctx, project, minder, item.sub);
+    }
+    return minder;
+  }
+
+  const promises = items.map(item => createMinderAndChildren(item));
+  await Promise.all(promises);
 }
 
 Projects.title = 'Minder Projects';

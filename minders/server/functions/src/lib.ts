@@ -5,7 +5,7 @@
 
 import {ExportJob} from '@app/common/Api';
 import {FIREBASE_CONFIG} from '@app/common/Config';
-import {ApiKey, serverApi} from '@toolkit/core/api/DataApi';
+import {Api, ApiKey, serverApi} from '@toolkit/core/api/DataApi';
 import {CodedError} from '@toolkit/core/util/CodedError';
 import {getFirebaseConfig} from '@toolkit/providers/firebase/Config';
 import {requireRole} from '@toolkit/providers/firebase/server/Auth';
@@ -15,12 +15,6 @@ import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
 import 'firebase/functions';
-
-export const exportJob = registerHandler(ExportJob, async () => {
-  // TODO: How to
-  requireRole('export');
-  functions.logger.log('Running Exporter');
-});
 
 export const ExportTest = serverApi<void, void>('exportDataTest');
 
@@ -54,8 +48,25 @@ export async function getFunction<I, O>(key: ApiKey<I, O>, role?: string) {
   const app = await getApp(role);
   const clientFunctions = app.functions('us-central1');
   //clientFunctions.useEmulator('localhost', 5001);
-  functions.logger.log('Calling...', `minders-${key.id}`);
-  return clientFunctions.httpsCallable(`minders-${key.id}`);
+  const functionPath = `minders-${key.id}`;
+  functions.logger.log(`Calling... ${functionPath}`);
+
+  return async (input?: I) => {
+    try {
+      const result = await clientFunctions.httpsCallable(functionPath)(input);
+      return result.data as O;
+    } catch (e: any) {
+      if (e.code === 'internal') {
+        throw new CodedError(
+          'npe.config',
+          'An error occurred',
+          `Unable to call Firebase Function '${functionPath}'\n` +
+            `You may want to verify this function has been deployed.`,
+        );
+      }
+      throw e;
+    }
+  };
 }
 
 const firebaseApps: Record<string, firebase.app.App> = {};

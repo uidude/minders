@@ -1,4 +1,9 @@
-import {ExportJob, GetUser, UpdateUser} from '@app/common/Api';
+import {
+  AdminExportTrigger,
+  ExportJob,
+  GetUser,
+  UpdateUser,
+} from '@app/common/Api';
 import {Profile} from '@app/common/DataTypes';
 import {ApiKey, serverApi} from '@toolkit/core/api/DataApi';
 import {User, UserRoles} from '@toolkit/core/api/User';
@@ -12,13 +17,17 @@ import {
   setAccountToUserCallback,
 } from '@toolkit/providers/firebase/server/Auth';
 import {getFirebaseConfig} from '@toolkit/providers/firebase/server/Config';
-import {getDataStore} from '@toolkit/providers/firebase/server/Firestore';
+import {
+  getAdminDataStore,
+  getDataStore,
+} from '@toolkit/providers/firebase/server/Firestore';
 import {registerHandler} from '@toolkit/providers/firebase/server/Handler';
 import {getAllowlistMatchedRoles} from '@toolkit/providers/firebase/server/Roles';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import {AuthData} from 'firebase-functions/lib/common/providers/https';
 
+import {Minder, MinderProject, useMinderStore} from '@app/common/Minders';
 import 'firebase/functions';
 import {getFunction, toThrownError} from './lib';
 
@@ -171,25 +180,54 @@ export const scheduled = functions.pubsub
 export const exportJob = registerHandler(ExportJob, async () => {
   requireRole('export');
 
-  // TODO: Add export logic
   functions.logger.log('Running Exporter');
-});
+  // TODO: Use context based on the specific user
+  const minderStore = await getAdminDataStore(Minder);
+  const projectStore = await getAdminDataStore(MinderProject);
 
-/**
- * Endpoint for manually triggering the export handler.
- * TODO: Expose with role-based access in admin console.
- */
-export const AdminExportTrigger = serverApi<void, void>('adminExportTrigger');
+  // TODO: Iterate through all user IDs
+  const userId = 'MmiLowCe0Ye221H7m2oqKLrfUjC2';
+  const minderCtx = {minderStore, projectStore, user: {id: userId}};
+
+  // TODO: Switch to using server-side app context
+  const mindersApi = useMinderStore(minderCtx);
+  const projects = await mindersApi.getProjects();
+
+  let result = {name: '', url: ''};
+  for (const project of projects) {
+    const {name, json} = await mindersApi.exportProject(project.id);
+    const storage = admin.storage();
+    const datestr = new Date(Date.now()).toLocaleString();
+    const filename = `[${datestr}] ${name}`
+      .replace(/,/g, '')
+      .replace(/\//g, '-')
+      .replace(/\:/g, '-');
+
+    const path = `minders/backup/${userId}/project/${filename}.json`;
+    const file = storage.bucket().file(path);
+    await file.save(json);
+    await file.setMetadata({
+      contentType: 'application/json',
+      cacheControl: 'private,max-age=86400',
+    });
+    const [url] = await file.getSignedUrl({
+      action: 'read',
+      expires: Date.now() + 86400,
+      responseDisposition: 'attachment',
+    });
+    result = {name, url};
+  }
+  return result;
+});
 
 export const adminExportTrigger = registerHandler(
   AdminExportTrigger,
   async () => {
-    functions.logger.log('Trying to call Exporter');
-
+    const user = requireLoggedInUser();
     const exportJob = await getFunction(ExportJob, 'export');
     try {
       const result = await exportJob();
-      functions.logger.log('Result', result);
+      return result;
     } catch (e: any) {
       throw toThrownError(e);
     }

@@ -5,6 +5,7 @@ import {Opt} from '@toolkit/core/util/Types';
 import {DataCallback} from '@toolkit/data/DataCache';
 import {
   BaseModel,
+  DataStore,
   EdgeSelector,
   Field,
   HasId,
@@ -167,10 +168,22 @@ export type Top = {
 // we're using a big global map.
 // Eh we'll start with a map thing
 
-export function useMinderStore() {
-  const user = requireLoggedInUser();
-  const projectStore = useDataStore(MinderProject);
-  const minderStore = useDataStore(Minder);
+export type MinderStoreContext = {
+  projectStore: DataStore<MinderProject>;
+  minderStore: DataStore<Minder>;
+  user: {id: string};
+};
+
+/**
+ *
+ * Use minder primitives.
+ * `ctx` param is required on server for now, until we have
+ * AppContext support.
+ */
+export function useMinderStore(ctx?: MinderStoreContext) {
+  const user = ctx?.user ?? requireLoggedInUser();
+  const projectStore = ctx?.projectStore ?? useDataStore(MinderProject);
+  const minderStore = ctx?.minderStore ?? useDataStore(Minder);
 
   async function getProjects() {
     // TOOD: Project sorting
@@ -180,6 +193,11 @@ export function useMinderStore() {
     return projects;
   }
 
+  async function exportProject(projectId: string) {
+    const {top, project} = await getAll(projectId);
+    project.minders = top.children;
+    return {name: project.name, json: toJson(project)};
+  }
   /**
    * Get the project or minder of the given ID,
    * as well as all of it's chilren.
@@ -218,38 +236,6 @@ export function useMinderStore() {
     return {top, project};
   }
 
-  async function getAllDeprecated() {
-    let projects = await projectStore.getMany({
-      query: {where: [{field: 'owner', op: '==', value: user.id}]},
-      edges: [[MinderProject, Minder, 1]],
-    });
-
-    if (projects.length == 0) {
-      const ol = INITIAL_OUTLINE;
-      for (const project of ol.top.sub) {
-        const newProject = await projectStore.create({
-          owner: {id: user.id},
-          name: project.text,
-        });
-        await addAll(
-          project.sub as any as Partial<LegacyOutlineItem>[],
-          newProject,
-          null,
-        );
-      }
-      projects = await projectStore.getMany({
-        query: {where: [{field: 'owner', op: '==', value: user.id}]},
-        edges: [[MinderProject, Minder, 1]],
-      });
-    }
-    await linkAndFixMinders(projects);
-
-    for (const project of projects) {
-      project.minders = project.minders!.sort(minderSort);
-    }
-
-    return {projects};
-  }
   async function getProject(id: string) {
     const project = await projectStore.get(id, {
       edges: [[MinderProject, Minder, 1]],
@@ -385,10 +371,10 @@ export function useMinderStore() {
     update,
     remove,
     getAll,
-    getAllDeprecated,
     getProject,
     getProjects,
     listen,
+    exportProject,
   };
 }
 
@@ -553,7 +539,8 @@ export function isVisible(minder: Minder, filter: OutlineItemVisibilityFilter) {
   if (filter === 'review' && minder.state === 'soon') {
     const modified = minder.updatedAt ?? 0;
     const daysBack = (now - modified) / (1000 * 3600 * 24);
-    if (daysBack > 0.00034) {
+    if (daysBack > 60) {
+      //if (daysBack > 0.00034) {
       return false;
     }
   }
@@ -629,4 +616,22 @@ export function flatList(
     flatList(minder.children, filter, out);
   });
   return out;
+}
+
+const SERIALIZED_KEYS: (keyof Minder | keyof MinderProject)[] = [
+  'id',
+  'createdAt',
+  'updatedAt',
+  'name',
+  'minders',
+  'text',
+  'state',
+  'children',
+  'snoozeTil',
+  'unsnoozedState',
+  'pinned',
+];
+
+function toJson(item: MinderProject | Minder | Top) {
+  return JSON.stringify(item, SERIALIZED_KEYS, 2);
 }

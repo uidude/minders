@@ -2,9 +2,8 @@
  * TODO: Describe what this screen is doing :)
  */
 
-import {TestNotif} from '@app/common/Api';
-import {Profile} from '@app/common/DataTypes';
-import {registerForPushNotificationsAsync} from '@app/util/Notifications';
+import * as React from 'react';
+import {Linking, ScrollView, StyleSheet, View} from 'react-native';
 import {useApi} from '@toolkit/core/api/DataApi';
 import {eventToString, getDevLogs} from '@toolkit/core/api/Log';
 import {User, requireLoggedInUser} from '@toolkit/core/api/User';
@@ -20,8 +19,10 @@ import {useTextInput} from '@toolkit/ui/UiHooks';
 import {useComponents} from '@toolkit/ui/components/Components';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import * as React from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {AdminExportTrigger, TestNotif} from '@app/common/Api';
+import {Profile} from '@app/common/DataTypes';
+import {registerForPushNotificationsAsync} from '@app/util/Notifications';
+import {downloadOrShareJson} from '@app/util/Useful';
 import Onboarding from './Onboarding';
 
 type Props = {
@@ -91,7 +92,6 @@ const DevSettings: Screen<Props> = props => {
         <Button type="tertiary" onPress={clearDelay} style={S.button}>
           Clear Delay
         </Button>
-        <View style={{width: 12}} />
         <Button type="secondary" onPress={setDelay} style={S.button}>
           Set
         </Button>
@@ -118,6 +118,8 @@ const DevSettings: Screen<Props> = props => {
           ))}
         </View>
       )}
+
+      <ExportSection />
     </ScrollView>
   );
 };
@@ -134,13 +136,49 @@ DevSettings.load = async () => {
   return {networkDelay, profile, user};
 };
 
+function ExportSection() {
+  const {Body, H2, Button} = useComponents();
+  const adminExport = useApi(AdminExportTrigger);
+  const [onExport, exporting] = useAction(tryExport);
+  const [exported, setExported] = React.useState<{name: string; url: string}>();
+
+  async function tryExport() {
+    const res = await adminExport();
+    setExported(res);
+  }
+
+  async function download() {
+    if (exported) {
+      downloadOrShareJson(exported.name, exported.url);
+      // Linking.openURL(exported.url);
+    }
+  }
+
+  return (
+    <>
+      <H2 style={{marginTop: 12}}>Export Tools</H2>
+      {exported && !exporting && <Body>Exported file: {exported.name}</Body>}
+
+      <View style={S.buttonRow}>
+        <Button onPress={onExport} loading={exporting} style={S.button}>
+          Trigger Export
+        </Button>
+        {exported && (
+          <Button type="primary" onPress={download} style={S.button}>
+            Download
+          </Button>
+        )}
+      </View>
+    </>
+  );
+}
+
 function delayString(delay: number) {
   return delay === 0 ? '' : `${delay}`;
 }
 
 const S = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 28,
   },
   row: {
@@ -151,7 +189,8 @@ const S = StyleSheet.create({
   button: {
     alignSelf: 'flex-end',
     marginTop: 20,
-    minWidth: 100,
+    minWidth: 80,
+    marginLeft: 20,
   },
   buttonRow: {
     flexDirection: 'row',
