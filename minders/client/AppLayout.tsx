@@ -393,6 +393,7 @@ export async function getSavedUiState(): Promise<Opt<MinderUiState>> {
   const savedUiState = await AsyncStorage.getItem('minderUiState');
   return parseJsonOr(savedUiState, null);
 }
+
 // TODO: Add action button styles
 const S = StyleSheet.create({
   action: {opacity: 0.5},

@@ -14,8 +14,9 @@ import Constants from 'expo-constants';
 import {useAuth} from '@toolkit/core/api/Auth';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
+import {filterFor, getSavedUiState} from '@app/AppLayout';
 import {FIREBASE_CONFIG} from '@app/common/Config';
-import {getSavedUiState, useMinderStore} from '@app/common/Minders';
+import {useMinderStore} from '@app/common/Minders';
 import {useDontAnimate} from '@app/util/Useful';
 import LoginScreen from './LoginScreen';
 import MinderList from './MinderList';
@@ -65,14 +66,15 @@ const StartupScreen: Screen<{}> = () => {
 
       // Oh where do we get the ?#? project id from?
       let uiState = await getSavedUiState();
-      if (uiState == null) {
+      const view = uiState?.view ?? 'focus';
+      let projectId = uiState?.project;
+      if (projectId == null) {
         const projects = await minderStore.getProjects();
-        // TODO: What if there are no projects?
-        uiState = {view: 'focus', filter: 'focus', project: projects[0].id};
+        projectId = projects[0].id;
       }
 
-      const top = uiState.project?.replace(':', '>');
-      nav.reset(MinderList, {view: uiState.view, top});
+      const top = projectId.replace(':', '>');
+      nav.reset(MinderList, {view, top});
     }
   }
 
