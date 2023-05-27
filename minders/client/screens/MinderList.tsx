@@ -27,7 +27,7 @@ import {
 } from '@app/common/Minders';
 import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
 import {useMinderActions} from '@app/components/Actions';
-import {EditableStatusM} from '@app/components/EditableStatus';
+import {EditableStatus} from '@app/components/EditableStatus';
 import MinderOutline from '@app/components/MinderOutline';
 import {MinderTextInput} from '@app/components/MinderTextInput';
 import {requestSelect} from '@app/model/TextSelect';
@@ -71,7 +71,7 @@ export function MinderListItem(props: MinderListItemProps) {
   return (
     <>
       <View style={[S.listItem, style]}>
-        <EditableStatusM size={18} minder={minder} style={S.indicator} />
+        <EditableStatus size={18} minder={minder} style={S.indicator} />
 
         <View style={S.textContainer}>
           <MinderTextInput minder={minder} prev={prev} />

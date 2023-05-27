@@ -25,7 +25,7 @@ import {
   useMinderStore,
 } from '@app/common/Minders';
 import {useIndent, useMinderActions, useOutdent} from '@app/components/Actions';
-import {EditableStatusM} from '@app/components/EditableStatus';
+import {EditableStatus} from '@app/components/EditableStatus';
 import {ActionButton} from './ActionButton';
 import {ActionMenu, VerticalDots} from './ActionMenu';
 import {MinderTextInput} from './MinderTextInput';
@@ -159,7 +159,7 @@ export default function MinderOutline(props: MinderOutlineProps) {
       <CollapserButton size={18} minder={minder} style={collapseStyle} />
     </>
   ) : (
-    <EditableStatusM size={18} minder={minder} style={S.status} />
+    <EditableStatus size={18} minder={minder} style={S.status} />
   );
 
   if (parental) {

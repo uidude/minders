@@ -25,7 +25,7 @@ type PropsM = {
   style?: StyleProp<ViewStyle>;
 };
 
-export function EditableStatusM(props: PropsM) {
+export function EditableStatus(props: PropsM) {
   const {minder, size, style} = props;
   const minderStore = useMinderStore();
   const [onChange] = useAction('UpdateState', updateState);
