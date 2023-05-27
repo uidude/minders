@@ -243,29 +243,25 @@ const MinderFlatList: Screen<Props> = props => {
 
   async function onMinderChange(id: string, op: DataOp) {
     const newValue = await minderStore.get(id);
+    let updated = minders;
 
     if (op === 'remove') {
-      const updated = minders.filter(m => m.id !== id);
-      setData({minders: updated});
-    }
-
-    if (op === 'update' && newValue) {
-      // If this would hide from current view, hide it
+      updated = minders.filter(m => m.id !== id);
+    } else if (op === 'update' && newValue) {
       // Note that this doesn't cover project / top changes yet
-      if (!isVisible(newValue, filter)) {
-        const updated = minders.filter(m => m.id !== id);
-        setData({minders: updated});
+      if (isVisible(newValue, filter)) {
+        minders[minders.findIndex(m => m.id === id)] = newValue;
+      } else {
+        updated = minders.filter(m => m.id !== id);
         // Note: Might be nice to have it fade out...
       }
-    }
-
-    if (op === 'add' && newValue) {
+    } else if (op === 'add' && newValue) {
       if (isVisible(newValue, filter)) {
-        const updated = [...minders, newValue];
+        updated = [...minders, newValue];
         requestSelect(newValue.id, 'start');
-        setData({minders: updated});
       }
     }
+    setData({minders: updated});
   }
 };
 MinderList.title = 'Minders';
