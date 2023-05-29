@@ -243,23 +243,21 @@ function MinderListHeader(props: LayoutProps) {
     <View style={S.minderTop}>
       <View style={[S.row, {flexShrink: 1}]}>
         <TriState>
-          <View style={S.row}>
-            <View style={{flexShrink: 1, overflow: 'hidden'}}>
-              <TopPicker style={S.title} topId={topId} />
-            </View>
-            <Text style={S.title}>{' > '}</Text>
-            <ActionMenu
-              items={viewMenuActions}
-              anchor={onPress => (
-                <EnumTextButton
-                  enums={ViewMenuItems}
-                  value={view}
-                  style={S.title}
-                  onPress={onPress}
-                />
-              )}
-            />
+          <View style={{flexShrink: 1, overflow: 'hidden'}}>
+            <TopPicker style={S.title} topId={topId} />
           </View>
+          <Text style={S.title}>{' > '}</Text>
+          <ActionMenu
+            items={viewMenuActions}
+            anchor={onPress => (
+              <EnumTextButton
+                enums={ViewMenuItems}
+                value={view}
+                style={S.title}
+                onPress={onPress}
+              />
+            )}
+          />
           {showCount && <MinderCount view={view} topId={topId} />}
         </TriState>
       </View>
