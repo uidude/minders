@@ -21,8 +21,8 @@ export const BinaryAlert = (
     title,
     desc !== null ? desc : undefined,
     [
-      {text: 'OK', onPress: () => onPositivePress()},
       {text: 'Cancel', onPress: () => onNegativePress()},
+      {text: 'OK', onPress: () => onPositivePress()},
     ],
     {cancelable: false},
   );
