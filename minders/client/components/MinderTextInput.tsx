@@ -1,10 +1,9 @@
 import React from 'react';
 import {
   NativeSyntheticEvent,
-  Pressable,
+  Platform,
   StyleProp,
   StyleSheet,
-  Text,
   TextInput,
   TextInputSelectionChangeEventData,
   TextStyle,
@@ -59,6 +58,7 @@ export function MinderTextInput(props: Props) {
   const minderStore = useMinderStore();
   const {action: indent} = useIndent(minder, prev);
   const {action: outdent} = useOutdent(minder, grandparent);
+  const hasRendered = React.useRef(false);
 
   // Update text when not active
   React.useEffect(() => {
@@ -205,12 +205,14 @@ export function MinderTextInput(props: Props) {
 
   function onFocus() {
     if (!checkNewSelection() && !isSelected(minder.id)) {
-      requestSelect(minder.id, 'all');
+      const toSelect = Platform.OS === 'web' ? 'all' : 'end';
+      requestSelect(minder.id, toSelect);
       checkNewSelection();
     }
   }
 
   const setInput = (input: TextInput) => {
+    hasRendered.current = true;
     inputRef.current = input;
     checkNewSelection();
   };
@@ -230,6 +232,7 @@ export function MinderTextInput(props: Props) {
       onSubmitEditing={submit}
       onSelectionChange={onSelectionChange}
       ref={setInput}
+      selection={hasRendered.current ? undefined : {start: 0, end: 0}}
     />
   );
 }
@@ -242,7 +245,6 @@ function cursorStyle(cursor: Opt<String>): StyleProp<TextStyle> {
 const S = StyleSheet.create({
   listItemText: {
     fontSize: 16,
-    opacity: 0.85,
     fontWeight: '500',
   },
 });
