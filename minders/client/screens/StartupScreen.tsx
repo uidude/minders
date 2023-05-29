@@ -14,12 +14,10 @@ import Constants from 'expo-constants';
 import {useAuth} from '@toolkit/core/api/Auth';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import {filterFor, getSavedUiState} from '@app/AppLayout';
 import {FIREBASE_CONFIG} from '@app/common/Config';
-import {useMinderStore} from '@app/common/Minders';
 import {useDontAnimate} from '@app/util/Useful';
 import LoginScreen from './LoginScreen';
-import MinderList from './MinderList';
+import Redirector from './Redirector';
 
 /**
  * Checks that new apps have been initiatlized sufficiently so that they can run.
@@ -52,7 +50,6 @@ const StartupScreen: Screen<{}> = () => {
   const auth = useAuth();
   const appChecks = newAppChecks();
   const dontAnimateNextTransition = useDontAnimate();
-  const minderStore = useMinderStore();
 
   // Async initialization that occurs before redirecting to main app
   async function waitForInitialization() {
@@ -64,17 +61,7 @@ const StartupScreen: Screen<{}> = () => {
         return;
       }
 
-      // Oh where do we get the ?#? project id from?
-      let uiState = await getSavedUiState();
-      const view = uiState?.view ?? 'focus';
-      let projectId = uiState?.project;
-      if (projectId == null) {
-        const projects = await minderStore.getProjects();
-        projectId = projects[0].id;
-      }
-
-      const top = projectId.replace(':', '>');
-      nav.reset(MinderList, {view, top});
+      nav.reset(Redirector);
     }
   }
 

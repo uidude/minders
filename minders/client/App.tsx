@@ -69,6 +69,7 @@ import EditProfile from './screens/EditProfile';
 import MinderList from './screens/MinderList';
 import Onboarding from './screens/Onboarding';
 import Projects from './screens/Projects';
+import Redirector from './screens/Redirector';
 import {ShortcutTool} from './util/Shortcuts';
 import {UsingUiTools} from './util/UiTools';
 
@@ -114,6 +115,7 @@ const ROUTES: Routes = {
   Onboarding,
   EditProfile,
   Projects,
+  Redirector,
 };
 const Stack = createStackNavigator();
 

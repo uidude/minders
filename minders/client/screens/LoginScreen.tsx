@@ -22,7 +22,7 @@ const LOGIN_SCREEN_CONFIG: SimpleLoginScreenConfig = {
   title: 'Welcome to Minders',
   subtitle: 'Keep focused!',
   authTypes: ['google', 'phone'],
-  home: 'MinderList',
+  home: 'Redirector',
   tos: TOS,
 };
 
