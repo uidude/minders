@@ -16,6 +16,9 @@ fi
 # Kill previous watches
 pkill -f yarn\ tsc.\*\-w
 
+# Do an initial full build
+yarn build
+
 # Start the typescript compiler in watch mode
 yarn tsc -w & yarn tsc-alias -w &
 
