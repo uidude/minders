@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   View,
@@ -170,6 +171,7 @@ export default function Layout(props: LayoutProps) {
 
   return (
     <SafeAreaView style={[S.top, {borderRadius, maxHeight}]}>
+      <StatusBar backgroundColor="#123" barStyle="light-content" />
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === 'android' ? 'height' : 'padding'}
