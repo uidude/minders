@@ -172,7 +172,7 @@ export default function Layout(props: LayoutProps) {
     <SafeAreaView style={[S.top, {borderRadius, maxHeight}]}>
       <KeyboardAvoidingView
         style={{flex: 1}}
-        behavior="position"
+        behavior={Platform.OS === 'android' ? 'height' : 'padding'}
         contentContainerStyle={{flex: 1}}>
         {navStyle === 'full' && (
           // TODO: Should show action bar while loading
