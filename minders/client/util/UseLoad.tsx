@@ -65,7 +65,7 @@ type LoadState = {
  * you really needed to know which component instance triggered the render
  */
 export function withLoad<Props>(Component: React.ComponentType<Props>) {
-  return (props: Props) => {
+  const ComponentWithLoad = (props: Props) => {
     const loadCount = useReloadState();
 
     const propsForKey = {...props, _count: loadCount} as Record<string, any>;
@@ -95,6 +95,7 @@ export function withLoad<Props>(Component: React.ComponentType<Props>) {
       />
     );
   };
+  return ComponentWithLoad;
 }
 
 export function useWithLoad<Props>(Component: React.ComponentType<Props>) {

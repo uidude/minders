@@ -41,6 +41,7 @@ import {useLoad, useWithLoad, withLoad} from '@app/util/UseLoad';
 import LoginScreen from './screens/LoginScreen';
 import MinderList from './screens/MinderList';
 import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
+import {useMinderListParams} from './util/UiUtil';
 import {useDontAnimate, useSetPageTitle} from './util/Useful';
 
 export const Filters: EnumConfig<MinderFilter> = new Map([
@@ -216,6 +217,7 @@ function MinderListHeader(props: LayoutProps) {
   const nav = useNav();
   const setPageTitle = useSetPageTitle();
   const {setError} = useStatus();
+
   const {
     location: {screen},
   } = useNavState();
@@ -337,17 +339,6 @@ function getDeviceType() {
 
 function isMobile() {
   return Platform.OS !== 'web' || getDeviceType() === 'mobile';
-}
-
-export function useMinderListParams() {
-  const route = useRoute();
-  const params = route.params as any;
-
-  const view = params?.view ?? 'focus';
-  const top = params?.top.replace('>', ':');
-  const isProject = top && top.startsWith('project:');
-
-  return {view, top, isProject};
 }
 
 /**

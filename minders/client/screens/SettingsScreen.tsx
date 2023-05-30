@@ -1,4 +1,5 @@
-import {LEGAL_LINKS} from '@app/common/Config';
+import React from 'react';
+import {View} from 'react-native';
 import {useAuth} from '@toolkit/core/api/Auth';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {actionHook} from '@toolkit/core/client/Action';
@@ -7,8 +8,7 @@ import {NotificationSettingsScreen} from '@toolkit/screens/settings/Notification
 import {navToAction} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {OpenLinkAction, openUrlAction} from '@toolkit/ui/screen/WebScreen';
-import React from 'react';
-import {View} from 'react-native';
+import {LEGAL_LINKS} from '@app/common/Config';
 import AboutScreen from './AboutScreen';
 import DevSettings from './DevSettings';
 
@@ -31,7 +31,7 @@ const DEV_SETTINGS = {
   to: DevSettings,
 };
 
-export const LOGOUT_ACTION = {
+const LOGOUT_ACTION = {
   id: 'Logout',
   label: 'Log Out',
   icon: 'logout',
