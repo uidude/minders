@@ -2,7 +2,7 @@
   "include": [
     ".",
     "../project/types",
-    "../common/Minders.tsx"
+    "../common/MinderApi.tsx"
   ],
   "compilerOptions": {
     "baseUrl": ".",

@@ -7,7 +7,7 @@ import {useReload} from '@toolkit/core/client/Reload';
 import {Opt} from '@toolkit/core/util/Types';
 import {Updater, UpdaterValue} from '@toolkit/data/DataStore';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
-import {Minder, MinderProject, useMinderStore} from '@app/common/Minders';
+import {Minder, MinderProject, useMinderStore} from '@app/common/MinderApi';
 import Projects from '@app/screens/Projects';
 import SettingsScreen from '@app/screens/SettingsScreen';
 import {BinaryAlert} from '@app/util/Alert';

@@ -23,7 +23,7 @@ import {
   isVisible,
   useLiveData,
   useMinderStore,
-} from '@app/common/Minders';
+} from '@app/common/MinderApi';
 import {useIndent, useMinderActions, useOutdent} from '@app/components/Actions';
 import {EditableStatus} from '@app/components/EditableStatus';
 import {ActionButton} from './ActionButton';

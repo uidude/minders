@@ -20,7 +20,7 @@ import {
   MinderStoreContext,
   OutlineItemState,
   useMinderStore,
-} from '@app/common/Minders';
+} from '@app/common/MinderApi';
 import {BinaryAlert} from '@app/util/Alert';
 import {useLoad, withLoad} from '@app/util/UseLoad';
 import {downloadOrShareJson, jsonDataUrl} from '@app/util/Useful';

@@ -19,7 +19,7 @@ import {Screen} from '@toolkit/ui/screen/Screen';
 import {useUpdateUserAndProfile} from '@app/common/AppLogic';
 import {Profile} from '@app/common/DataTypes';
 import {ProfilePic} from '@app/components/ProfilePic';
-import MinderList from './MinderList';
+import MinderList from './Minders';
 
 type Props = {
   async: {

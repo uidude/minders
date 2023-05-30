@@ -27,7 +27,7 @@ import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import {AuthData} from 'firebase-functions/lib/common/providers/https';
 
-import {Minder, MinderProject, useMinderStore} from '@app/common/Minders';
+import {Minder, MinderProject, useMinderStore} from '@app/common/MinderApi';
 import 'firebase/functions';
 import {getFunction, toThrownError} from './lib';
 

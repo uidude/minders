@@ -66,7 +66,7 @@ import {APP_CONFIG, APP_INFO, NOTIF_CHANNELS_CONTEXT} from './Config';
 import {WaitDialogTool} from './components/WaitDialog';
 import DevSettings from './screens/DevSettings';
 import EditProfile from './screens/EditProfile';
-import MinderList from './screens/MinderList';
+import Minders from './screens/Minders';
 import Onboarding from './screens/Onboarding';
 import Projects from './screens/Projects';
 import Redirector from './screens/Redirector';
@@ -110,7 +110,7 @@ const ROUTES: Routes = {
   WebViewScreen,
   AboutScreen,
   NotificationSettingsScreen,
-  MinderList,
+  Minders,
   DevSettings,
   Onboarding,
   EditProfile,

@@ -15,7 +15,7 @@ import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {useUpdateUserAndProfile} from '@app/common/AppLogic';
 import {Profile} from '@app/common/DataTypes';
-import MinderList from '@app/screens/MinderList';
+import MinderList from '@app/screens/Minders';
 import {ProfilePicEditor} from './EditProfile';
 
 type Props = {

@@ -31,7 +31,7 @@ import {
   MinderFilter,
   flatList,
   useMinderStore,
-} from '@app/common/Minders';
+} from '@app/common/MinderApi';
 import {ActionButton} from '@app/components/ActionButton';
 import ActionFAB from '@app/components/ActionFAB';
 import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
@@ -39,7 +39,7 @@ import {NewItem, useGlobalActions} from '@app/components/Actions';
 import TopPicker from '@app/components/TopPicker';
 import {useLoad, useWithLoad, withLoad} from '@app/util/UseLoad';
 import LoginScreen from './screens/LoginScreen';
-import MinderList from './screens/MinderList';
+import Minders from './screens/Minders';
 import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
 import {useMinderListParams} from './util/UiUtil';
 import {useDontAnimate, useSetPageTitle} from './util/Useful';
@@ -200,7 +200,7 @@ function Header(props: LayoutProps) {
   const {
     location: {screen},
   } = useNavState();
-  const showMinderListHeader = screen === MinderList;
+  const showMinderListHeader = screen === Minders;
 
   return (
     <View style={S.topBar}>
@@ -231,7 +231,7 @@ function MinderListHeader(props: LayoutProps) {
   // TODO: Filter out up when at project level
   const actionMenuItems = [Up, Expand, Collapse, Import, Settings];
 
-  const showCount = screen === MinderList;
+  const showCount = screen === Minders;
 
   /*
   if (screen === OutlineTop || screen === OutlineList) {

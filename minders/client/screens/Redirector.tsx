@@ -9,9 +9,9 @@
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {OutlineView, getSavedUiState} from '@app/AppLayout';
-import {useMinderStore} from '@app/common/Minders';
+import {useMinderStore} from '@app/common/MinderApi';
 import {useLoad, withLoad} from '@app/util/UseLoad';
-import MinderList from './MinderList';
+import MinderList from './Minders';
 
 type Props = {
   top: string;
