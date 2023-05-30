@@ -222,6 +222,12 @@ export function MinderTextInput(props: Props) {
     inputRef.current?.blur();
   }
 
+  // Android needs to be set to 0,0 on first render to left align overflowing inputs
+  const selection =
+    Platform.OS === 'android' && !hasRendered.current
+      ? {start: 0, end: 0}
+      : undefined;
+
   return (
     <TextInput
       value={value}
@@ -232,7 +238,7 @@ export function MinderTextInput(props: Props) {
       onSubmitEditing={submit}
       onSelectionChange={onSelectionChange}
       ref={setInput}
-      selection={hasRendered.current ? undefined : {start: 0, end: 0}}
+      selection={selection}
     />
   );
 }
