@@ -3,7 +3,7 @@
  */
 
 import * as React from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {Platform, ScrollView, StyleSheet, View} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import * as DocumentPicker from 'expo-document-picker';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
@@ -40,19 +40,23 @@ const Projects: Screen<Props> = withLoad(props => {
   const [onDelete, deleting] = useAction(deleteProject);
   const reload = useReload();
 
+  const paddingStyle = Platform.OS === 'ios' ? {} : {padding: 16};
+
   function onSelect(newId: string) {
     setProjectId(newId);
   }
 
   return (
     <ScrollView style={S.container} contentContainerStyle={S.content}>
-      <H2>Existing Projects</H2>
+      <H2>Projects</H2>
 
       <Picker
-        style={S.picker}
+        style={[S.picker, paddingStyle]}
         selectedValue={projectId}
-        onValueChange={onSelect}>
-        <Picker.Item label="Choose project" value="" />
+        onValueChange={onSelect}
+        numberOfLines={2}
+        mode="dropdown">
+        <Picker.Item label="Choose" value="" />
         {projects.map(p => (
           <Picker.Item key={p.id} label={p.name} value={p.id} />
         ))}
@@ -80,7 +84,7 @@ const Projects: Screen<Props> = withLoad(props => {
       <ProjectTitleInput
         type="primary"
         label="New project name"
-        style={{width: 400}}
+        style={S.titleInput}
       />
 
       <View
@@ -253,21 +257,23 @@ const S = StyleSheet.create({
   },
   content: {
     padding: 24,
-    maxWidth: 450,
-    alignSelf: 'center',
+    flex: 1,
+    alignSelf: 'stretch',
+    alignItems: 'stretch',
   },
   picker: {
-    paddingVertical: 16,
-    paddingHorizontal: 8,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.29)',
     borderRadius: 32,
     fontWeight: '500',
     fontSize: 18,
-    //color: '#DE2B2B',
     fontFamily: 'Roboto',
     marginTop: 10,
-    width: 400,
+    marginHorizontal: 20,
+    lineHeight: 20,
+  },
+  titleInput: {
+    marginHorizontal: 20,
   },
 });
 
