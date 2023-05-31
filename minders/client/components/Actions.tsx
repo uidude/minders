@@ -93,11 +93,14 @@ export function useMinderActions(minder: Minder) {
 
       return () => {
         snoozeDialog.show(async ({snoozeTil}) => {
-          await minderStore.update({
-            id: minder.id,
-            snoozeTil,
-            state: 'waiting',
-          });
+          await minderStore.update(
+            {
+              id: minder.id,
+              snoozeTil,
+              state: 'waiting',
+            },
+            {optimistic: true},
+          );
         });
       };
     }),
