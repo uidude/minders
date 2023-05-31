@@ -14,11 +14,11 @@ type SnoozeUnit = 'days' | 'hours';
 type Callback = (result: {snoozeTil: number}) => void;
 type CallbackHolder = {callback: Opt<Callback>};
 
-const WaitDialogComponent = () => {
+const SnoozeDialogComponent = () => {
   const [{callback}, setCallback] = React.useState<CallbackHolder>({
     callback: null,
   });
-  const waitDialog = WaitDialog.get();
+  const waitDialog = SnoozeDialog.get();
   const visible = callback != null;
 
   useShortcut({
@@ -91,7 +91,7 @@ const WaitDialogComponent = () => {
   );
 };
 
-export class WaitDialog {
+export class SnoozeDialog {
   handler: (callback?: Callback) => void;
 
   // TODO: This is hacky, we should update to a cleaner API pattern
@@ -99,14 +99,14 @@ export class WaitDialog {
     this.handler?.(callback);
   }
 
-  static get(): WaitDialog {
-    return useUiTool(WaitDialogTool);
+  static get(): SnoozeDialog {
+    return useUiTool(SnoozerChooser);
   }
 }
 
-export const WaitDialogTool: UiTool<WaitDialog> = {
-  api: new WaitDialog(),
-  component: WaitDialogComponent,
+export const SnoozerChooser: UiTool<SnoozeDialog> = {
+  api: new SnoozeDialog(),
+  component: SnoozeDialogComponent,
 };
 
 const S = StyleSheet.create({

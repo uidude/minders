@@ -64,7 +64,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
  */
 import AppLayout from '@app/AppLayout';
 import {APP_CONFIG, APP_INFO, NOTIF_CHANNELS_CONTEXT} from './Config';
-import {WaitDialogTool} from './components/WaitDialog';
+import {SnoozerChooser} from './components/SnoozerChooser';
 import DevSettings from './screens/DevSettings';
 import EditProfile from './screens/EditProfile';
 import Minders from './screens/Minders';
@@ -178,7 +178,7 @@ export default function App() {
               <SafeAreaProvider style={S.container}>
                 <SimpleUserMessaging style={S.messaging} />
                 <NavigationContainer linking={linking} theme={navTheme}>
-                  <UsingUiTools tools={[ShortcutTool, WaitDialogTool]}>
+                  <UsingUiTools tools={[ShortcutTool, SnoozerChooser]}>
                     <StatusBar style="auto" />
                     <NavContext routes={ROUTES} />
                     <Stack.Navigator

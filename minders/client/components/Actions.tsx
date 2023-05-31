@@ -13,7 +13,7 @@ import Redirector from '@app/screens/Redirector';
 import SettingsScreen from '@app/screens/SettingsScreen';
 import {BinaryAlert} from '@app/util/Alert';
 import {useMinderListParams} from '@app/util/UiUtil';
-import {WaitDialog} from './WaitDialog';
+import {SnoozeDialog, SnoozerChooser} from './SnoozerChooser';
 
 export function useIndent(minder: Minder, prev: Opt<Minder>) {
   const reload = useReload();
@@ -89,10 +89,10 @@ export function useMinderActions(minder: Minder) {
     icon: 'alarm-snooze',
     label: 'Snooze',
     action: actionHook(() => {
-      const waitDialog = WaitDialog.get();
+      const snoozeDialog = SnoozeDialog.get();
 
       return () => {
-        waitDialog.show(async ({snoozeTil}) => {
+        snoozeDialog.show(async ({snoozeTil}) => {
           await minderStore.update({
             id: minder.id,
             snoozeTil,
