@@ -40,10 +40,14 @@ const SnoozeDialogComponent = () => {
   };
 
   async function snooze(amt: number, unit: 'days' | 'hours') {
+    await snoozeTil(Date.now() + UNIT_TO_MS[unit] * amt);
+  }
+
+  async function snoozeTil(when: number) {
     if (!callback) {
       return;
     }
-    callback({snoozeTil: Date.now() + UNIT_TO_MS[unit] * amt});
+    callback({snoozeTil: when});
     dismiss();
   }
 
@@ -57,11 +61,20 @@ const SnoozeDialogComponent = () => {
     );
   }
 
+  async function snoozeTilEvening() {
+    await snoozeTil(thisEvening());
+  }
+
+  async function snoozeTilTomorrow() {
+    // Tomorrow will flip to active at 4am
+    await snoozeTil(tomorrowMorning());
+  }
+
   return (
     <View>
       <Portal>
         <Dialog style={S.dialog} visible={visible} onDismiss={dismiss}>
-          <Dialog.Title>Snooze for</Dialog.Title>
+          <Dialog.Title style={{marginBottom: 0}}>Snooze for</Dialog.Title>
           <Dialog.Content>
             <View style={{flexDirection: 'row'}}>
               <View style={S.buttons}>
@@ -80,6 +93,23 @@ const SnoozeDialogComponent = () => {
               </View>
             </View>
           </Dialog.Content>
+          <Dialog.Title style={{marginVertical: 0}}>
+            Or snooze until
+          </Dialog.Title>
+          <Dialog.Content>
+            <View style={{flexDirection: 'row'}}>
+              <View style={S.buttons}>
+                <Button style={S.button} onPress={snoozeTilEvening}>
+                  Evening
+                </Button>
+              </View>
+              <View style={S.buttons}>
+                <Button style={S.button} onPress={snoozeTilTomorrow}>
+                  Tomorrow
+                </Button>
+              </View>
+            </View>
+          </Dialog.Content>
           <Dialog.Actions>
             <Button style={S.cancel} mode="contained" onPress={dismiss}>
               Cancel
@@ -90,6 +120,31 @@ const SnoozeDialogComponent = () => {
     </View>
   );
 };
+
+function tomorrowMorning() {
+  const date = new Date();
+
+  // Check if the current time is before 4am
+  if (date.getHours() < 4) {
+    // Set the time to 4am on the same day
+    date.setHours(4, 0, 0, 0);
+  } else {
+    // Add one day to the current date
+    date.setDate(date.getDate() + 1);
+    // Set the time to 4am
+    date.setHours(4, 0, 0, 0);
+  }
+  return date.getTime();
+}
+
+function thisEvening() {
+  const date = new Date();
+
+  // Set the time to 8pm
+  date.setHours(20, 0, 0, 0);
+
+  return date.getTime();
+}
 
 export class SnoozeDialog {
   handler: (callback?: Callback) => void;
@@ -116,6 +171,7 @@ const S = StyleSheet.create({
     marginBottom: 20,
   },
   buttons: {
+    minWidth: 120,
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
   },
