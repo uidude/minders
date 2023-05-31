@@ -12,6 +12,7 @@ import {
   filterVisibleChildren,
   useMinderStore,
 } from '@app/common/MinderApi';
+import {NewItem} from '@app/components/Actions';
 import {MinderList} from '@app/components/MinderList';
 import MinderOutline from '@app/components/MinderOutline';
 import {requestSelect} from '@app/model/TextSelect';
@@ -121,5 +122,6 @@ const MinderOutlineList: Screen<Props> = props => {
 
 Minders.title = 'Minders';
 Minders.id = 'Minders';
+Minders.mainAction = NewItem;
 
 export default Minders;

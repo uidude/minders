@@ -133,7 +133,7 @@ function TopAction(props: {action: ActionItem}) {
 }
 
 export default function Layout(props: LayoutProps) {
-  const {children, loading, style, title = ''} = props;
+  const {children, loading, style, title = '', mainAction} = props;
   const loadingView = loading ?? SpinnerLoading;
   const route = useRoute();
   const dontAnimateNextTransition = useDontAnimate();
@@ -169,6 +169,7 @@ export default function Layout(props: LayoutProps) {
       </View>
     );
   }
+  console.log(navStyle);
 
   return (
     <SafeAreaView style={[S.top, {borderRadius, maxHeight}]}>
@@ -181,7 +182,7 @@ export default function Layout(props: LayoutProps) {
           // TODO: Should show action bar while loading
           <TriState loadingView={Empty} errorView={Empty}>
             <Header {...props} />
-            <ActionFAB style={S.fab} small item={NewItem} />
+            {mainAction && <ActionFAB style={S.fab} small item={mainAction} />}
           </TriState>
         )}
         <ScrollView style={S.scroll} contentContainerStyle={S.content}>
