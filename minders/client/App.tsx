@@ -14,6 +14,7 @@ import {
   setClientFallbackEnabled,
   setDefaultServerApi,
 } from '@toolkit/core/api/DataApi';
+import {LOCAL_FLAGS} from '@toolkit/core/api/Flags';
 import {CONSOLE_LOGGER} from '@toolkit/core/api/Log';
 import IdentityService from '@toolkit/core/api/Login';
 import {
@@ -130,6 +131,7 @@ const APP_CONTEXT = [
   LOGGER,
   NOTIF_CHANNELS_CONTEXT,
   IN_MEMORY_DATA_CACHE,
+  LOCAL_FLAGS,
 ];
 
 export default function App() {
