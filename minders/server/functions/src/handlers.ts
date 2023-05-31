@@ -177,6 +177,50 @@ export const scheduled = functions.pubsub
     }
   });
 
+async function exportProject(
+  projectId: string,
+  mindersApi: ReturnType<typeof useMinderStore>,
+  userId: string,
+  date: Date,
+) {
+  const {name, json} = await mindersApi.exportProject(projectId);
+  const url = await saveBackupFile(json, userId, 'project', name, date);
+  return {name, url, json};
+}
+
+async function saveBackupFile(
+  jsonStr: string,
+  userId: string,
+  type: string,
+  name: string,
+  date: Date,
+) {
+  const storage = admin.storage();
+  const datestr = date.toLocaleString('en-CA', {
+    timeZone: 'America/Los_Angeles',
+    hour12: false,
+  });
+  const filename = `[${datestr}] ${name}`
+    .replace(/,/g, '')
+    .replace(/\//g, '-')
+    .replace(/\:/g, '-');
+
+  const path = `minders/backup/${userId}/${type}/${filename}.json`;
+
+  const file = storage.bucket().file(path);
+  await file.save(jsonStr);
+  await file.setMetadata({
+    contentType: 'application/json',
+    cacheControl: 'private,max-age=86400',
+  });
+  const [url] = await file.getSignedUrl({
+    action: 'read',
+    expires: Date.now() + 86400,
+    responseDisposition: 'attachment',
+  });
+  return url;
+}
+
 export const exportJob = registerHandler(ExportJob, async () => {
   requireRole('export');
 
@@ -194,30 +238,19 @@ export const exportJob = registerHandler(ExportJob, async () => {
   const projects = await mindersApi.getProjects();
 
   let result = {name: '', url: ''};
-  for (const project of projects) {
-    const {name, json} = await mindersApi.exportProject(project.id);
-    const storage = admin.storage();
-    const datestr = new Date(Date.now()).toLocaleString();
-    const filename = `[${datestr}] ${name}`
-      .replace(/,/g, '')
-      .replace(/\//g, '-')
-      .replace(/\:/g, '-');
+  const date = new Date(Date.now());
+  const results = await Promise.all(
+    projects.map(p => exportProject(p.id, mindersApi, userId, date)),
+  );
 
-    const path = `minders/backup/${userId}/project/${filename}.json`;
-    const file = storage.bucket().file(path);
-    await file.save(json);
-    await file.setMetadata({
-      contentType: 'application/json',
-      cacheControl: 'private,max-age=86400',
-    });
-    const [url] = await file.getSignedUrl({
-      action: 'read',
-      expires: Date.now() + 86400,
-      responseDisposition: 'attachment',
-    });
-    result = {name, url};
-  }
-  return result;
+  const fullBackup = {
+    userId: userId,
+    projects: results.map(r => JSON.parse(r!.json)),
+  };
+
+  const fullJson = JSON.stringify(fullBackup, null, 2);
+  const url = await saveBackupFile(fullJson, userId, 'all', 'Backup', date);
+  return {name: 'Backup', url};
 });
 
 export const adminExportTrigger = registerHandler(
