@@ -24,6 +24,7 @@ import {useStatus} from '@toolkit/core/client/Status';
 import TriState from '@toolkit/core/client/TriState';
 import {Opt} from '@toolkit/core/util/Types';
 import {useListen} from '@toolkit/data/DataStore';
+import {IconButton} from '@toolkit/ui/layout/LayoutBlocks';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import {
@@ -40,6 +41,7 @@ import TopPicker from '@app/components/TopPicker';
 import {useLoad, useWithLoad, withLoad} from '@app/util/UseLoad';
 import LoginScreen from './screens/LoginScreen';
 import Minders from './screens/Minders';
+import Redirector from './screens/Redirector';
 import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
 import {useMinderListParams} from './util/UiUtil';
 import {useDontAnimate, useSetPageTitle} from './util/Useful';
@@ -169,7 +171,6 @@ export default function Layout(props: LayoutProps) {
       </View>
     );
   }
-  console.log(navStyle);
 
   return (
     <SafeAreaView style={[S.top, {borderRadius, maxHeight}]}>
@@ -201,13 +202,65 @@ function Header(props: LayoutProps) {
   const {
     location: {screen},
   } = useNavState();
-  const showMinderListHeader = screen === Minders;
+
+  const MyHeader =
+    screen === Minders
+      ? MinderListHeader
+      : screen === Redirector
+      ? RedirectorHeader
+      : StandardHeader;
 
   return (
     <View style={S.topBar}>
-      {showMinderListHeader && <MinderListHeader {...props} />}
-      {!showMinderListHeader && <Text style={S.title}>{title}</Text>}
+      <MyHeader {...props} />
     </View>
+  );
+}
+
+/**
+ * Looks like MinderList header but not functional
+ */
+function RedirectorHeader(props: LayoutProps) {
+  const {Home} = useGlobalActions();
+  return (
+    <View style={S.minderTop}>
+      <View style={S.grow} />
+      <TopAction action={Home} />
+      <ActionMenu
+        items={[]}
+        anchor={onPress => (
+          <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
+        )}
+      />
+    </View>
+  );
+}
+
+function StandardHeader(props: LayoutProps) {
+  const {title} = props;
+  const {Home} = useGlobalActions();
+  const nav = useNav();
+
+  function goBack() {
+    if (nav.backOk()) {
+      nav.back();
+    } else {
+      nav.reset(Redirector);
+    }
+  }
+
+  return (
+    <>
+      <IconButton
+        name="ion:chevron-back-outline"
+        color="#FFF"
+        size={28}
+        onPress={goBack}
+        style={{marginRight: 6}}
+      />
+      <Text style={[S.title, S.grow]}>{title}</Text>
+      <TopAction action={Home} />
+    </>
   );
 }
 
@@ -434,6 +487,10 @@ const S = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 20,
     marginBottom: 3,
+  },
+  grow: {
+    flexBasis: 200,
+    flexGrow: 1,
   },
   subtitle: {
     color: '#FFF',
