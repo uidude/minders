@@ -249,7 +249,7 @@ async function createMindersFromLegacyJson(
   await Promise.all(promises);
 }
 
-Projects.title = 'Minder Projects';
+Projects.title = 'Projects';
 
 const S = StyleSheet.create({
   container: {
