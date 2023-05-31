@@ -211,14 +211,14 @@ function useMinderRemoveAnimation() {
 
     Animated.parallel([
       Animated.timing(opacity, {
-        toValue: 0.3,
+        toValue: 0.1,
         duration: 1100,
         useNativeDriver: false,
       }),
       Animated.timing(height, {
         toValue: 0,
-        duration: 400,
-        delay: 700,
+        duration: 300,
+        delay: 800,
         useNativeDriver: false,
       }),
     ]).start(() => {
