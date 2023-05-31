@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Animated,
   Platform,
   StyleProp,
   StyleSheet,
@@ -41,6 +42,7 @@ export function MinderList(props: Props) {
   const minderStore = useMinderStore();
   const filter = filterFor(view);
   const {project, top, minders, setData} = useLoad(props, load);
+  const {removeAnimation, animatedStyles} = useMinderRemoveAnimation();
 
   useListen(Minder, '*', onMinderChange);
 
@@ -53,17 +55,22 @@ export function MinderList(props: Props) {
     return <NoChildren project={project} filter={filter} />;
   }
 
+  function animtedStyleFor(id: string) {
+    return animatedStyles[id] ?? {};
+  }
+
   return (
     <View>
       {minders.map((minder, idx) => (
-        <MinderListItem
-          minder={minder}
-          parents={parentsOf(minder)}
-          prev={minders[idx - 1]}
-          key={minder.id}
-          style={idx % 2 == 1 && S.odd}
-          top={top}
-        />
+        <Animated.View key={minder.id} style={animtedStyleFor(minder.id)}>
+          <MinderListItem
+            minder={minder}
+            parents={parentsOf(minder)}
+            prev={minders[idx - 1]}
+            style={idx % 2 == 1 && S.odd}
+            top={top}
+          />
+        </Animated.View>
       ))}
     </View>
   );
@@ -75,19 +82,30 @@ export function MinderList(props: Props) {
     return {project, minders, top};
   }
 
+  function removeMinder(id: string) {
+    if (animatedStyles[id] ?? !minders.find(m => m.id === id)) {
+      return;
+    }
+    removeAnimation(id, () => {
+      const updated = minders.filter(m => m.id !== id);
+      setData({minders: updated});
+    });
+  }
+
   async function onMinderChange(id: string, op: DataOp) {
     const newValue = await minderStore.get(id);
     let updated = minders;
 
     if (op === 'remove') {
-      updated = minders.filter(m => m.id !== id);
+      removeMinder(id);
+      return;
     } else if (op === 'update' && newValue) {
       // Note that this doesn't cover project / top changes yet
       if (isVisible(newValue, filter)) {
         minders[minders.findIndex(m => m.id === id)] = newValue;
       } else {
-        updated = minders.filter(m => m.id !== id);
-        // Note: Might be nice to have it fade out...
+        removeMinder(id);
+        return;
       }
     } else if (op === 'add' && newValue) {
       if (isVisible(newValue, filter) && !minders.find(m => m.id === id)) {
@@ -179,6 +197,42 @@ function getFontFamily() {
     android: 'Roboto',
     web: 'Roboto, Arial',
   });
+}
+
+function useMinderRemoveAnimation() {
+  // Minders that are in process of being removed from UI
+  const [animatedStyles, setAnimated] = React.useState<
+    Record<string, {opacity: Animated.Value; height: Animated.Value}>
+  >({});
+
+  function removeAnimation(id: string, onRemoved: () => void) {
+    const opacity = new Animated.Value(1);
+    const height = new Animated.Value(49);
+
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 0.3,
+        duration: 1100,
+        useNativeDriver: false,
+      }),
+      Animated.timing(height, {
+        toValue: 0,
+        duration: 400,
+        delay: 700,
+        useNativeDriver: false,
+      }),
+    ]).start(() => {
+      delete animatedStyles[id];
+      setAnimated(styles => {
+        delete styles[id];
+        return styles;
+      });
+      onRemoved();
+    });
+    setAnimated({...animatedStyles, [id]: {opacity, height}});
+  }
+
+  return {removeAnimation, animatedStyles};
 }
 
 const S = StyleSheet.create({
