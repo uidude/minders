@@ -147,7 +147,6 @@ function MinderListItem(props: MinderListItemProps) {
 
         <View style={S.textContainer}>
           <MinderTextInput minder={minder} project={project} prev={prev} />
-          <Text>{minder.id}</Text>
           <ParentPath top={top} parents={parents} />
         </View>
         <View>
