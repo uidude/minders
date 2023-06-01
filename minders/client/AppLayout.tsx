@@ -226,12 +226,14 @@ function Header(props: LayoutProps) {
  */
 function RedirectorHeader(props: LayoutProps) {
   const {Home} = useGlobalActions();
+  const {Settings} = useGlobalActions();
+
   return (
     <View style={S.minderTop}>
       <View style={S.grow} />
       <TopAction action={Home} />
       <ActionMenu
-        items={[]}
+        items={[Settings]}
         anchor={onPress => (
           <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
         )}
@@ -280,8 +282,6 @@ function MinderListHeader(props: LayoutProps) {
     location: {screen},
   } = useNavState();
   const {Collapse, Expand, Home, Settings, Import, Up} = useGlobalActions();
-
-  const routeName = route.name;
 
   // TODO: Set isTop
   const isTop = false;
