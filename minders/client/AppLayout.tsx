@@ -350,10 +350,11 @@ const MinderCount = withLoad((props: MinderCountProps) => {
   const minderStore = useMinderStore();
   const filter = filterFor(view);
   const {count, setData} = useLoad(props, load);
+  const waitingForLoad = React.useRef(false);
+  const lastLoad = React.useRef(0);
 
   useListen(Minder, '*', async () => {
-    const {count} = await load();
-    setData({count});
+    scheduleLoad();
   });
 
   return (
@@ -367,11 +368,33 @@ const MinderCount = withLoad((props: MinderCountProps) => {
   );
 
   async function load() {
+    //return {count: 0};
     const {top} = await minderStore.getAll(topId);
     // TODO: More efficient logic
     const matching = flatList(top.children, filter);
 
     return {count: matching.length};
+  }
+
+  // Optimistic actions are causing problems with this logic -
+  // it triggers before the action is reflected on the server, which means
+  // that the server query can be out of sync with the optimistic UI state
+  // Interim solution is to schedule the load and limit the frequency,
+  // but need less hacky approach.
+  function scheduleLoad() {
+    // If already waiting, don't schedule again
+    if (waitingForLoad.current) {
+      return;
+    }
+    const timeSinceLoad = Date.now() - lastLoad.current;
+    const timeBetweenLoads = 1000;
+    const whenToLoad = Math.max(100, timeBetweenLoads - timeSinceLoad);
+    setTimeout(async () => {
+      waitingForLoad.current = false;
+      lastLoad.current = Date.now();
+      const {count} = await load();
+      setData({count});
+    }, whenToLoad);
   }
 });
 
