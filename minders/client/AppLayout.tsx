@@ -61,7 +61,7 @@ export const Filters: EnumConfig<MinderFilter> = new Map([
   ['notdone', {icon: 'check-circle', label: 'Not Done', key: 'n'}],
 ]);
 
-export type OutlineView =
+export type MinderView =
   | 'focus'
   | 'review'
   | 'pile'
@@ -70,27 +70,25 @@ export type OutlineView =
   | 'outline'
   | 'outlineall';
 
-// New menu config for menu that selects filter *and* view
-type ViewMenuChoice = {
-  filter: MinderFilter;
+/**
+ * Views identify the page the user is one, filters are IDs of the logic
+ * for filtering which Minders are show. This maps between them.
+ */
+export const VIEW_TO_FILTER: Record<MinderView, MinderFilter> = {
+  focus: 'focus',
+  review: 'review',
+  pile: 'pile',
+  waiting: 'waiting',
+  done: 'done',
+  outline: 'notdone',
+  outlineall: 'all',
 };
 
-// Function for lazy loading of view types
-export const viewMenuChoices = (): Record<OutlineView, ViewMenuChoice> => ({
-  focus: {filter: 'focus'},
-  review: {filter: 'review'},
-  pile: {filter: 'pile'},
-  waiting: {filter: 'waiting'},
-  done: {filter: 'done'},
-  outline: {filter: 'notdone'},
-  outlineall: {filter: 'all'},
-});
-
-export function filterFor(view: OutlineView) {
-  return viewMenuChoices()[view].filter;
+export function filterFor(view: MinderView): MinderFilter {
+  return VIEW_TO_FILTER[view];
 }
 
-export const ViewMenuItems: EnumConfig<OutlineView> = new Map([
+export const ViewMenuItems: EnumConfig<MinderView> = new Map([
   ['focus', {icon: 'eye-outline', label: 'In Focus', key: 'f'}],
   ['review', {icon: 'timer', label: 'To review', key: 'r'}],
   [
@@ -99,14 +97,23 @@ export const ViewMenuItems: EnumConfig<OutlineView> = new Map([
   ],
   ['waiting', {icon: 'timer-sand-empty', label: 'Waiting', key: 'w'}],
   ['done', {icon: 'check-circle-outline', label: 'Done', key: 'd'}],
-  ['outline', {icon: 'format-list-bulleted', label: 'Outline', key: 'o'}],
-  [
-    'outlineall',
-    {icon: 'format-list-checkbox', label: 'Outline All', key: 'a'},
-  ],
 ]);
 
-function viewFor(view: string, filter: MinderFilter): OutlineView {
+// Outline enabled only in dev until working smoothly
+if (__DEV__) {
+  ViewMenuItems.set('outline', {
+    icon: 'format-list-bulleted',
+    label: 'Outline',
+    key: 'o',
+  });
+  ViewMenuItems.set('outlineall', {
+    icon: 'format-list-checkbox',
+    label: 'Outline All',
+    key: 'a',
+  });
+}
+
+function viewFor(view: string, filter: MinderFilter): MinderView {
   if (view == 'outline') {
     if (filter == 'all') {
       return 'outlineall';
@@ -336,7 +343,7 @@ function MinderListHeader(props: LayoutProps) {
   );
 }
 
-type MinderCountProps = {view: OutlineView; topId: string};
+type MinderCountProps = {view: MinderView; topId: string};
 
 const MinderCount = withLoad((props: MinderCountProps) => {
   const {view, topId} = props;
@@ -408,7 +415,7 @@ function isMobile() {
  */
 export type MinderUiState = {
   /** Current view */
-  view?: OutlineView;
+  view?: MinderView;
 
   /** Current visibility filter, calculated from `view` */
   filter?: MinderFilter;

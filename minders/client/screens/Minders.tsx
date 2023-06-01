@@ -4,7 +4,7 @@ import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {DataOp} from '@toolkit/data/DataCache';
 import {useListen} from '@toolkit/data/DataStore';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import {Filters, OutlineView, filterFor} from '@app/AppLayout';
+import {Filters, MinderView, filterFor} from '@app/AppLayout';
 import {
   Minder,
   MinderFilter,
@@ -69,7 +69,7 @@ function keepOrder(minders: Minder[], oldMinders: Minder[]) {
 
 type Props = {
   top: string;
-  view: OutlineView;
+  view: MinderView;
 };
 
 const Minders: Screen<Props> = withLoad(props => {

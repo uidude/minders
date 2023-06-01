@@ -11,7 +11,7 @@ import {
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {DataOp} from '@toolkit/data/DataCache';
 import {useListen} from '@toolkit/data/DataStore';
-import {Filters, OutlineView, filterFor} from '@app/AppLayout';
+import {Filters, MinderView, filterFor} from '@app/AppLayout';
 import {
   Minder,
   MinderFilter,
@@ -33,7 +33,7 @@ import {useLoad} from '@app/util/UseLoad';
 
 type Props = {
   top: string;
-  view: OutlineView;
+  view: MinderView;
 };
 
 export function MinderList(props: Props) {
