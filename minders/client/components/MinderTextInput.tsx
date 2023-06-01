@@ -55,7 +55,8 @@ type Props = {
  * so we can hopefully unify.
  */
 export function MinderTextInput(props: Props) {
-  const {minder, project, prev, grandparent, mode = 'list'} = props;
+  const {project, prev, grandparent, mode = 'list'} = props;
+  const [minder, setMinder] = React.useState(props.minder);
   const [value, setValue] = React.useState(minder.text);
   // TODO: Make this a ref
   const [active, setActive] = React.useState(false);
@@ -64,10 +65,12 @@ export function MinderTextInput(props: Props) {
   const {action: outdent} = useOutdent(minder, grandparent);
   const hasRendered = React.useRef(false);
   const deletedRef = React.useRef(false);
+  const lastTextEdit = React.useRef(0);
 
   // Update text when not active
 
   useDataListen(Minder, minder.id, m => {
+    setMinder(m);
     if (!active) {
       setValue(m.text);
     }
@@ -76,27 +79,6 @@ export function MinderTextInput(props: Props) {
   const isSel = isSelected(minder.id);
   const cursor = isSel ? null : 'default';
   const inputRef = React.useRef<TextInput>();
-
-  //timelog('MinderTextInput render', isSel, minder.id);
-
-  /*
-  Different handling for list vs. outline
-
-  Enter:
-  - List: New item has no parent
-  - Outline: New item parent is same as previous item
-
-  Backspace:
-  - List: Selection is previous item in list view
-  - Outline: Selection is previous item in outline view
-  - NOTE: These are similar, only challenge is tracking prev through hierarchy
-    Might be OK to have hierarchy bump to parent instead of actual prev
-
-  Tab / Shift-Tab
-  - List: Disabled
-  - Outline: Indent / Outdent
-
-*/
 
   // TODO: Action
   async function deleteMinder() {
@@ -206,14 +188,21 @@ export function MinderTextInput(props: Props) {
       trackSelection(null);
     }
     setActive(false);
-    const trimmed = value.trim();
+    await save(value);
+  }
+
+  async function save(newValue: string) {
+    const trimmed = newValue.trim();
     if (!deletedRef.current && trimmed !== minder.text) {
       setValue(trimmed);
-      const updated = await minderStore.update({
-        id: minder.id,
-        text: trimmed,
-        checkVersion: minder.updatedAt,
-      });
+      await minderStore.update(
+        {
+          id: minder.id,
+          text: trimmed,
+          checkVersion: minder.updatedAt,
+        },
+        {optimistic: true},
+      );
     }
   }
 
@@ -236,6 +225,19 @@ export function MinderTextInput(props: Props) {
     inputRef.current?.blur();
   }
 
+  function onChangeText(val: string) {
+    const editTime = Date.now();
+    lastTextEdit.current = editTime;
+    setValue(val);
+    // Edits are applied on blur, or after 500ms of not typing
+    setTimeout(() => {
+      const lastEdit = lastTextEdit.current;
+      if (lastEdit == editTime) {
+        save(val);
+      }
+    }, 500);
+  }
+
   // Android needs to be set to 0,0 on first render to left align overflowing inputs
   const selection =
     Platform.OS === 'android' && !hasRendered.current
@@ -246,7 +248,7 @@ export function MinderTextInput(props: Props) {
     <TextInput
       value={value}
       style={[S.listItemText, cursorStyle(cursor)]}
-      onChangeText={val => setValue(val)}
+      onChangeText={onChangeText}
       onBlur={onBlur}
       onFocus={onFocus}
       onSubmitEditing={submit}
