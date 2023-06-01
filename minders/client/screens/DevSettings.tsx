@@ -187,7 +187,7 @@ function ExportSection() {
  * We can probably make this more robust in future for other types of Ids
  */
 function toHumanReadable(flag: Flag<boolean>) {
-  return flag.id.replace(/(?<!^)([A-Z])(?=[^A-Z])/g, ' $1');
+  return flag.id.replace(/(\b[A-Z])(?=[^A-Z])/g, ' $1');
 }
 
 function FlagSection() {
