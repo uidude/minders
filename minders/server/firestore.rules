@@ -10,11 +10,14 @@ service cloud.firestore {
     return {
       "user": {"*": ['owner']},
       "profile": {"read": ['public'], "write": ['owner']},
-      "things": {"*": ['public']},
-      "faves": {"read": ['public'], "write": ['owner']},
+      "minder": {"read": ['parent'], "write": ['parent']},
+      "project": {"*": ['owner']},
       "push_tokens": {"*": ['owner']},
       "notification_pref": {"*": ['owner']},
       "allowlist": {"*": []},
+      "check_admin": {"*": ['admin']},
+      "check_allowlist": {"*": ['public']},
+      "check_privacy": {"*": []}
     }
   }
 
@@ -25,10 +28,26 @@ service cloud.firestore {
     return {
       "user": "id",
       "profile": "user",
-      "faves": "user",
+      "project": "owner",
       "push_tokens": "user",
       "notification_pref": "user"
     }
+  }
+  
+  
+  // Map of object type -> datastore type of parent
+  // and fields that holds the ID of the parent
+  function PARENT_FIELDS() {
+    return {
+      "minder": {"type": "project", "field": "project"}
+    }
+  }
+  
+  // Types that require a "checkVersion" field on edits
+  function VERSION_CHECKED() {
+    return [
+      "minder"
+    ]
   }
 
   // Whether to limit access to users in an allowlist
@@ -62,19 +81,69 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /instance/{env} {
       match /{entity}/{entityId} {
-        allow read, write: if canAccess(entity)
+        allow update: if versionCheck(entity) && canAccess(entity, getResource(), getMethod(), getRoles());
+        allow read, create, delete: if canAccess(entity, getResource(), getMethod(), getRoles());   
+    
+
+        function versionCheck(entity) {
+          let dontCheckVersion = !(entity in VERSION_CHECKED());
+          let existingVersion = 'updatedAt' in resource.data ? resource.data.updatedAt : null;
+          let versionCheck = 'checkVersion' in request.resource.data ? request.resource.data.checkVersion : null;
+          return dontCheckVersion || (versionCheck != null && versionCheck == existingVersion);
+        }
+
+
+        // Multiple identical calls to avoid recursion checks
+        // This means that you can only check two parents deep for now
+        function canAccess(entity, res, method, roles) {
+          return canAccessImpl(entity, res, method, roles) || canAccessParent(entity, res, method, roles);
+        }
+        function canAccess2(entity, res, method, roles) {
+          return canAccessImpl(entity, res, method, roles) || canAccessParent2(entity, res, method, roles);
+        }
+        function canAccess3(entity, res, method, roles) {
+          return canAccessImpl(entity, res, method, roles);
+        }
+
+
+        function canAccessParent(entity, res, method, roles) {
+          let rule = getRule(entity, method);
+          let parent = getParent(entity, res);
+          return 'parent' in rule && canAccess2(parent.type, parent.doc, method, roles);
+        }
+        function canAccessParent2(entity, res, method, roles) {
+          let rule = getRule(entity, method);
+          let parent = getParent(entity, res);
+          return 'parent' in rule && canAccess3(parent.type, parent.doc, method, roles);
+        }
+
+
+        function getRule(entity, method) {
+          let ruleset = RULES()[entity];
+          return method in ruleset ? ruleset[method] : '*' in ruleset ? ruleset['*'] : [];
+        }
         
         // Access check logic
-        function canAccess(entity) {
-          let method = request.method == 'get' || request.method == 'list' ? 'read' : 'write';
-          let ruleset = RULES()[entity];
-          let rule = method in ruleset ? ruleset[method] : '*' in ruleset ? ruleset['*'] : [];
+        function canAccessImpl(entity, res, method, roles) {
+          let rule = getRule(entity, method);
           let public = 'public' in rule;
-          let roles = getRoles();
           let allowlisted = !enforceAllowlist() || 'allowlist' in roles;
           let adminAccess = globalAdminAccess() && 'admin' in roles;
-          let ownerAccess = 'owner' in rule && isOwner(entity);
+          let ownerAccess = 'owner' in rule && isOwner(entity, res);
           return allowlisted && (public || ownerAccess || adminAccess);
+        }
+
+        // Resource for the request
+        // Always returns a non-null value to avoid null issues in rules eval
+        // TODO: Merge fields as needed
+        function getResource() {
+          let res = request.method == 'create' ? request.resource : resource;
+          return res != null ? res : {"id": null, "data": {}};
+        }
+
+        // Method for the request
+        function getMethod() {
+          return request.method == 'get' || request.method == 'list' ? 'read' : 'write';
         }
 
         // Get roles for the current user
@@ -157,22 +226,24 @@ service cloud.firestore {
           return emailRoles.concat(phoneRoles);
         }
 
-        // Owner resource for the request
-        // Always returns a non-null value to avoid null issues in rules eval
-        function ownerResource() {
-          let res = request.method == 'create' ? request.resource : resource;
-          return res != null ? res : {"id": null, "data": {}};
-        }
-
         // Is the user the logical "owner" of this data
-        function isOwner(entityType) {
-          let res = ownerResource();
+        function isOwner(entityType, res) {
           let data = res.data;
           let ownerFields = OWNER_FIELDS();
           let field = entityType in ownerFields ? ownerFields[entityType] : 'n/a';
 
           let owner = field == 'id' ? entityId : field in data ? data[field] : null;
           return request.auth != null && owner == request.auth.uid;
+        }
+        
+        // Get the parent of an entity, or null if no parent
+        function getParent(entityType, res) {
+          let data = res.data;
+          let parentFields = PARENT_FIELDS();
+          let parentInfo = entityType in parentFields ? parentFields[entityType] : {"type": '__none', "field": "none"};
+          let field = parentInfo.field;
+          let parentId = field in data ? data[field] : '__none';
+          return {"doc": getDoc(parentInfo.type, parentId), "type": parentInfo.type};
         }
       }
     }

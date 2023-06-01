@@ -336,7 +336,6 @@ export function useMinderStore(ctx?: MinderStoreContext) {
   }
 
   async function get(id: string, opts?: {edges?: EdgeSelector[]}) {
-    console.log('agetting', id, new Error());
     return minderStore.get(id, opts);
   }
 
