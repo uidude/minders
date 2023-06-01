@@ -17,7 +17,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useRoute} from '@react-navigation/native';
 import {Appbar} from 'react-native-paper';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {canLoggingInFix} from '@toolkit/core/api/Auth';
 import {ActionItem} from '@toolkit/core/client/Action';
 import {useStatus} from '@toolkit/core/client/Status';
@@ -144,6 +144,7 @@ export default function Layout(props: LayoutProps) {
   const navType = style?.type ?? 'std';
   const key = route.key;
   const {width, height: maxHeight} = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   function onError(err: Error) {
     // If you can fix the error by logging back in, redirect to login
@@ -159,11 +160,14 @@ export default function Layout(props: LayoutProps) {
   if (navType === 'modal') {
     // Modal views are just the content: No SafeAreaView, Header, or Tabs
     return (
-      <View
-        style={[S.top, {borderRadius, maxHeight}]}
-        onLayout={e => console.log(e)}>
+      <View style={[S.top, {borderRadius, maxHeight}]}>
         {navStyle == 'full' && <Header title={title} />}
-        <ScrollView style={S.container} contentContainerStyle={S.modalContent}>
+        <ScrollView
+          style={S.scroll}
+          contentContainerStyle={[
+            S.modalContent,
+            {marginBottom: insets.bottom},
+          ]}>
           <TriState key={key} onError={onError} loadingView={loadingView}>
             <View style={{flex: 1}}>{children}</View>
           </TriState>
@@ -516,8 +520,14 @@ const S = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
   },
-  modalContent: {flex: 1, marginBottom: 30},
-  container: {flex: 1, padding: 0, height: '100%'},
+  modalContent: {
+    flexGrow: 1,
+  },
+  container: {
+    flex: 1,
+    padding: 0,
+    height: '100%',
+  },
   top: {
     flex: 1,
     alignSelf: 'stretch',
