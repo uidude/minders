@@ -42,9 +42,10 @@ const LOGOUT_ACTION = {
 };
 
 const SETTINGS: Setting[] = [
-  navToAction(DEV_SETTINGS),
-  navToAction(NOTIF_SETTINGS),
   LOGOUT_ACTION,
+  navToAction(DEV_SETTINGS),
+  // Disabled until notifications are enabled
+  // navToAction(NOTIF_SETTINGS),
   navToAction(ABOUT),
   'LEGAL',
   ...LEGAL_LINKS.map((link: OpenLinkAction) => openUrlAction(link)),
