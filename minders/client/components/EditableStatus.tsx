@@ -35,7 +35,11 @@ export function EditableStatus(props: PropsM) {
 
   async function updateState(newState: OutlineItemState) {
     if (newState !== state) {
-      const fields = {id: minder.id, state: newState};
+      const fields = {
+        id: minder.id,
+        state: newState,
+        checkVersion: minder.updatedAt,
+      };
       await minderStore.update(fields, {optimistic: true});
     }
   }

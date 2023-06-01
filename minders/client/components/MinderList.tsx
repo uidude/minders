@@ -65,6 +65,7 @@ export function MinderList(props: Props) {
         <Animated.View key={minder.id} style={animtedStyleFor(minder.id)}>
           <MinderListItem
             minder={minder}
+            project={project}
             parents={parentsOf(minder)}
             prev={minders[idx - 1]}
             style={idx % 2 == 1 && S.odd}
@@ -86,6 +87,10 @@ export function MinderList(props: Props) {
     if (animatedStyles[id] ?? !minders.find(m => m.id === id)) {
       return;
     }
+    // Trigger an initial re-render to pick up new selection
+    setData({minders: [...minders]});
+
+    // Then animate the removal
     removeAnimation(id, () => {
       const updated = minders.filter(m => m.id !== id);
       setData({minders: updated});
@@ -93,13 +98,14 @@ export function MinderList(props: Props) {
   }
 
   async function onMinderChange(id: string, op: DataOp) {
-    const newValue = await minderStore.get(id);
-    let updated = minders;
-
     if (op === 'remove') {
       removeMinder(id);
       return;
-    } else if (op === 'update' && newValue) {
+    }
+    const newValue = await minderStore.get(id);
+    let updated = minders;
+
+    if (op === 'update' && newValue) {
       // Note that this doesn't cover project / top changes yet
       if (isVisible(newValue, filter)) {
         minders[minders.findIndex(m => m.id === id)] = newValue;
@@ -119,6 +125,7 @@ export function MinderList(props: Props) {
 
 type MinderListItemProps = {
   minder: Minder;
+  project: MinderProject;
   parents: Minder[];
   prev?: Minder;
   style?: StyleProp<ViewStyle>;
@@ -126,7 +133,7 @@ type MinderListItemProps = {
 };
 
 function MinderListItem(props: MinderListItemProps) {
-  const {minder, parents, prev, style, top} = props;
+  const {minder, project, parents, prev, style, top} = props;
   const minderStore = useMinderStore();
   // const outliner = useOutliner();
   // OutlineUtil.useRedrawOnItemUpdate(item.id);
@@ -139,7 +146,8 @@ function MinderListItem(props: MinderListItemProps) {
         <EditableStatus size={18} minder={minder} style={S.indicator} />
 
         <View style={S.textContainer}>
-          <MinderTextInput minder={minder} prev={prev} />
+          <MinderTextInput minder={minder} project={project} prev={prev} />
+          <Text>{minder.id}</Text>
           <ParentPath top={top} parents={parents} />
         </View>
         <View>

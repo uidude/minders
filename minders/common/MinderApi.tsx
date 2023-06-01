@@ -280,6 +280,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
           await minderStore.update({
             id: minder.id,
             parentId: UpdaterValue.fieldDelete(),
+            checkVersion: minder.updatedAt,
           });
         }
         // Disabled this as these references were broken after
@@ -309,8 +310,8 @@ export function useMinderStore(ctx?: MinderStoreContext) {
     return minder;
   }
 
-  async function remove(id: string) {
-    await minderStore.remove(id);
+  async function remove(id: string, opts?: MutateOpts) {
+    await minderStore.remove(id, opts);
     triggerData(Minder, id);
   }
 
@@ -335,6 +336,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
   }
 
   async function get(id: string, opts?: {edges?: EdgeSelector[]}) {
+    console.log('agetting', id, new Error());
     return minderStore.get(id, opts);
   }
 

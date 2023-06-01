@@ -17,6 +17,7 @@ import {Opt} from '@toolkit/core/util/Types';
 import {
   Minder,
   MinderFilter,
+  MinderProject,
   getChildren,
   hasVisibleKids,
   isParent,
@@ -44,7 +45,11 @@ function CollapserButton(props: {
 
   const toggleState = async () => {
     if (!isDisabled) {
-      minderStore.update({id: minder.id, collapsed: !closed});
+      minderStore.update({
+        id: minder.id,
+        collapsed: !closed,
+        checkVersion: minder.updatedAt,
+      });
     }
   };
 
@@ -102,14 +107,15 @@ function Expando(props: {
 }
 
 type ChildItemProps = {
-  parents: Minder[];
   minder: Minder;
+  parents: Minder[];
+  project: MinderProject;
   level: number;
   filter: MinderFilter;
 };
 
 function ChildItems(props: ChildItemProps) {
-  const {level, filter} = props;
+  const {level, project, filter} = props;
   const children = getChildren(props.minder).filter(m => isVisible(m, filter));
   const [minder] = useLiveData(Minder, [props.minder]);
   const open = !(minder.collapsed ?? false);
@@ -121,6 +127,7 @@ function ChildItems(props: ChildItemProps) {
         <MinderOutline
           key={child.id}
           minder={child}
+          project={project}
           prev={children[idx - 1]}
           parents={parents}
           level={level + 1}
@@ -133,6 +140,7 @@ function ChildItems(props: ChildItemProps) {
 
 type MinderOutlineProps = {
   minder: Minder;
+  project: MinderProject;
   prev: Opt<Minder>;
   parents?: Minder[];
   level?: number;
@@ -140,7 +148,7 @@ type MinderOutlineProps = {
 };
 
 export default function MinderOutline(props: MinderOutlineProps) {
-  const {minder, prev, filter, parents = [], level = 0} = props;
+  const {minder, project, prev, filter, parents = [], level = 0} = props;
   const parental = isParent(minder);
 
   //OutlineUtil.useRedrawOnItemUpdate(item.id);
@@ -191,6 +199,7 @@ export default function MinderOutline(props: MinderOutlineProps) {
             /* backgroundColor={backgroundColor} */
             /* textColor={level === 0 ? '#404040' : undefined} */
             minder={minder}
+            project={project}
             prev={prev}
             mode="outline"
           />
@@ -208,6 +217,7 @@ export default function MinderOutline(props: MinderOutlineProps) {
       {!isDisabled && (
         <ChildItems
           minder={minder}
+          project={project}
           parents={parents}
           level={level}
           filter={filter}

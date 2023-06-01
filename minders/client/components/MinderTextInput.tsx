@@ -9,8 +9,8 @@ import {
   TextStyle,
 } from 'react-native';
 import {Opt} from '@toolkit/core/util/Types';
-import {Updater} from '@toolkit/data/DataStore';
-import {Minder, dataListen, useMinderStore} from '@app/common/MinderApi';
+import {Updater, useDataListen} from '@toolkit/data/DataStore';
+import {Minder, MinderProject, useMinderStore} from '@app/common/MinderApi';
 import {
   getSelection,
   isSelected,
@@ -24,6 +24,10 @@ import {useIndent, useOutdent} from './Actions';
 
 type Props = {
   minder: Minder;
+
+  /** Project this minder is in */
+  project: MinderProject;
+
   /** Previous item displayed, used for UI actions */
   prev?: Opt<Minder>;
 
@@ -51,7 +55,7 @@ type Props = {
  * so we can hopefully unify.
  */
 export function MinderTextInput(props: Props) {
-  const {minder, prev, grandparent, mode = 'list'} = props;
+  const {minder, project, prev, grandparent, mode = 'list'} = props;
   const [value, setValue] = React.useState(minder.text);
   // TODO: Make this a ref
   const [active, setActive] = React.useState(false);
@@ -59,16 +63,15 @@ export function MinderTextInput(props: Props) {
   const {action: indent} = useIndent(minder, prev);
   const {action: outdent} = useOutdent(minder, grandparent);
   const hasRendered = React.useRef(false);
+  const deletedRef = React.useRef(false);
 
   // Update text when not active
-  React.useEffect(() => {
-    return dataListen(Minder, [minder.id], async () => {
-      const newMinder = await minderStore.get(minder.id);
-      if (newMinder && !active) {
-        setValue(newMinder.text);
-      }
-    });
-  }, [active, minder.id]);
+
+  useDataListen(Minder, minder.id, m => {
+    if (!active) {
+      setValue(m.text);
+    }
+  });
 
   const isSel = isSelected(minder.id);
   const cursor = isSel ? null : 'default';
@@ -97,10 +100,13 @@ export function MinderTextInput(props: Props) {
 
   // TODO: Action
   async function deleteMinder() {
-    await minderStore.remove(minder.id);
     if (prev) {
       requestSelect(prev.id, 'end');
     }
+    // Mark as deleted so we don't try to update or accesss
+    deletedRef.current = true;
+
+    await minderStore.remove(minder.id, {optimistic: true});
   }
 
   async function addMinder() {
@@ -117,15 +123,17 @@ export function MinderTextInput(props: Props) {
     // This goes first so the new field can be seleted and typed in immediately
     const fields: Updater<Minder> = {
       text: afterText,
-      project: minder.project,
+      project,
       state: 'new',
     };
     if (mode === 'outline') {
       // TODO: Add ordering
       fields.parentId = minder.parentId;
     }
+
+    // Note: We don't have to update the previous minder - this will occur onBlur()
+    // and doing it hear can create an update race condition
     await minderStore.create(fields, {optimistic: true});
-    await minderStore.update({id: minder.id, text: beforeText});
   }
 
   function backspace() {
@@ -193,14 +201,20 @@ export function MinderTextInput(props: Props) {
     return true;
   }
 
-  function onBlur() {
+  async function onBlur() {
     if (isSelected(minder.id)) {
       trackSelection(null);
     }
     setActive(false);
     const trimmed = value.trim();
-    minderStore.update({id: minder.id, text: trimmed});
-    setValue(trimmed);
+    if (!deletedRef.current && trimmed !== minder.text) {
+      setValue(trimmed);
+      const updated = await minderStore.update({
+        id: minder.id,
+        text: trimmed,
+        checkVersion: minder.updatedAt,
+      });
+    }
   }
 
   function onFocus() {

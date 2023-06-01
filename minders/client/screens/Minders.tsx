@@ -107,6 +107,7 @@ const MinderOutlineList: Screen<Props> = props => {
       {top.children.map((minder, idx) => (
         <MinderOutline
           minder={minder}
+          project={project}
           key={minder.id}
           prev={top.children[idx - 1]}
           filter={filter}
