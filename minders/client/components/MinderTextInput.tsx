@@ -268,5 +268,7 @@ const S = StyleSheet.create({
   listItemText: {
     fontSize: 16,
     fontWeight: '500',
+    paddingBottom: 20,
+    marginBottom: -20,
   },
 });
