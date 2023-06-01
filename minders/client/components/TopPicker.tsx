@@ -75,6 +75,7 @@ const TopPicker = (props: Props) => {
     const newIndex = index === -1 ? projects.length - 1 : index - 1;
     nav.setParams({top: projectIdFor(newIndex)});
   }
+
   function select(project: MinderProject) {
     setMenuVisible(false);
     nav.setParams({top: project.id.replace(':', '>')});
