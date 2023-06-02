@@ -188,17 +188,17 @@ export function MinderTextInput(props: Props) {
       trackSelection(null);
     }
     setActive(false);
-    await save(value);
+    const trimmed = value.trim();
+    await save(trimmed);
   }
 
   async function save(newValue: string) {
-    const trimmed = newValue.trim();
-    if (!deletedRef.current && trimmed !== minder.text) {
-      setValue(trimmed);
+    if (!deletedRef.current && newValue !== minder.text) {
+      setValue(newValue);
       await minderStore.update(
         {
           id: minder.id,
-          text: trimmed,
+          text: newValue,
           checkVersion: minder.updatedAt,
         },
         {optimistic: true},

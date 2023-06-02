@@ -13,7 +13,7 @@ import Redirector from '@app/screens/Redirector';
 import SettingsScreen from '@app/screens/SettingsScreen';
 import {BinaryAlert} from '@app/util/Alert';
 import {useMinderListParams} from '@app/util/UiUtil';
-import {SnoozeDialog, SnoozerChooser} from './SnoozerChooser';
+import {SnoozeDialog} from './SnoozerChooser';
 
 export function useIndent(minder: Minder, prev: Opt<Minder>) {
   const reload = useReload();
