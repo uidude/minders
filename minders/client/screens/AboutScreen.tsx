@@ -83,7 +83,7 @@ const MARKDOWN_RULES: RenderRules = {
   list_item: (node, children, parent, styles) => {
     if (hasParents(parent, 'bullet_list')) {
       return (
-        <View style={{flexDirection: 'row'}}>
+        <View key={node.key} style={{flexDirection: 'row'}}>
           <Text style={{marginTop: 9, marginRight: 10}}>☆</Text>
           <View style={styles._VIEW_SAFE_bullet_list_content}>{children}</View>
         </View>
