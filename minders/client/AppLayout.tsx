@@ -23,6 +23,7 @@ import {ActionItem} from '@toolkit/core/client/Action';
 import {useStatus} from '@toolkit/core/client/Status';
 import TriState from '@toolkit/core/client/TriState';
 import {Opt} from '@toolkit/core/util/Types';
+import {DataOp} from '@toolkit/data/DataCache';
 import {useListen} from '@toolkit/data/DataStore';
 import {IconButton} from '@toolkit/ui/layout/LayoutBlocks';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
@@ -31,6 +32,7 @@ import {
   Minder,
   MinderFilter,
   flatList,
+  isVisible,
   useMinderStore,
 } from '@app/common/MinderApi';
 import {ActionButton} from '@app/components/ActionButton';
@@ -349,52 +351,37 @@ const MinderCount = withLoad((props: MinderCountProps) => {
   const {view, topId} = props;
   const minderStore = useMinderStore();
   const filter = filterFor(view);
-  const {count, setData} = useLoad(props, load);
+  const {minderIds, setData} = useLoad(props, load);
+  const [ids, setIds] = React.useState<string[]>(minderIds);
   const waitingForLoad = React.useRef(false);
   const lastLoad = React.useRef(0);
 
-  useListen(Minder, '*', async () => {
-    scheduleLoad();
+  useListen(Minder, '*', async (id: string, op: DataOp) => {
+    const exists = ids.indexOf(id) !== -1;
+    const newMinder = op === 'remove' ? null : await minderStore.get(id);
+    const showIt = newMinder != null && isVisible(newMinder, filter);
+
+    if (showIt && !exists) {
+      setIds([...ids, id]);
+    } else if (!showIt && exists) {
+      setIds(ids => ids.filter(i => i !== id));
+    }
   });
 
   return (
     <>
-      {count && (
-        <View style={S.badge}>
-          <Text style={{fontSize: 14, color: '#FFF'}}>{count}</Text>
-        </View>
-      )}
+      <View style={S.badge}>
+        <Text style={{fontSize: 14, color: '#FFF'}}>{ids.length}</Text>
+      </View>
     </>
   );
 
-  async function load() {
-    //return {count: 0};
+  async function load(): Promise<{minderIds: string[]}> {
     const {top} = await minderStore.getAll(topId);
     // TODO: More efficient logic
     const matching = flatList(top.children, filter);
 
-    return {count: matching.length};
-  }
-
-  // Optimistic actions are causing problems with this logic -
-  // it triggers before the action is reflected on the server, which means
-  // that the server query can be out of sync with the optimistic UI state
-  // Interim solution is to schedule the load and limit the frequency,
-  // but need less hacky approach.
-  function scheduleLoad() {
-    // If already waiting, don't schedule again
-    if (waitingForLoad.current) {
-      return;
-    }
-    const timeSinceLoad = Date.now() - lastLoad.current;
-    const timeBetweenLoads = 1000;
-    const whenToLoad = Math.max(100, timeBetweenLoads - timeSinceLoad);
-    setTimeout(async () => {
-      waitingForLoad.current = false;
-      lastLoad.current = Date.now();
-      const {count} = await load();
-      setData({count});
-    }, whenToLoad);
+    return {minderIds: matching.map(m => m.id)};
   }
 });
 
