@@ -7,29 +7,10 @@
  * @format
  */
 
-import {Ionicons, MaterialCommunityIcons} from '@expo/vector-icons';
 import {DefaultTheme, NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import {
-  setClientFallbackEnabled,
-  setDefaultServerApi,
-} from '@toolkit/core/api/DataApi';
-import {LOCAL_FLAGS} from '@toolkit/core/api/Flags';
-import {CONSOLE_LOGGER} from '@toolkit/core/api/Log';
-import IdentityService from '@toolkit/core/api/Login';
-import {
-  SimpleUserMessaging,
-  StatusContainer,
-} from '@toolkit/core/client/Status';
-import {registerAppConfig} from '@toolkit/core/util/AppConfig';
-import {AppContextProvider} from '@toolkit/core/util/AppContext';
+import {SimpleUserMessaging} from '@toolkit/core/client/Status';
 import {filterHandledExceptions} from '@toolkit/core/util/Environment';
-import {IN_MEMORY_DATA_CACHE} from '@toolkit/data/DataCache';
-import {initializeFirebase} from '@toolkit/providers/firebase/Config';
-import {FIRESTORE_DATASTORE} from '@toolkit/providers/firebase/DataStore';
-import {firebaseFn} from '@toolkit/providers/firebase/client/FunctionsApi';
-import {FIREBASE_LOGGER} from '@toolkit/providers/firebase/client/Logger';
-import {googleAuthProvider} from '@toolkit/providers/login/GoogleLogin';
 import {
   NavContext,
   useReactNavScreens,
@@ -37,17 +18,9 @@ import {
 import PhoneInput from '@toolkit/screens/login/PhoneInput';
 import PhoneVerification from '@toolkit/screens/login/PhoneVerification';
 import {NotificationSettingsScreen} from '@toolkit/screens/settings/NotificationSettings';
-import {BLACK_AND_WHITE} from '@toolkit/ui/QuickThemes';
-import {Icon, registerIconPack} from '@toolkit/ui/components/Icon';
-import {usePaperComponents} from '@toolkit/ui/components/Paper';
 import {Routes} from '@toolkit/ui/screen/Nav';
 import WebViewScreen from '@toolkit/ui/screen/WebScreen';
-import AuthConfig from '@app/AuthConfig';
-import {
-  CLIENT_FALLBACK_ENABLED,
-  FIREBASE_CONFIG,
-  GOOGLE_LOGIN_CONFIG,
-} from '@app/common/Config';
+import AppLayout from '@app/AppLayout';
 import AboutScreen from '@app/screens/AboutScreen';
 import LoginScreen from '@app/screens/LoginScreen';
 import SettingsScreen from '@app/screens/SettingsScreen';
@@ -57,13 +30,8 @@ import React from 'react';
 import {Platform, StyleSheet, View} from 'react-native';
 import {StatusBar} from 'expo-status-bar';
 import 'react-native-gesture-handler';
-import {Provider as PaperProvider} from 'react-native-paper';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-/**
- * TODO: Move this to FirebasePhoneUtils, as that is the proximate use case that is most important
- */
-import AppLayout from '@app/AppLayout';
-import {APP_CONFIG, APP_INFO, NOTIF_CHANNELS_CONTEXT} from './Config';
+import AppConfig from './AppConfig';
 import {SnoozerChooser} from './components/SnoozerChooser';
 import DevSettings from './screens/DevSettings';
 import EditProfile from './screens/EditProfile';
@@ -120,31 +88,7 @@ const ROUTES: Routes = {
 };
 const Stack = createStackNavigator();
 
-// Set this to true to enable logging to Firebase Analytics
-const USE_FIREBASE_ANALYTICS = false;
-
-const LOGGER = USE_FIREBASE_ANALYTICS ? FIREBASE_LOGGER : CONSOLE_LOGGER;
-const APP_CONTEXT = [
-  APP_CONFIG,
-  APP_INFO,
-  FIRESTORE_DATASTORE,
-  LOGGER,
-  NOTIF_CHANNELS_CONTEXT,
-  IN_MEMORY_DATA_CACHE,
-  LOCAL_FLAGS,
-];
-
 export default function App() {
-  registerAppConfig(APP_CONFIG);
-  initializeFirebase(FIREBASE_CONFIG);
-  IdentityService.addProvider(googleAuthProvider(GOOGLE_LOGIN_CONFIG));
-  registerIconPack('ion', Ionicons);
-  registerIconPack('mci', MaterialCommunityIcons);
-  usePaperComponents();
-
-  setDefaultServerApi(firebaseFn);
-  setClientFallbackEnabled(CLIENT_FALLBACK_ENABLED);
-
   const {navScreens, linkingScreens} = useReactNavScreens(
     ROUTES,
     AppLayout,
@@ -170,30 +114,24 @@ export default function App() {
   };
 
   return (
-    <AppContextProvider ctx={APP_CONTEXT}>
-      <PaperProvider theme={BLACK_AND_WHITE} settings={{icon: Icon}}>
-        <StatusContainer top={true}>
-          <AuthConfig>
-            <View style={S.background}>
-              <SafeAreaProvider style={S.container}>
-                <SimpleUserMessaging style={S.messaging} />
-                <NavigationContainer linking={linking} theme={navTheme}>
-                  <UsingUiTools tools={[ShortcutTool, SnoozerChooser]}>
-                    <StatusBar style="auto" />
-                    <NavContext routes={ROUTES} />
-                    <Stack.Navigator
-                      screenOptions={{headerShown: false}}
-                      initialRouteName="StartupScreen">
-                      {navScreens}
-                    </Stack.Navigator>
-                  </UsingUiTools>
-                </NavigationContainer>
-              </SafeAreaProvider>
-            </View>
-          </AuthConfig>
-        </StatusContainer>
-      </PaperProvider>
-    </AppContextProvider>
+    <AppConfig>
+      <View style={S.background}>
+        <SafeAreaProvider style={S.container}>
+          <SimpleUserMessaging style={S.messaging} />
+          <NavigationContainer linking={linking} theme={navTheme}>
+            <UsingUiTools tools={[ShortcutTool, SnoozerChooser]}>
+              <StatusBar style="auto" />
+              <NavContext routes={ROUTES} />
+              <Stack.Navigator
+                screenOptions={{headerShown: false}}
+                initialRouteName="StartupScreen">
+                {navScreens}
+              </Stack.Navigator>
+            </UsingUiTools>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </View>
+    </AppConfig>
   );
 }
 
