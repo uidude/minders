@@ -24,6 +24,11 @@ import {
   LegacyOutlineItem,
 } from '../client/model/InitialOutline';
 
+function timelog(...args: any[]) {
+  args.push((Date.now() % 100000) / 1000);
+  console.log(...args);
+}
+
 export const STATE_VISIBILITY: Record<string, OutlineItemState[]> = {
   focus: ['cur', 'top'],
   review: ['new', 'waiting', 'soon'],
@@ -241,11 +246,26 @@ export function useMinderStore(ctx?: MinderStoreContext) {
     return {top, project};
   }
 
+  const THREE_MONTHS_IN_MSEC = 90 * 24 * 60 * 60 * 1000;
   async function getProject(id: string) {
-    const project = await projectStore.get(id, {
-      edges: [[MinderProject, Minder, 1]],
-    });
+    const [project, minders] = await Promise.all([
+      projectStore.get(id),
+      minderStore.getMany({
+        query: {
+          where: [
+            {field: 'project', op: '==', value: id},
+            {
+              field: 'updatedAt',
+              op: '>',
+              value: Date.now() - THREE_MONTHS_IN_MSEC,
+            },
+          ],
+        },
+      }),
+    ]);
+
     if (project) {
+      project.minders = minders;
       await linkAndFixMinders([project]);
     }
     return project;
