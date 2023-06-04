@@ -7,8 +7,6 @@
  * @format
  */
 
-import icon from '@assets/icon.png';
-import {AppInfoKey} from '@toolkit/core/client/Theme';
 import {providesValue} from '@toolkit/core/providers/Providers';
 import {AppConfigKey} from '@toolkit/core/util/AppConfig';
 import {FirebaseConfig} from '@toolkit/providers/firebase/Config';
@@ -36,7 +34,7 @@ export const FIREBASE_CONFIG: FirebaseConfig = localConf['firebase'] ?? {
   namespace: 'minders',
   emulators: {
     functions: {
-      useEmulator: false,
+      useEmulator: true,
     },
   },
 };
@@ -79,9 +77,4 @@ export const LEGAL_LINKS = [
 
 export const MIXPANEL_TOKEN = null;
 
-export const APP_INFO = {
-  appName: 'minders',
-  appIcon: icon,
-};
-providesValue(AppInfoKey, APP_INFO);
 providesValue(NotificationChannelsKey, NOTIF_CHANNELS);

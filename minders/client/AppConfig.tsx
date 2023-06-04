@@ -1,4 +1,5 @@
 import React from 'react';
+import icon from '@assets/icon.png';
 import {Ionicons, MaterialCommunityIcons} from '@expo/vector-icons';
 import {Provider as PaperProvider} from 'react-native-paper';
 import {
@@ -9,7 +10,9 @@ import {LocalFlags} from '@toolkit/core/api/Flags';
 import {ConsoleLogger} from '@toolkit/core/api/Log';
 import IdentityService from '@toolkit/core/api/Login';
 import {StatusContainer} from '@toolkit/core/client/Status';
+import {AppInfoKey} from '@toolkit/core/client/Theme';
 import {Scope} from '@toolkit/core/providers/Client';
+import {providesValue} from '@toolkit/core/providers/Providers';
 import {InMemoryDataCache} from '@toolkit/data/DataCache';
 import {initializeFirebase} from '@toolkit/providers/firebase/Config';
 import {FirestoreDatastore} from '@toolkit/providers/firebase/DataStore';
@@ -20,7 +23,6 @@ import {Icon, registerIconPack} from '@toolkit/ui/components/Icon';
 import {usePaperComponents} from '@toolkit/ui/components/Paper';
 import {
   APP_CONFIG,
-  APP_INFO,
   CLIENT_FALLBACK_ENABLED,
   FIREBASE_CONFIG,
   GOOGLE_LOGIN_CONFIG,
@@ -43,7 +45,7 @@ function AppConfig(props: Props) {
     InMemoryDataCache,
     FirestoreDatastore,
     APP_CONFIG,
-    APP_INFO,
+    AppInfo,
     NOTIF_CHANNELS,
   ];
 
@@ -66,5 +68,10 @@ function AppConfig(props: Props) {
     </Scope>
   );
 }
+
+const AppInfo = providesValue(AppInfoKey, {
+  appName: 'minders',
+  appIcon: icon,
+});
 
 export default AppConfig;
