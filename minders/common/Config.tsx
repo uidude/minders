@@ -34,7 +34,7 @@ export const FIREBASE_CONFIG: FirebaseConfig = localConf['firebase'] ?? {
   namespace: 'minders',
   emulators: {
     functions: {
-      useEmulator: true,
+      useEmulator: false,
     },
   },
 };

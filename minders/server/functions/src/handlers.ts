@@ -5,7 +5,6 @@ import {
   UpdateUser,
 } from '@app/common/Api';
 import {Profile} from '@app/common/DataTypes';
-import {ApiKey, serverApi} from '@toolkit/core/api/DataApi';
 import {User, UserRoles} from '@toolkit/core/api/User';
 import {CodedError} from '@toolkit/core/util/CodedError';
 import {Updater, getRequired} from '@toolkit/data/DataStore';
@@ -63,6 +62,7 @@ async function accountToUser(auth: AuthData): Promise<User> {
     users.get(userId, {edges: [UserRoles]}),
     profiles.get(userId),
   ]);
+
   const roles = await getAllowlistMatchedRoles(auth);
   if (user != null && profile != null) {
     if (!user.roles) {
@@ -113,16 +113,13 @@ async function accountToUser(auth: AuthData): Promise<User> {
 
   const fs = admin.firestore();
   await fs.runTransaction(async (txn: any) => {
-    // @ts-ignore: hack to pass in `transaction`
-    const userStoreInTxn = firebaseStore(User, fs, txn, firebaseConfig);
-    // @ts-ignore: ditto
-    const profileStoreInTxn = firebaseStore(Profile, fs, txn, firebaseConfig);
-    // @ts-ignore: ditto
-    const rolesStoreInTxn = firebaseStore(UserRoles, fs, txn, firebaseConfig);
+    const userStoreInTxn = getAdminDataStore(User);
+    const profileStoreInTxn = getAdminDataStore(Profile);
+    const rolesStoreInTxn = getAdminDataStore(UserRoles);
 
-    userStoreInTxn.create({...newUser, roles: {id: newUser.id}});
-    profileStoreInTxn.create(newProfile);
-    rolesStoreInTxn.create({roles, id: newUser.id});
+    userStoreInTxn.create({...newUser, roles: {id: newUser.id}}, {txn});
+    profileStoreInTxn.create(newProfile, {txn});
+    rolesStoreInTxn.create({roles, id: newUser.id}, {txn});
   });
 
   const createdUser = await users.get(newUser.id, {edges: [UserRoles]});

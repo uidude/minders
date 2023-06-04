@@ -369,7 +369,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
     return await minderStore.update(fields, opts);
   }
 
-  function listen(id: string, fn: DataCallback<Minder>) {
+  function listen(id: string, fn: DataCallback) {
     return minderStore.listen(id, fn);
   }
 
