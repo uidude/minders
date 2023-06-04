@@ -6,7 +6,7 @@ import * as React from 'react';
 import {Linking, ScrollView, StyleSheet, View} from 'react-native';
 import {Checkbox} from 'react-native-paper';
 import {useApi} from '@toolkit/core/api/DataApi';
-import {Flag, useFlags} from '@toolkit/core/api/Flags';
+import {Flag, FlagsApiKey} from '@toolkit/core/api/Flags';
 import {
   ConsoleLoggerEnabled,
   eventToString,
@@ -15,6 +15,7 @@ import {
 import {User, requireLoggedInUser} from '@toolkit/core/api/User';
 import {useAction} from '@toolkit/core/client/Action';
 import {useBackgroundStatus} from '@toolkit/core/client/Status';
+import {use} from '@toolkit/core/providers/Providers';
 import {AdhocError} from '@toolkit/core/util/CodedError';
 import {
   getNetworkDelayMs,
@@ -193,7 +194,7 @@ function toHumanReadable(flag: Flag<boolean>) {
 function FlagSection() {
   const flagsToShow = [ConsoleLoggerEnabled];
   const {Body, H2} = useComponents();
-  const flags = useFlags();
+  const flags = use(FlagsApiKey);
   const [refresh, setRefresh] = React.useState(0);
 
   async function toggle(flag: Flag<boolean>) {

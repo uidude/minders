@@ -7,9 +7,13 @@
  * @format
  */
 
-import {APP_CONFIG_KEY} from '@toolkit/core/util/AppConfig';
-import {context} from '@toolkit/core/util/AppContext';
+import icon from '@assets/icon.png';
+import {AppInfoKey} from '@toolkit/core/client/Theme';
+import {providesValue} from '@toolkit/core/providers/Providers';
+import {AppConfigKey} from '@toolkit/core/util/AppConfig';
 import {FirebaseConfig} from '@toolkit/providers/firebase/Config';
+import {NotificationChannelsKey} from '@toolkit/services/notifications/NotificationChannel';
+import {NOTIF_CHANNELS} from '@app/common/NotifChannels';
 
 let localConf: Record<string, any> = {};
 try {
@@ -37,11 +41,13 @@ export const FIREBASE_CONFIG: FirebaseConfig = localConf['firebase'] ?? {
   },
 };
 
-export const APP_CONFIG = context(APP_CONFIG_KEY, {
+export const APP_CONFIG = {
   product: 'minders',
   dataEnv: 'prod',
   fbAppId: '',
-});
+};
+
+providesValue(AppConfigKey, APP_CONFIG);
 
 /**
  * Fill in the client IDs from
@@ -72,3 +78,10 @@ export const LEGAL_LINKS = [
 ];
 
 export const MIXPANEL_TOKEN = null;
+
+export const APP_INFO = {
+  appName: 'minders',
+  appIcon: icon,
+};
+providesValue(AppInfoKey, APP_INFO);
+providesValue(NotificationChannelsKey, NOTIF_CHANNELS);
