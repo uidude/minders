@@ -123,6 +123,7 @@ const MinderOutlineList: Screen<Props> = props => {
 
 Minders.title = 'Minders';
 Minders.id = 'Minders';
-Minders.mainAction = NewItem;
+// Use deferred load to avoid initialization issues
+Minders.mainAction = () => NewItem;
 
 export default Minders;

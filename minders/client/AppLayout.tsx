@@ -155,6 +155,9 @@ export default function Layout(props: LayoutProps) {
   const {width, height: maxHeight} = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
+  const mainActionItem: Opt<ActionItem> =
+    typeof mainAction === 'function' ? mainAction() : mainAction;
+
   function onError(err: Error) {
     // If you can fix the error by logging back in, redirect to login
     if (canLoggingInFix(err)) {
@@ -196,7 +199,9 @@ export default function Layout(props: LayoutProps) {
           // TODO: Should show action bar while loading
           <TriState loadingView={Empty} errorView={Empty}>
             <Header {...props} />
-            {mainAction && <ActionFAB style={S.fab} small item={mainAction} />}
+            {mainActionItem && (
+              <ActionFAB style={S.fab} small item={mainActionItem} />
+            )}
           </TriState>
         )}
         <ScrollView style={S.scroll} contentContainerStyle={S.content}>
