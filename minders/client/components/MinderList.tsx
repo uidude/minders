@@ -30,6 +30,7 @@ import {EditableStatus} from '@app/components/EditableStatus';
 import {MinderTextInput} from '@app/components/MinderTextInput';
 import {requestSelect} from '@app/model/TextSelect';
 import {useLoad} from '@app/util/UseLoad';
+import {useSetPageTitle} from '@app/util/Useful';
 
 type Props = {
   top: string;
@@ -43,8 +44,11 @@ export function MinderList(props: Props) {
   const filter = filterFor(view);
   const {project, top, minders, setData} = useLoad(props, load);
   const {removeAnimation, animatedStyles} = useMinderRemoveAnimation();
+  const setPageTitle = useSetPageTitle();
 
   useListen(Minder, '*', onMinderChange);
+
+  setPageTitle(project.name);
 
   /*
     TODO:
@@ -144,7 +148,6 @@ function MinderListItem(props: MinderListItemProps) {
     <>
       <View style={[S.listItem, style]}>
         <EditableStatus size={18} minder={minder} style={S.indicator} />
-
         <View style={S.textContainer}>
           <MinderTextInput minder={minder} project={project} prev={prev} />
           <ParentPath top={top} parents={parents} />
@@ -251,7 +254,7 @@ const S = StyleSheet.create({
     alignItems: 'center',
   },
   odd: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#F8F8F8',
   },
   listItemTitle: {
     fontFamily: getFontFamily(),

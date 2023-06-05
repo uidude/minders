@@ -286,10 +286,8 @@ function StandardHeader(props: LayoutProps) {
 
 // TODO: Back button
 function MinderListHeader(props: LayoutProps) {
-  const route = useRoute();
   const {view, top: topId} = useMinderListParams();
   const nav = useNav();
-  const setPageTitle = useSetPageTitle();
   const {setError} = useStatus();
 
   const {
@@ -302,13 +300,7 @@ function MinderListHeader(props: LayoutProps) {
 
   // TODO: Filter out up when at project level
   const actionMenuItems = [Up, Expand, Collapse, Import, Settings];
-
   const showCount = screen === Minders;
-
-  /*
-  if (screen === OutlineTop || screen === OutlineList) {
-    setPageTitle(focusItem.text);
-  }*/
 
   const viewMenuActions = enumActions(ViewMenuItems, value => {
     nav.setParams({view: value});
