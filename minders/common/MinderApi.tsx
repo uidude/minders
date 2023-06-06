@@ -8,6 +8,7 @@ import {
   DataStore,
   EdgeSelector,
   Field,
+  FieldDelete,
   HasId,
   InverseField,
   Model,
@@ -16,7 +17,6 @@ import {
   MutateOpts,
   TString,
   Updater,
-  UpdaterValue,
   useDataStore,
 } from '@toolkit/data/DataStore';
 import {
@@ -268,6 +268,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
       project.minders = minders;
       await linkAndFixMinders([project]);
     }
+
     return project;
   }
 
@@ -299,7 +300,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
           console.log('Fixing minder with no parent');
           await minderStore.update({
             id: minder.id,
-            parentId: UpdaterValue.fieldDelete(),
+            parentId: FieldDelete,
             checkVersion: minder.updatedAt,
           });
         }
@@ -362,8 +363,8 @@ export function useMinderStore(ctx?: MinderStoreContext) {
   // TODO disallow setting parent and project until they work.
   async function update(fields: Updater<Minder>, opts?: MutateOpts) {
     if (fields.state != null && fields.state != 'waiting') {
-      fields.snoozeTil = UpdaterValue.fieldDelete();
-      fields.unsnoozedState = UpdaterValue.fieldDelete();
+      fields.snoozeTil = FieldDelete;
+      fields.unsnoozedState = FieldDelete;
     }
 
     return await minderStore.update(fields, opts);
@@ -578,21 +579,20 @@ export function isVisible(minder: Minder, filter: MinderFilter) {
 
   const now = Date.now();
 
-  // Soon items only show up in review for 60 days (testing with 30s)
+  // Soon items only show up in review for 60 days
   if (filter === 'review' && minder.state === 'soon') {
     const modified = minder.updatedAt ?? 0;
     const daysBack = (now - modified) / (1000 * 3600 * 24);
     if (daysBack > 60) {
-      //if (daysBack > 0.00034) {
       return false;
     }
   }
 
-  // New items show up everywhere for 5 minutes (testing with 30s)
+  // New items show up everywhere for 5 minutes
   if (minder.state === 'new') {
     const created = minder.createdAt ?? 0;
     const minutesBack = (now - created) / (1000 * 60);
-    if (minutesBack < 0.5) {
+    if (minutesBack < 5) {
       return true;
     }
   }
@@ -608,11 +608,7 @@ export function isVisible(minder: Minder, filter: MinderFilter) {
 
     // If not snoozed, only shows up in views where it **would** have shown up before
     const prevState = minder.unsnoozedState;
-    if (
-      prevState &&
-      visibleStates.includes(prevState) &&
-      visibleStates.includes('waiting')
-    ) {
+    if (prevState && visibleStates.includes(prevState)) {
       return true;
     }
   }

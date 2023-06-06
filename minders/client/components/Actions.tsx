@@ -5,7 +5,7 @@
 import {ActionItem, actionHook} from '@toolkit/core/client/Action';
 import {useReload} from '@toolkit/core/client/Reload';
 import {Opt} from '@toolkit/core/util/Types';
-import {Updater, UpdaterValue} from '@toolkit/data/DataStore';
+import {FieldDelete, Updater} from '@toolkit/data/DataStore';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import {Minder, MinderProject, useMinderStore} from '@app/common/MinderApi';
 import Projects from '@app/screens/Projects';
@@ -56,7 +56,7 @@ export function useOutdent(minder: Minder, grandparent: Opt<Minder>) {
     action: async () => {
       const fields = {
         id: minder.id,
-        parentId: grandparent ? grandparent.id : UpdaterValue.fieldDelete(),
+        parentId: grandparent ? grandparent.id : FieldDelete,
         checkVersion: minder.updatedAt,
       };
       await minderStore.update(fields);
@@ -108,6 +108,7 @@ export function useMinderActions(minder: Minder) {
               snoozeTil,
               state: 'waiting',
               checkVersion: minder.updatedAt,
+              unsnoozedState: minder.state,
             },
             {optimistic: true},
           );
@@ -146,7 +147,16 @@ export function useMinderActions(minder: Minder) {
     id: 'mover',
     icon: 'arrow-top-right',
     label: 'Move Item',
-    action: () => {}, //nav.navTo(OutlineMover, {focus: item.id}),
+    // For testing purposes
+    action: async () => {
+      const moveTo = 'project:cdbaaee0-35f3-4665-9ba1-bdd0a48194ac';
+      await minderStore.update({
+        id: minder.id,
+        state: 'cur',
+        project: {id: moveTo},
+        checkVersion: minder.updatedAt,
+      });
+    }, //nav.navTo(OutlineMover, {focus: item.id}),
   };
 
   return {FocusOn, Bump, Snooze, Delete, Pin, Unpin, Mover};
