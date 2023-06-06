@@ -15,7 +15,7 @@ import {Scope} from '@toolkit/core/providers/Client';
 import {providesValue} from '@toolkit/core/providers/Providers';
 import {InMemoryDataCache} from '@toolkit/data/DataCache';
 import {initializeFirebase} from '@toolkit/providers/firebase/Config';
-import {FirestoreDatastore} from '@toolkit/providers/firebase/DataStoreWrapper';
+import {FirestoreDatastore} from '@toolkit/providers/firebase/FirestoreDatastore';
 import {firebaseFn} from '@toolkit/providers/firebase/client/FunctionsApi';
 import {googleAuthProvider} from '@toolkit/providers/login/GoogleLogin';
 import {BLACK_AND_WHITE} from '@toolkit/ui/QuickThemes';
