@@ -74,7 +74,9 @@ const SnoozeDialogComponent = () => {
     <View>
       <Portal>
         <Dialog style={S.dialog} visible={visible} onDismiss={dismiss}>
-          <Dialog.Title style={{marginBottom: 0}}>Snooze for</Dialog.Title>
+          <Dialog.Title style={{marginBottom: 0, alignSelf: 'center'}}>
+            Snooze for
+          </Dialog.Title>
           <Dialog.Content>
             <View style={{flexDirection: 'row'}}>
               <View style={S.buttons}>
@@ -93,7 +95,7 @@ const SnoozeDialogComponent = () => {
               </View>
             </View>
           </Dialog.Content>
-          <Dialog.Title style={{marginVertical: 0}}>
+          <Dialog.Title style={{marginVertical: 0, alignSelf: 'center'}}>
             Or snooze until
           </Dialog.Title>
           <Dialog.Content>
@@ -172,7 +174,7 @@ const S = StyleSheet.create({
   },
   buttons: {
     minWidth: 120,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     flexWrap: 'wrap',
   },
   button: {
