@@ -109,18 +109,15 @@ async function accountToUser(auth: AuthData): Promise<User> {
     await profiles.create(newProfile);
   }
 
-  //return user;
+  // TODO: Re-enable when we have a clean way of supporting transactions
+  // await admin.firestore().runTransaction(async (txn: any) => {
+  const userStoreInTxn = getAdminDataStore(User);
+  const profileStoreInTxn = getAdminDataStore(Profile);
+  const rolesStoreInTxn = getAdminDataStore(UserRoles);
 
-  const fs = admin.firestore();
-  await fs.runTransaction(async (txn: any) => {
-    const userStoreInTxn = getAdminDataStore(User);
-    const profileStoreInTxn = getAdminDataStore(Profile);
-    const rolesStoreInTxn = getAdminDataStore(UserRoles);
-
-    userStoreInTxn.create({...newUser, roles: {id: newUser.id}}, {txn});
-    profileStoreInTxn.create(newProfile, {txn});
-    rolesStoreInTxn.create({roles, id: newUser.id}, {txn});
-  });
+  userStoreInTxn.create({...newUser, roles: {id: newUser.id}});
+  profileStoreInTxn.create(newProfile);
+  rolesStoreInTxn.create({roles, id: newUser.id});
 
   const createdUser = await users.get(newUser.id, {edges: [UserRoles]});
   addDerivedFields(createdUser!);
