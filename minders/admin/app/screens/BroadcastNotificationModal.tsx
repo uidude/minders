@@ -1,39 +1,30 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- */
-
 import * as React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {Button, TextInput, Title, useTheme} from 'react-native-paper';
-import {useApi} from '@toolkit/providers/firebase/client/FunctionsApi';
+import {Title} from 'react-native-paper';
+import {useApi} from '@toolkit/core/api/DataApi';
+import {useAction} from '@toolkit/core/client/Action';
 import Banner from '@toolkit/screens/admin/BroadcastNotificationModal';
+import {useTextInput} from '@toolkit/ui/UiHooks';
+import {useComponents} from '@toolkit/ui/components/Components';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import {BROADCAST_ADMIN_NOTIF} from '@app/common/Api';
+import {useBackgroundStatus} from '@app/admin/../../npe-toolkit/lib/core/client/Status';
+import {BroadcastNotif} from '@app/common/Api';
 
 const BroadcastNotificationModal: Screen<{}> = () => {
-  const [notifTitle, setNotifTitle] = React.useState('');
-  const [notifBody, setNotifBody] = React.useState('');
-  const [sendingNotif, setSendingNotif] = React.useState(false);
-
-  const theme = useTheme();
+  const [TitleInput, title] = useTextInput('');
+  const [BodyInput, body] = useTextInput('');
+  const {setMessage} = useBackgroundStatus();
   const nav = useNav();
-  const sendBroadcast = useApi(BROADCAST_ADMIN_NOTIF);
+  const [sendNotifAction, sending] = useAction(sendNotif);
+  const sendBroadcast = useApi(BroadcastNotif);
+  const {Button} = useComponents();
 
-  const sendNotif = async () => {
-    setSendingNotif(true);
-    await sendBroadcast({
-      title: notifTitle,
-      body: notifBody,
-    });
-    setSendingNotif(false);
+  async function sendNotif() {
+    await sendBroadcast({title, body});
     nav.back();
-  };
+    setMessage('Notification sent');
+  }
 
   return (
     <View style={S.modal}>
@@ -43,29 +34,18 @@ const BroadcastNotificationModal: Screen<{}> = () => {
         color="#eed202"
         text="This will send a push notification to all users. Please use carefully"
       />
-      <TextInput
-        value={notifTitle}
-        onChangeText={setNotifTitle}
-        mode="outlined"
-        label="Title"
-        style={{height: 40, marginTop: 10}}
-      />
-      <TextInput
-        value={notifBody}
-        onChangeText={setNotifBody}
-        mode="outlined"
-        label="Body"
-        style={{height: 40, marginTop: 10}}
-      />
+      <TitleInput type="primary" label="Title" style={{marginTop: 10}} />
+      <BodyInput type="primary" label="Body" style={{marginTop: 10}} />
       <View style={S.modalFooter}>
-        <Button onPress={nav.back}>Cancel</Button>
+        <Button type="secondary" onPress={nav.back}>
+          Cancel
+        </Button>
+        <View style={{width: 10}} />
         <Button
-          onPress={sendNotif}
-          loading={sendingNotif}
-          disabled={notifBody === '' || sendingNotif}
-          mode="contained"
-          dark={theme.dark}
-          style={{backgroundColor: theme.colors.primary}}>
+          onPress={sendNotifAction}
+          loading={sending}
+          disabled={body === '' || sending}
+          type="primary">
           Send
         </Button>
       </View>

@@ -1,75 +1,50 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- */
-
 import * as React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {Button, TextInput, Title, useTheme} from 'react-native-paper';
+import {useApi} from '@toolkit/core/api/DataApi';
 import {User} from '@toolkit/core/api/User';
-import {useUserMessaging} from '@toolkit/core/client/UserMessaging';
-import {useApi} from '@toolkit/providers/firebase/client/FunctionsApi';
+import {useAction} from '@toolkit/core/client/Action';
+import {useTextInput} from '@toolkit/ui/UiHooks';
+import {useComponents} from '@toolkit/ui/components/Components';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import {SEND_ADMIN_NOTIF} from '@app/common/Api';
+import {SendAdminNotif} from '@app/common/Api';
 
 type Props = {user: User};
 const SendNotificationModal: Screen<Props> = ({user}: Props) => {
-  const [notifTitle, setNotifTitle] = React.useState('');
-  const [notifBody, setNotifBody] = React.useState('');
-  const [sendingNotif, setSendingNotif] = React.useState(false);
+  const [TitleField, title] = useTextInput('');
+  const [BodyField, body] = useTextInput('');
+  const {Title, Subtitle, Button} = useComponents();
+  const [onSend, sending] = useAction('SendNotification', sendNotification);
 
-  const theme = useTheme();
   const nav = useNav();
-  const msg = useUserMessaging();
-  const sendAdminNotif = useApi(SEND_ADMIN_NOTIF);
+  const sendAdminNotif = useApi(SendAdminNotif);
 
-  const sendNotif = async () => {
-    if (notifBody == '') {
-      msg.showError('Notification body cannot be empty');
-      return;
-    }
-
-    setSendingNotif(true);
-    await sendAdminNotif({
-      user,
-      title: notifTitle,
-      body: notifBody,
-    });
-    setSendingNotif(false);
+  async function sendNotification() {
+    await sendAdminNotif({user, title, body});
     nav.back();
-  };
+  }
+
+  function isDisabled() {
+    return body === '' || sending;
+  }
 
   return (
     <View style={S.modal}>
-      <Title>Send Push to {user.name}</Title>
-      <TextInput
-        value={notifTitle}
-        onChangeText={setNotifTitle}
-        mode="outlined"
-        label="Title"
-        style={{height: 40, marginTop: 10}}
-      />
-      <TextInput
-        value={notifBody}
-        onChangeText={setNotifBody}
-        mode="outlined"
-        label="Body"
-        style={{height: 40, marginTop: 10}}
-      />
+      <Title>Send Push</Title>
+      <Subtitle>To: {user.name}</Subtitle>
+      <Subtitle>ID: {user.id}</Subtitle>
+      <View style={{height: 10}} />
+      <TitleField type="primary" label="Title" style={S.input} />
+      <BodyField type="primary" label="Body" style={S.input} />
       <View style={S.modalFooter}>
-        <Button onPress={nav.back}>Cancel</Button>
+        <Button type="tertiary" onPress={nav.back}>
+          Cancel
+        </Button>
         <Button
-          onPress={sendNotif}
-          loading={sendingNotif}
-          disabled={sendingNotif}
-          mode="contained"
-          dark={theme.dark}
-          style={{backgroundColor: theme.colors.primary}}>
+          onPress={onSend}
+          loading={sending}
+          disabled={isDisabled()}
+          type="primary">
           Send
         </Button>
       </View>
@@ -86,8 +61,7 @@ const S = StyleSheet.create({
   modal: {
     backgroundColor: 'white',
     padding: 20,
-    width: 500,
-    height: 250,
+    minWidth: 500,
     alignSelf: 'center',
     borderRadius: 7,
   },
@@ -96,6 +70,10 @@ const S = StyleSheet.create({
     justifyContent: 'flex-end',
     alignContent: 'center',
     marginTop: 20,
+  },
+  input: {
+    height: 40,
+    marginTop: 10,
   },
 });
 

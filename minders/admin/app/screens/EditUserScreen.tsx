@@ -1,22 +1,6 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- */
-
 import * as React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {
-  Button,
-  Checkbox,
-  List,
-  TextInput,
-  Title,
-  useTheme,
-} from 'react-native-paper';
+import {Checkbox, List, useTheme} from 'react-native-paper';
 import {
   Role,
   SYSTEM_ROLES,
@@ -24,27 +8,30 @@ import {
   UserRoles,
   requireLoggedInUser,
 } from '@toolkit/core/api/User';
-import {useUserMessaging} from '@toolkit/core/client/UserMessaging';
+import {CodedError} from '@toolkit/core/util/CodedError';
 import {useDataStore} from '@toolkit/data/DataStore';
 import {UserNotFoundError} from '@toolkit/tbd/CommonErrors';
+import {useTextInput} from '@toolkit/ui/UiHooks';
+import {useComponents} from '@toolkit/ui/components/Components';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
+import {useAction} from '@app/admin/../../npe-toolkit/lib/core/client/Action';
+import {useBackgroundStatus} from '@app/admin/../../npe-toolkit/lib/core/client/Status';
+import {useUpdateUserAndProfile} from '@app/common/AppLogic';
 import AllUsersScreen from './AllUsersScreen';
 
 type Props = {userId: string; async: {user: User}};
 const EditUserScreen: Screen<Props> = ({async: {user}}: Props) => {
-  const [name, setName] = React.useState(user.name);
+  const loggedInUser = requireLoggedInUser();
+  const [NameInput, name] = useTextInput(user.name);
   const [roles, setRoles] = React.useState(user.roles?.roles ?? []);
-
-  const [saving, setSaving] = React.useState(false);
-
+  const updateUserAndProfile = useUpdateUserAndProfile();
   const nav = useNav();
   const theme = useTheme();
-  const userStore = useDataStore(User);
   const rolesStore = useDataStore(UserRoles);
-  const {showError} = useUserMessaging();
-
-  const loggedInUser = requireLoggedInUser();
+  const {setError} = useBackgroundStatus();
+  const {Subtitle, Body, Button} = useComponents();
+  const [saveAction, saving] = useAction('SaveUser', save);
 
   const back = () => {
     if (nav.backOk()) {
@@ -64,23 +51,23 @@ const EditUserScreen: Screen<Props> = ({async: {user}}: Props) => {
     return nameChanged || rolesChanged;
   };
 
-  const save = async () => {
-    setSaving(true);
+  async function save() {
     await Promise.all([
-      rolesStore.update({id: user.id, roles}),
-      userStore.update({id: user.id, name, roles: {id: user.id}}),
+      // rolesStore.update({id: user.id, roles}),
+      updateUserAndProfile(user.id, {name}, {}),
     ]);
-    setSaving(false);
     back();
-  };
-
-  const nameChanged = (newName: string) => {
-    setName(newName);
-  };
+    nav.setParams({reload: true});
+  }
 
   const roleToggled = (role: Role) => {
-    if (loggedInUser.id === user.id && role === 'ADMIN') {
-      showError('You cannot remove your own admin permissions');
+    if (loggedInUser.id === user.id && role === 'admin') {
+      setError(
+        new CodedError(
+          'npe.adhoc',
+          'You cannot remove your own admin permissions',
+        ),
+      );
       return;
     }
 
@@ -108,14 +95,9 @@ const EditUserScreen: Screen<Props> = ({async: {user}}: Props) => {
 
   return (
     <View style={S.modal}>
-      <Title>Edit {user.name}</Title>
-      <TextInput
-        value={name}
-        onChangeText={nameChanged}
-        mode="outlined"
-        label="Name"
-        style={{height: 40, marginTop: 10, width: 450}}
-      />
+      <Subtitle>Edit {user.name}</Subtitle>
+      <Body>ID: {user.id}</Body>
+      <NameInput label="Name" type="primary" style={S.nameInput} />
       <List.Section>
         <List.Accordion
           title="Roles"
@@ -127,12 +109,11 @@ const EditUserScreen: Screen<Props> = ({async: {user}}: Props) => {
       <View style={S.modalFooter}>
         <Button onPress={back}>Cancel</Button>
         <Button
-          onPress={save}
+          onPress={saveAction}
           loading={saving}
           disabled={!hasUnsavedChanges() || saving}
-          mode="contained"
-          dark={theme.dark}
-          style={{backgroundColor: theme.colors.primary}}>
+          type="primary"
+          style={{marginLeft: 12}}>
           Save
         </Button>
       </View>
@@ -144,9 +125,7 @@ EditUserScreen.load = async ({userId}) => {
   const userStore = useDataStore(User);
   const user = await userStore.get(userId, {edges: [UserRoles]});
   if (user == null) {
-    throw UserNotFoundError(
-      `Couldn't find user with ID ${userId} for EditUserScreen`,
-    );
+    throw UserNotFoundError();
   }
 
   return {user};
@@ -168,6 +147,10 @@ const S = StyleSheet.create({
     justifyContent: 'flex-end',
     alignContent: 'center',
     marginTop: 20,
+  },
+  nameInput: {
+    marginTop: 10,
+    width: 450,
   },
 });
 

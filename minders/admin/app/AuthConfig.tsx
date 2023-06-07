@@ -1,24 +1,17 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- */
-
 import React from 'react';
 import firebase from 'firebase';
 import {Account} from '@toolkit/core/api/Auth';
-import {useUserMessaging} from '@toolkit/core/client/UserMessaging';
+import {useApi} from '@toolkit/core/api/DataApi';
+import {useBackgroundStatus} from '@toolkit/core/client/Status';
+import {useHasAdminRole} from '@toolkit/core/util/Access';
 import {FirebaseAuthService} from '@toolkit/providers/firebase/client/AuthService';
-import {useApi} from '@toolkit/providers/firebase/client/FunctionsApi';
 import {UnauthorizedError} from '@toolkit/tbd/CommonErrors';
-import {GET_USER} from '@app/common/Api';
+import {GetUser} from '@app/common/Api';
+import {LoginUserInfo} from '@app/common/AppLogic';
 
 export default function AuthConfig(props: {children?: React.ReactNode}) {
-  const getUser = useApi(GET_USER);
-  const msg = useUserMessaging();
+  const getUser = useApi(GetUser);
+  const hasAdminRole = useHasAdminRole();
 
   /**
    * Use this method to create an instance of your app's user when they log in.
@@ -27,26 +20,16 @@ export default function AuthConfig(props: {children?: React.ReactNode}) {
     account: Account,
     firebaseAccount: firebase.User,
   ) => {
-    if (
-      firebaseAccount == null ||
-      firebaseAccount.uid !== account.id ||
-      (firebaseAccount.email == null && firebaseAccount.phoneNumber == null)
-    ) {
-      throw Error('Invalid account for login');
-    }
+    throwIfInvalidAccount(firebaseAccount, account.id);
+    const loginInfo = loginFields(firebaseAccount);
+    const isAdmin = await hasAdminRole();
 
-    const user = await getUser();
-    // If the user doesn't have roles set or if the user isn't an admin or dev, reject login
-    if (
-      user.roles == null ||
-      !(user.roles.roles.includes('ADMIN') || user.roles.roles.includes('DEV'))
-    ) {
-      const err = UnauthorizedError(
-        "User's roles do not match any allowed roles for this function",
-      );
-      msg.showError(err);
-      throw err;
+    // Note: Server checks will also fail if user is not an admin.
+    // This a just a nice error message vs. trying to render the admin panel
+    if (!isAdmin) {
+      throw UnauthorizedError();
     }
+    const user = await getUser(loginInfo);
 
     return user;
   };
@@ -56,4 +39,26 @@ export default function AuthConfig(props: {children?: React.ReactNode}) {
       {props.children}
     </FirebaseAuthService>
   );
+}
+
+function throwIfInvalidAccount(
+  firebaseAccount: firebase.User,
+  expectedId: string,
+) {
+  if (
+    firebaseAccount.uid !== expectedId ||
+    (firebaseAccount.email == null && firebaseAccount.phoneNumber == null)
+  ) {
+    throw Error('Invalid account for login');
+  }
+}
+
+function loginFields(firebaseAccount: firebase.User): LoginUserInfo {
+  return {
+    uid: firebaseAccount.uid,
+    displayName: firebaseAccount.displayName,
+    email: firebaseAccount.email,
+    phoneNumber: firebaseAccount.phoneNumber,
+    photoURL: firebaseAccount.photoURL,
+  };
 }
