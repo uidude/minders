@@ -288,7 +288,6 @@ function StandardHeader(props: LayoutProps) {
 function MinderListHeader(props: LayoutProps) {
   const {view, top: topId} = useMinderListParams();
   const nav = useNav();
-  const {setError} = useStatus();
 
   const {
     location: {screen},
@@ -309,35 +308,32 @@ function MinderListHeader(props: LayoutProps) {
 
   return (
     <View style={S.minderTop}>
-      <View style={[S.row, {flexShrink: 1}]}>
-        <TriState>
-          <View style={{flexShrink: 1, overflow: 'hidden'}}>
-            <TopPicker style={S.title} topId={topId} />
-          </View>
-          <Text style={S.title}>{' > '}</Text>
-          <ActionMenu
-            items={viewMenuActions}
-            anchor={onPress => (
-              <EnumTextButton
-                enums={ViewMenuItems}
-                value={view}
-                style={S.title}
-                onPress={onPress}
-              />
-            )}
-          />
-          {showCount && <MinderCount view={view} topId={topId} />}
-        </TriState>
-      </View>
-      <View style={S.row}>
-        {!isTop && <TopAction action={Home} />}
+      <TriState>
+        <View style={{flexShrink: 1, overflow: 'hidden'}}>
+          <TopPicker style={S.title} topId={topId} />
+        </View>
+        <Text style={S.title}>{' > '}</Text>
         <ActionMenu
-          items={actionMenuItems}
+          items={viewMenuActions}
           anchor={onPress => (
-            <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
+            <EnumTextButton
+              enums={ViewMenuItems}
+              value={view}
+              style={S.title}
+              onPress={onPress}
+            />
           )}
         />
-      </View>
+        {showCount && <MinderCount view={view} topId={topId} />}
+      </TriState>
+      <View style={{flexGrow: 1}} />
+      {!isTop && <TopAction action={Home} />}
+      <ActionMenu
+        items={actionMenuItems}
+        anchor={onPress => (
+          <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
+        )}
+      />
     </View>
   );
 }
@@ -489,10 +485,13 @@ const S = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'red',
   },
   title: {
     color: '#FFF',
