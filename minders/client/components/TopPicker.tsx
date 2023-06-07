@@ -78,7 +78,7 @@ const TopPicker = (props: Props) => {
 
   function select(project: MinderProject) {
     setMenuVisible(false);
-    nav.setParams({top: project.id.replace(':', '>')});
+    nav.setParams({top: project.id.replace(':', '>'), view: 'focus'});
   }
 
   function projectIdFor(index: number) {
