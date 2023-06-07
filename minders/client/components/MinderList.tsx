@@ -50,11 +50,6 @@ export function MinderList(props: Props) {
 
   setPageTitle(project.name);
 
-  /*
-    TODO:
-    - Get better keepOrder logic than previously, so it works in list view
-  */
-
   if (minders.length === 0) {
     return <NoChildren project={project} filter={filter} />;
   }

@@ -424,14 +424,8 @@ export type MinderUiState = {
   /** Current view */
   view?: MinderView;
 
-  /** Current visibility filter, calculated from `view` */
-  filter?: MinderFilter;
-
   /** The currently focused minder - only children of this minder are show */
   top?: string;
-
-  /** The current project */
-  project?: string;
 };
 
 function parseJsonOr<T>(value: Opt<string>, defaultValue: T): T {

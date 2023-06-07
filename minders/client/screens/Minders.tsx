@@ -4,7 +4,13 @@ import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {DataOp} from '@toolkit/data/DataCache';
 import {useListen} from '@toolkit/data/DataStore';
 import {Screen} from '@toolkit/ui/screen/Screen';
-import {Filters, MinderView, filterFor} from '@app/AppLayout';
+import {
+  Filters,
+  MinderView,
+  filterFor,
+  getSavedUiState,
+  saveLatestUiState,
+} from '@app/AppLayout';
 import {
   Minder,
   MinderFilter,
@@ -73,11 +79,24 @@ type Props = {
 };
 
 const Minders: Screen<Props> = withLoad(props => {
-  const {view = 'focus'} = props;
+  const {view = 'focus', top} = props;
+
+  React.useEffect(() => {
+    saveUiState();
+  }, [view, top]);
+  saveLatestUiState;
+
   if (view === 'outline' || view === 'outlineall') {
     return <MinderOutlineList {...props} />;
   }
   return <MinderList {...props} />;
+
+  async function saveUiState() {
+    const uiState = await getSavedUiState();
+    if (uiState?.top !== top || uiState?.view !== view) {
+      await saveLatestUiState({top, view});
+    }
+  }
 });
 
 const MinderOutlineList: Screen<Props> = props => {

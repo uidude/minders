@@ -28,13 +28,14 @@ const Redirector: Screen<Props> = withLoad(props => {
   async function getTopAndView() {
     let uiState = await getSavedUiState();
     const view = uiState?.view ?? 'focus';
-    let projectId = uiState?.project;
-    if (projectId == null) {
+    let top = uiState?.top;
+    if (top == null) {
       const projects = await minderStore.getProjects();
-      projectId = projects[0].id;
+      top = projects[0].id;
+      console.log('new top', top);
     }
 
-    const top = projectId.replace(':', '>');
+    top = top.replace(':', '>');
 
     return {top, view};
   }
