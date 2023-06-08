@@ -11,9 +11,11 @@ import * as React from 'react';
 import {
   ActivityIndicator,
   StyleProp,
+  StyleSheet,
   Text,
   TextStyle,
   TouchableHighlight,
+  View,
   ViewStyle,
 } from 'react-native';
 import {unstable_batchedUpdates} from 'react-dom';
@@ -135,21 +137,49 @@ export function EnumIconButton<T>(props: EnumIconButtonProps<T>) {
   );
 }
 
-export type EnumTextButtonProps<T> = {
+export type EnumButtonProps<T> = {
   value?: T;
   enums: EnumConfig<T>;
   style?: StyleProp<TextStyle>;
   onPress: () => void;
+  showIcon?: boolean;
+  showText?: boolean;
+  size?: number;
+  color?: string;
+  iconStyle?: StyleProp<ViewStyle>;
 };
 
-export function EnumTextButton<T>(props: EnumTextButtonProps<T>) {
-  const {enums, style, onPress} = props;
+export function EnumTextButton<T>(props: EnumButtonProps<T>) {
+  const {enums, style, onPress, size, color} = props;
+  const {showIcon = true, showText = true, iconStyle} = props;
   /* @ts-ignore */
   const enumValue: T = props.value || enums.keys().next.value;
 
   return (
-    <TouchableHighlight onPress={onPress}>
-      <Text style={style}>{enums.get(enumValue)?.label}</Text>
+    <TouchableHighlight style={S.button} onPress={onPress}>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        {showIcon && (
+          <IconButton
+            /* @ts-ignore */
+            icon={enums.get(enumValue)?.icon}
+            accessibilityLabel={enums.get(enumValue)?.label}
+            style={iconStyle}
+            onPress={onPress}
+            size={size}
+            color={color}
+          />
+        )}
+        {showText && <Text style={style}>{enums.get(enumValue)?.label}</Text>}
+      </View>
     </TouchableHighlight>
   );
 }
+
+const S = StyleSheet.create({
+  button: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+});

@@ -38,15 +38,15 @@ import {
 import {ActionButton} from '@app/components/ActionButton';
 import ActionFAB from '@app/components/ActionFAB';
 import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
-import {NewItem, useGlobalActions} from '@app/components/Actions';
+import {useGlobalActions} from '@app/components/Actions';
 import TopPicker from '@app/components/TopPicker';
-import {useLoad, useWithLoad, withLoad} from '@app/util/UseLoad';
+import {useLoad, withLoad} from '@app/util/UseLoad';
 import LoginScreen from './screens/LoginScreen';
 import Minders from './screens/Minders';
 import Redirector from './screens/Redirector';
 import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
 import {useMinderListParams} from './util/UiUtil';
-import {useDontAnimate, useSetPageTitle} from './util/Useful';
+import {useDontAnimate} from './util/Useful';
 
 export const Filters: EnumConfig<MinderFilter> = new Map([
   /*['top', { icon: 'star-outline', label: 'Starred' }],*/
@@ -288,17 +288,15 @@ function StandardHeader(props: LayoutProps) {
 function MinderListHeader(props: LayoutProps) {
   const {view, top: topId} = useMinderListParams();
   const nav = useNav();
+  const mobileLayout = isMobile();
 
   const {
     location: {screen},
   } = useNavState();
   const {Collapse, Expand, Home, Settings, Import, Up} = useGlobalActions();
 
-  // TODO: Set isTop
-  const isTop = false;
-
   // TODO: Filter out up when at project level
-  const actionMenuItems = [Up, Expand, Collapse, Import, Settings];
+  const actionMenuItems = [Up, Expand, Collapse, Import, Settings, Home];
   const showCount = screen === Minders;
 
   const viewMenuActions = enumActions(ViewMenuItems, value => {
@@ -308,26 +306,29 @@ function MinderListHeader(props: LayoutProps) {
 
   return (
     <View style={S.minderTop}>
-      <TriState>
+      <TriState loadingView={Empty} errorView={Empty}>
         <View style={{flexShrink: 1, overflow: 'hidden'}}>
           <TopPicker style={S.title} topId={topId} />
         </View>
-        <Text style={S.title}>{' > '}</Text>
+        {showCount && <MinderCount view={view} topId={topId} />}
+      </TriState>
+      <View style={{flexGrow: 1, flexBasis: 8}} />
+      <View>
         <ActionMenu
           items={viewMenuActions}
           anchor={onPress => (
             <EnumTextButton
               enums={ViewMenuItems}
               value={view}
-              style={S.title}
+              style={[S.title, S.stateText]}
               onPress={onPress}
+              iconStyle={S.stateIcon}
+              color="#FFF"
+              showText={!mobileLayout}
             />
           )}
         />
-        {showCount && <MinderCount view={view} topId={topId} />}
-      </TriState>
-      <View style={{flexGrow: 1}} />
-      {!isTop && <TopAction action={Home} />}
+      </View>
       <ActionMenu
         items={actionMenuItems}
         anchor={onPress => (
@@ -498,6 +499,15 @@ const S = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 20,
     marginBottom: 3,
+  },
+  stateText: {
+    paddingRight: 10,
+    marginRight: 1,
+  },
+  stateIcon: {
+    opacity: 1,
+    marginHorizontal: 3,
+    marginVertical: 0,
   },
   grow: {
     flexBasis: 200,
