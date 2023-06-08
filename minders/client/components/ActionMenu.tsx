@@ -9,7 +9,7 @@ import {Shortcut, useShortcuts} from '@app/util/Shortcuts';
 import {ActionItemWithShortcut} from './Actions';
 import {IconButton, Menu} from './AppComponents';
 
-type Trigger = (onPress: () => void) => React.ReactNode;
+type Anchor = (showMenu: () => void) => React.ReactNode;
 
 export function VerticalDots(props: {
   size?: number;
@@ -30,7 +30,7 @@ export function VerticalDots(props: {
   );
 }
 
-export function ActionMenu(props: {items: Array<ActionItem>; anchor: Trigger}) {
+export function ActionMenu(props: {items: Array<ActionItem>; anchor: Anchor}) {
   const key = props.items.map(item => item.id).join(',');
 
   // By providing a different key based on menu items, this ensures that
@@ -40,7 +40,7 @@ export function ActionMenu(props: {items: Array<ActionItem>; anchor: Trigger}) {
 
 function ActionMenuImpl(props: {
   items: Array<ActionItemWithShortcut>;
-  anchor: Trigger;
+  anchor: Anchor;
 }) {
   const {items, anchor} = props;
   const handlers = items.map(item => {
