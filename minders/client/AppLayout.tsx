@@ -506,7 +506,7 @@ const S = StyleSheet.create({
   stateIcon: {
     opacity: 1,
     marginHorizontal: 3,
-    marginVertical: 0,
+    marginVertical: -2,
   },
   grow: {
     flexBasis: 200,

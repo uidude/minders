@@ -178,7 +178,7 @@ export function EnumTextButton<T>(props: EnumButtonProps<T>) {
 const S = StyleSheet.create({
   button: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
   },
