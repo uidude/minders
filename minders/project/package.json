@@ -12,7 +12,7 @@
     "build:android": "npx -p eas-cli@latest eas build -p android -e sim",
     "admin": "CLIENT=admin expo start --web",
     "build:admin": "CLIENT=admin expo export:web",
-    "eas-build-pre-install": "git clone https://github.com/uidude/minders-toolkit ../../npe-toolkit && ls ../../npe-toolkit"
+    "eas-build-pre-install": "git clone https://github.com/npe-toolkit/npe-toolkit ../../npe-toolkit && ls ../../npe-toolkit"
   },
   "dependencies": {
     "//": "After here are copied from shell/latest",
