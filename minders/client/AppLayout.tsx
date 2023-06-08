@@ -310,10 +310,7 @@ function MinderListHeader(props: LayoutProps) {
         <View style={{flexShrink: 1, overflow: 'hidden'}}>
           <TopPicker style={S.title} topId={topId} />
         </View>
-        {showCount && <MinderCount view={view} topId={topId} />}
-      </TriState>
-      <View style={{flexGrow: 1, flexBasis: 8}} />
-      <View>
+        <View style={{flexGrow: 1, flexBasis: 8}} />
         <ActionMenu
           items={viewMenuActions}
           anchor={onPress => (
@@ -328,13 +325,14 @@ function MinderListHeader(props: LayoutProps) {
             />
           )}
         />
-      </View>
-      <ActionMenu
-        items={actionMenuItems}
-        anchor={onPress => (
-          <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
-        )}
-      />
+        {showCount && <MinderCount view={view} topId={topId} />}
+        <ActionMenu
+          items={actionMenuItems}
+          anchor={onPress => (
+            <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
+          )}
+        />
+      </TriState>
     </View>
   );
 }
