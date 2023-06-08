@@ -20,11 +20,10 @@ import {Appbar} from 'react-native-paper';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {canLoggingInFix} from '@toolkit/core/api/Auth';
 import {ActionItem} from '@toolkit/core/client/Action';
-import {useStatus} from '@toolkit/core/client/Status';
 import TriState from '@toolkit/core/client/TriState';
 import {Opt} from '@toolkit/core/util/Types';
 import {DataOp} from '@toolkit/data/DataCache';
-import {useListen} from '@toolkit/data/DataStore';
+import {useListen} from '@toolkit/data/Subscribe';
 import {IconButton} from '@toolkit/ui/layout/LayoutBlocks';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
@@ -343,10 +342,8 @@ const MinderCount = withLoad((props: MinderCountProps) => {
   const {view, topId} = props;
   const minderStore = useMinderStore();
   const filter = filterFor(view);
-  const {minderIds, setData} = useLoad(props, load);
+  const {minderIds} = useLoad(props, load);
   const [ids, setIds] = React.useState<string[]>(minderIds);
-  const waitingForLoad = React.useRef(false);
-  const lastLoad = React.useRef(0);
 
   useListen(Minder, '*', async (id: string, op: DataOp) => {
     const exists = ids.indexOf(id) !== -1;
@@ -360,10 +357,14 @@ const MinderCount = withLoad((props: MinderCountProps) => {
     }
   });
 
+  const margin = Platform.OS === 'android' ? {marginTop: -2} : {};
+
   return (
     <>
       <View style={S.badge}>
-        <Text style={{fontSize: 14, color: '#FFF'}}>{ids.length}</Text>
+        <Text style={[margin, {fontSize: 14, color: '#FFF'}]}>
+          {ids.length}
+        </Text>
       </View>
     </>
   );
