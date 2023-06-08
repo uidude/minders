@@ -9,7 +9,8 @@ import {
   TextStyle,
 } from 'react-native';
 import {Opt} from '@toolkit/core/util/Types';
-import {Updater, useDataListen} from '@toolkit/data/DataStore';
+import {Updater} from '@toolkit/data/DataStore';
+import {useDataListen} from '@toolkit/data/Subscribe';
 import {Minder, MinderProject, useMinderStore} from '@app/common/MinderApi';
 import {
   getSelection,

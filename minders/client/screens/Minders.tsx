@@ -2,7 +2,7 @@ import React from 'react';
 import {Text, View} from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {DataOp} from '@toolkit/data/DataCache';
-import {useListen} from '@toolkit/data/DataStore';
+import {useListen} from '@toolkit/data/Subscribe';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {
   Filters,

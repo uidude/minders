@@ -197,8 +197,8 @@ export function useMinderStore(ctx?: MinderStoreContext) {
 
   async function getProjects() {
     // TOOD: Project sorting
-    let projects = await projectStore.getMany({
-      query: {where: [{field: 'owner', op: '==', value: user.id}]},
+    let projects = await projectStore.query({
+      where: [{field: 'owner', op: '==', value: user.id}],
     });
     return projects;
   }
@@ -250,17 +250,15 @@ export function useMinderStore(ctx?: MinderStoreContext) {
   async function getProject(id: string) {
     const [project, minders] = await Promise.all([
       projectStore.get(id),
-      minderStore.getMany({
-        query: {
-          where: [
-            {field: 'project', op: '==', value: id},
-            {
-              field: 'updatedAt',
-              op: '>',
-              value: Date.now() - THREE_MONTHS_IN_MSEC,
-            },
-          ],
-        },
+      minderStore.query({
+        where: [
+          {field: 'project', op: '==', value: id},
+          {
+            field: 'updatedAt',
+            op: '>',
+            value: Date.now() - THREE_MONTHS_IN_MSEC,
+          },
+        ],
       }),
     ]);
 

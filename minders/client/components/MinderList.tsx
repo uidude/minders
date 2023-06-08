@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {DataOp} from '@toolkit/data/DataCache';
-import {useListen} from '@toolkit/data/DataStore';
+import {useListen} from '@toolkit/data/Subscribe';
 import {Filters, MinderView, filterFor} from '@app/AppLayout';
 import {
   Minder,
@@ -76,9 +76,11 @@ export function MinderList(props: Props) {
   );
 
   async function load() {
+    const t0 = Date.now();
     const {project, top} = await minderStore.getAll(topId);
     top.children.sort(minderSort);
     const minders = flatList(top.children, filter).sort(minderSort);
+    console.log('load', Date.now() - t0);
     return {project, minders, top};
   }
 

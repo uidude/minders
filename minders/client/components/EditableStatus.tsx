@@ -5,7 +5,7 @@
 import React from 'react';
 import {StyleProp, View, ViewStyle} from 'react-native';
 import {useAction} from '@toolkit/core/client/Action';
-import {useDataListen} from '@toolkit/data/DataStore';
+import {useDataListen} from '@toolkit/data/Subscribe';
 import {Minder, OutlineItemState, useMinderStore} from '@app/common/MinderApi';
 import {EnumConfig, EnumIconButton, EnumMenu} from '../util/Enum';
 
