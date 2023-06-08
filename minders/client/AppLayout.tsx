@@ -50,12 +50,9 @@ import {useDontAnimate} from './util/Useful';
 export const Filters: EnumConfig<MinderFilter> = new Map([
   /*['top', { icon: 'star-outline', label: 'Starred' }],*/
   ['focus', {icon: 'eye-outline', label: 'In Focus', key: 'f'}],
-  ['review', {icon: 'timer', label: 'To review', key: 'r'}],
+  ['review', {icon: 'timer', label: 'To Review', key: 'r'}],
   /*['soon', { icon: 'timelapse', label: 'Soon' }], */
-  [
-    'pile',
-    {icon: 'checkbox-multiple-blank-outline', label: 'The pile', key: 'p'},
-  ],
+  ['pile', {icon: 'checkbox-multiple-blank-outline', label: 'Pile', key: 'p'}],
   /* ['all', {icon: 'earth', label: 'All', key: 'a'}],*/
   ['waiting', {icon: 'timer-sand-empty', label: 'Waiting', key: 'w'}],
   ['done', {icon: 'check-circle-outline', label: 'Done', key: 'd'}],
@@ -91,13 +88,13 @@ export function filterFor(view: MinderView): MinderFilter {
 
 export const ViewMenuItems: EnumConfig<MinderView> = new Map([
   ['focus', {icon: 'eye-outline', label: 'In Focus', key: 'f'}],
-  ['review', {icon: 'timer', label: 'To review', key: 'r'}],
-  [
-    'pile',
-    {icon: 'checkbox-multiple-blank-outline', label: 'The pile', key: 'p'},
-  ],
+  ['review', {icon: 'timer', label: 'To Review', key: 'r'}],
   ['waiting', {icon: 'timer-sand-empty', label: 'Waiting', key: 'w'}],
   ['done', {icon: 'check-circle-outline', label: 'Done', key: 'd'}],
+  [
+    'pile',
+    {icon: 'checkbox-multiple-blank-outline', label: 'The Pile', key: 'p'},
+  ],
 ]);
 
 // Outline enabled only in dev until working smoothly
@@ -502,6 +499,7 @@ const S = StyleSheet.create({
   stateText: {
     paddingRight: 10,
     marginRight: 1,
+    fontSize: 16,
   },
   stateIcon: {
     opacity: 1,
