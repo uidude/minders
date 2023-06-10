@@ -115,7 +115,7 @@ export function MinderTextInput(props: Props) {
     }
 
     // Note: We don't have to update the previous minder - this will occur onBlur()
-    // and doing it hear can create an update race condition
+    // and doing it here can create an update race condition
     await minderStore.create(fields, {optimistic: true});
   }
 
@@ -190,6 +190,7 @@ export function MinderTextInput(props: Props) {
     }
     setActive(false);
     const trimmed = value.trim();
+    lastTextEdit.current = Date.now();
     await save(trimmed);
   }
 
