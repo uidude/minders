@@ -163,12 +163,15 @@ export default function Layout(props: LayoutProps) {
     return false;
   }
 
-  const borderRadius = isMobile() || width < 800 ? 0 : 24;
+  const border =
+    isMobile() || width < 800
+      ? {borderRadius: 0, borderWidth: 0}
+      : {borderRadius: 24, borderWidth: 1};
 
   if (navType === 'modal') {
     // Modal views are just the content: No SafeAreaView, Header, or Tabs
     return (
-      <View style={[S.top, {borderRadius, maxHeight}]}>
+      <View style={[S.top, border, {maxHeight}]}>
         {navStyle == 'full' && <Header title={title} />}
         <ScrollView
           style={S.scroll}
@@ -185,7 +188,7 @@ export default function Layout(props: LayoutProps) {
   }
 
   return (
-    <SafeAreaView style={[S.top, {borderRadius, maxHeight}]}>
+    <SafeAreaView style={[S.top, border, {maxHeight}]}>
       <StatusBar backgroundColor="#123" barStyle="light-content" />
       <KeyboardAvoidingView
         style={{flex: 1}}
@@ -546,8 +549,7 @@ const S = StyleSheet.create({
     flex: 1,
     alignSelf: 'stretch',
     backgroundColor: '#123',
-    shadowColor: '#C0C0C0',
-    shadowRadius: 4,
+    borderColor: 'rgba(255,255,255,0.2)',
     overflow: 'hidden',
   },
 });
