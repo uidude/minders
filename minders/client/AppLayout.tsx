@@ -370,7 +370,7 @@ const MinderCount = withLoad((props: MinderCountProps) => {
   );
 
   async function load(): Promise<{minderIds: string[]}> {
-    const {top} = await minderStore.getAll(topId);
+    const {top} = await minderStore.getAll(topId, filter);
     // TODO: More efficient logic
     const matching = flatList(top.children, filter);
 

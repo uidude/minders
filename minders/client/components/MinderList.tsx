@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {DataOp} from '@toolkit/data/DataCache';
+import {useDataStore} from '@toolkit/data/DataStore';
 import {useListen} from '@toolkit/data/Subscribe';
 import {Filters, MinderView, filterFor} from '@app/AppLayout';
 import {
@@ -30,7 +31,7 @@ import {EditableStatus} from '@app/components/EditableStatus';
 import {MinderTextInput} from '@app/components/MinderTextInput';
 import {requestSelect} from '@app/model/TextSelect';
 import {useLoad} from '@app/util/UseLoad';
-import {useSetPageTitle} from '@app/util/Useful';
+import {timelog, useSetPageTitle} from '@app/util/Useful';
 
 type Props = {
   top: string;
@@ -42,6 +43,7 @@ export function MinderList(props: Props) {
   const {view, top: topId} = props;
   const minderStore = useMinderStore();
   const filter = filterFor(view);
+  const minderStore2 = useDataStore(Minder);
   const {project, top, minders, setData} = useLoad(props, load);
   const {removeAnimation, animatedStyles} = useMinderRemoveAnimation();
   const setPageTitle = useSetPageTitle();
@@ -77,7 +79,7 @@ export function MinderList(props: Props) {
 
   async function load() {
     const t0 = Date.now();
-    const {project, top} = await minderStore.getAll(topId);
+    const {project, top} = await minderStore.getAll(topId, filter);
     top.children.sort(minderSort);
     const minders = flatList(top.children, filter).sort(minderSort);
     console.log('load', Date.now() - t0);

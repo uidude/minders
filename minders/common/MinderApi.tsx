@@ -17,6 +17,7 @@ import {
   MutateOpts,
   TString,
   Updater,
+  Where,
   useDataStore,
 } from '@toolkit/data/DataStore';
 import {
@@ -214,6 +215,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
    */
   async function getAll(
     topId: string,
+    filter?: MinderFilter,
   ): Promise<{top: Top; project: MinderProject}> {
     let project, minders, top: Top;
     topId = topId.replace('>', ':');
@@ -224,7 +226,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
         'Minder not found',
       );
 
-      project = (await getProject(minder.project!.id))!;
+      project = (await getProject(minder.project!.id, filter))!;
       minders = project!.minders!;
       const minderInProject: Minder = minders.find(m => m.id === topId)!;
       top = {
@@ -234,7 +236,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
         children: minderInProject.children!,
       };
     } else {
-      project = nonNull(await getProject(topId), 'Project not found');
+      project = nonNull(await getProject(topId, filter), 'Project not found');
       top = {
         type: 'project',
         id: topId,
@@ -246,19 +248,18 @@ export function useMinderStore(ctx?: MinderStoreContext) {
     return {top, project};
   }
 
-  const THREE_MONTHS_IN_MSEC = 90 * 24 * 60 * 60 * 1000;
-  async function getProject(id: string) {
+  async function getProject(id: string, filter?: MinderFilter) {
+    const where: Where[] = [{field: 'project', op: '==', value: id}];
+    if (filter) {
+      where.push({field: 'state', op: 'in', value: STATE_VISIBILITY[filter]});
+    }
+
     const [project, minders] = await Promise.all([
       projectStore.get(id),
       minderStore.query({
-        where: [
-          {field: 'project', op: '==', value: id},
-          {
-            field: 'updatedAt',
-            op: '>',
-            value: Date.now() - THREE_MONTHS_IN_MSEC,
-          },
-        ],
+        where,
+        limit: {size: 5000},
+        order: [{field: 'updatedAt', dir: 'asc'}],
       }),
     ]);
 
