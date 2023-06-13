@@ -29,7 +29,6 @@ import EditProfile from './screens/EditProfile';
 import Minders from './screens/Minders';
 import Onboarding from './screens/Onboarding';
 import Projects from './screens/Projects';
-import Redirector from './screens/Redirector';
 import {ShortcutTool} from './util/Shortcuts';
 import {UsingUiTools} from './util/UiTools';
 
@@ -75,7 +74,6 @@ const ROUTES: Routes = {
   Onboarding,
   EditProfile,
   Projects,
-  Redirector,
 };
 const Stack = createStackNavigator();
 
@@ -89,7 +87,7 @@ export default function App() {
         presentation: Platform.OS === 'web' ? 'transparentModal' : 'modal',
       },
       top: {animationEnabled: false},
-      std: {animationEnabled: false},
+      std: {},
     },
   );
 
