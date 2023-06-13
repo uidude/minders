@@ -3,7 +3,13 @@
  */
 
 import * as React from 'react';
-import {StyleProp, Text, TextStyle, TouchableHighlight} from 'react-native';
+import {
+  StyleProp,
+  StyleSheet,
+  Text,
+  TextStyle,
+  TouchableHighlight,
+} from 'react-native';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {MinderProject, useMinderStore} from '@app/common/MinderApi';
 import {useLoad, withLoad} from '@app/util/UseLoad';
@@ -31,7 +37,9 @@ const TopPicker = (props: Props) => {
       visible={menuVisible}
       onDismiss={() => setMenuVisible(false)}
       anchor={
-        <TouchableHighlight onPress={() => setMenuVisible(true)}>
+        <TouchableHighlight
+          style={S.touchable}
+          onPress={() => setMenuVisible(true)}>
           <Text style={style} numberOfLines={1}>
             {title}
           </Text>
@@ -90,4 +98,10 @@ const TopPicker = (props: Props) => {
   }
 };
 
+const S = StyleSheet.create({
+  touchable: {
+    height: '100%',
+    justifyContent: 'center',
+  },
+});
 export default withLoad(TopPicker);
