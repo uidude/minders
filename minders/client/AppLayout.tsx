@@ -174,7 +174,7 @@ export default function Layout(props: LayoutProps) {
       <View style={[S.top, border, {maxHeight}]}>
         {navStyle == 'full' && <Header title={title} />}
         <ScrollView
-          style={S.scroll}
+          style={S.main}
           contentContainerStyle={[
             S.modalContent,
             {marginBottom: insets.bottom},
@@ -203,11 +203,11 @@ export default function Layout(props: LayoutProps) {
             )}
           </TriState>
         )}
-        <ScrollView style={S.scroll} contentContainerStyle={S.content}>
+        <View style={S.main}>
           <TriState key={key} onError={onError} loadingView={loadingView}>
             <View style={{flex: 1}}>{children}</View>
           </TriState>
-        </ScrollView>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -306,23 +306,31 @@ function MinderListHeader(props: LayoutProps) {
   return (
     <View style={S.minderTop}>
       <TriState loadingView={Empty} errorView={Empty}>
-        <View style={{flexShrink: 1, overflow: 'hidden'}}>
+        <View
+          style={{
+            flexShrink: 1,
+            flexGrow: 1,
+            flexBasis: 20,
+            overflow: 'hidden',
+          }}>
           <TopPicker style={S.title} topId={topId} />
         </View>
-        <View style={{flexGrow: 1, flexBasis: 8}} />
         <ActionMenu
           items={viewMenuActions}
-          anchor={onPress => (
-            <EnumTextButton
-              enums={ViewMenuItems}
-              value={view}
-              style={[S.title, S.stateText]}
-              onPress={onPress}
-              iconStyle={S.stateIcon}
-              color="#FFF"
-              showText={!mobileLayout}
-            />
-          )}
+          anchor={onPress => {
+            console.log('etb');
+            return (
+              <EnumTextButton
+                enums={ViewMenuItems}
+                value={view}
+                style={[S.title, S.stateText]}
+                onPress={onPress}
+                iconStyle={S.stateIcon}
+                color="#FFF"
+                showText={!mobileLayout}
+              />
+            );
+          }}
         />
         {showCount && <MinderCount view={view} topId={topId} />}
         <ActionMenu
@@ -357,14 +365,17 @@ const MinderCount = withLoad((props: MinderCountProps) => {
     }
   });
 
-  const margin = Platform.OS === 'android' ? {marginTop: -2} : {};
+  const count = ids.length;
+  const fontSize = count > 1000 ? 11 : 14;
+  let marginTop = count > 1000 ? 2 : 0;
+  if (Platform.OS === 'android') {
+    marginTop -= 2;
+  }
 
   return (
     <>
       <View style={S.badge}>
-        <Text style={[margin, {fontSize: 14, color: '#FFF'}]}>
-          {ids.length}
-        </Text>
+        <Text style={{fontSize, marginTop, color: '#FFF'}}>{count}</Text>
       </View>
     </>
   );
@@ -461,10 +472,11 @@ const S = StyleSheet.create({
     height: 500,
     backgroundColor: '#FFF',
   },
-  scroll: {
+  main: {
     backgroundColor: '#FFF',
     borderBottomWidth: isMobile() ? 1 : 0,
     borderColor: '#385078',
+    flex: 1,
   },
   content: {
     flexGrow: 1,

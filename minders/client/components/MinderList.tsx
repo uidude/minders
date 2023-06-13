@@ -1,6 +1,8 @@
 import React from 'react';
 import {
   Animated,
+  FlatList,
+  LayoutChangeEvent,
   Platform,
   StyleProp,
   StyleSheet,
@@ -9,6 +11,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
+import {Opt} from '@toolkit/core/util/Types';
 import {DataOp} from '@toolkit/data/DataCache';
 import {useDataStore} from '@toolkit/data/DataStore';
 import {useListen} from '@toolkit/data/Subscribe';
@@ -47,6 +50,7 @@ export function MinderList(props: Props) {
   const {project, top, minders, setData} = useLoad(props, load);
   const {removeAnimation, animatedStyles} = useMinderRemoveAnimation();
   const setPageTitle = useSetPageTitle();
+  const [itemHeight, setItemHeight] = React.useState(49);
 
   useListen(Minder, '*', onMinderChange);
 
@@ -60,21 +64,37 @@ export function MinderList(props: Props) {
     return animatedStyles[id] ?? {};
   }
 
+  function getItemLayout(_: Opt<Minder[]>, index: number) {
+    return {length: itemHeight, offset: itemHeight * index, index};
+  }
+
+  function checkItemHeight(e: LayoutChangeEvent, idx: number) {
+    // Only resize based on first list item
+    if (idx === 0) {
+      setItemHeight(e.nativeEvent.layout.height);
+    }
+  }
+
   return (
-    <View>
-      {minders.map((minder, idx) => (
-        <Animated.View key={minder.id} style={animtedStyleFor(minder.id)}>
+    <FlatList
+      data={minders}
+      initialNumToRender={100}
+      getItemLayout={getItemLayout}
+      renderItem={({item: minder, index}) => (
+        <Animated.View
+          onLayout={e => checkItemHeight(e, index)}
+          style={animtedStyleFor(minder.id)}>
           <MinderListItem
             minder={minder}
             project={project}
             parents={parentsOf(minder)}
-            prev={minders[idx - 1]}
-            style={idx % 2 == 1 && S.odd}
+            prev={minders[index - 1]}
+            style={index % 2 == 1 && S.odd}
             top={top}
           />
         </Animated.View>
-      ))}
-    </View>
+      )}
+    />
   );
 
   async function load() {
@@ -137,10 +157,6 @@ type MinderListItemProps = {
 
 function MinderListItem(props: MinderListItemProps) {
   const {minder, project, parents, prev, style, top} = props;
-  const minderStore = useMinderStore();
-  // const outliner = useOutliner();
-  // OutlineUtil.useRedrawOnItemUpdate(item.id);
-  //useWatchData(Minder, [minder.id]);
   const {Snooze, Bump, Mover, Delete} = useMinderActions(minder);
 
   return (
