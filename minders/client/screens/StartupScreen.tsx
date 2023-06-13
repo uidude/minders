@@ -6,9 +6,9 @@ import {useAuth} from '@toolkit/core/api/Auth';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {FIREBASE_CONFIG} from '@app/common/Config';
+import Minders from '@app/screens/Minders';
 import {useDontAnimate} from '@app/util/Useful';
 import LoginScreen from './LoginScreen';
-import Redirector from './Redirector';
 
 /**
  * Checks that new apps have been initiatlized sufficiently so that they can run.
@@ -51,8 +51,7 @@ const StartupScreen: Screen<{}> = () => {
         nav.reset(LoginScreen);
         return;
       }
-
-      nav.reset(Redirector);
+      nav.reset(Minders);
     }
   }
 

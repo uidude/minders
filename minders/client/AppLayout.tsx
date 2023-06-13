@@ -42,7 +42,6 @@ import TopPicker from '@app/components/TopPicker';
 import {useLoad, withLoad} from '@app/util/UseLoad';
 import LoginScreen from './screens/LoginScreen';
 import Minders from './screens/Minders';
-import Redirector from './screens/Redirector';
 import {EnumConfig, EnumTextButton, enumActions} from './util/Enum';
 import {useMinderListParams} from './util/UiUtil';
 import {useDontAnimate} from './util/Useful';
@@ -215,21 +214,22 @@ export default function Layout(props: LayoutProps) {
 
 // TODO: Back button
 function Header(props: LayoutProps) {
-  const {title} = props;
+  const {view, top} = useMinderListParams();
+
   const {
     location: {screen},
   } = useNavState();
 
-  const MyHeader =
-    screen === Minders
+  const HeaderToShow =
+    view != null && top != null
       ? MinderListHeader
-      : screen === Redirector
-      ? RedirectorHeader
+      : screen.id === Minders.id
+      ? LoadingHeader
       : StandardHeader;
 
   return (
     <View style={S.topBar}>
-      <MyHeader {...props} />
+      <HeaderToShow {...props} />
     </View>
   );
 }
@@ -237,14 +237,12 @@ function Header(props: LayoutProps) {
 /**
  * Looks like MinderList header but not functional
  */
-function RedirectorHeader(props: LayoutProps) {
-  const {Home} = useGlobalActions();
+function LoadingHeader(props: LayoutProps) {
   const {Settings} = useGlobalActions();
 
   return (
     <View style={S.minderTop}>
       <View style={S.grow} />
-      <TopAction action={Home} />
       <ActionMenu
         items={[Settings]}
         anchor={onPress => (
@@ -264,7 +262,7 @@ function StandardHeader(props: LayoutProps) {
     if (nav.backOk()) {
       nav.back();
     } else {
-      nav.reset(Redirector);
+      nav.reset(Minders);
     }
   }
 
@@ -304,8 +302,8 @@ function MinderListHeader(props: LayoutProps) {
   });
 
   return (
-    <View style={S.minderTop}>
-      <TriState loadingView={Empty} errorView={Empty}>
+    <TriState loadingView={LoadingHeader} errorView={Empty}>
+      <View style={S.minderTop}>
         <View
           style={{
             flexShrink: 1,
@@ -317,20 +315,17 @@ function MinderListHeader(props: LayoutProps) {
         </View>
         <ActionMenu
           items={viewMenuActions}
-          anchor={onPress => {
-            console.log('etb');
-            return (
-              <EnumTextButton
-                enums={ViewMenuItems}
-                value={view}
-                style={[S.title, S.stateText]}
-                onPress={onPress}
-                iconStyle={S.stateIcon}
-                color="#FFF"
-                showText={!mobileLayout}
-              />
-            );
-          }}
+          anchor={onPress => (
+            <EnumTextButton
+              enums={ViewMenuItems}
+              value={view}
+              style={[S.title, S.stateText]}
+              onPress={onPress}
+              iconStyle={S.stateIcon}
+              color="#FFF"
+              showText={!mobileLayout}
+            />
+          )}
         />
         {showCount && <MinderCount view={view} topId={topId} />}
         <ActionMenu
@@ -339,8 +334,8 @@ function MinderListHeader(props: LayoutProps) {
             <VerticalDots {...TOP_ACTION_PROPS} onPress={onPress} />
           )}
         />
-      </TriState>
-    </View>
+      </View>
+    </TriState>
   );
 }
 

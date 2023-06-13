@@ -8,8 +8,8 @@ import {Opt} from '@toolkit/core/util/Types';
 import {FieldDelete, Updater} from '@toolkit/data/DataStore';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import {Minder, MinderProject, useMinderStore} from '@app/common/MinderApi';
+import Minders from '@app/screens/Minders';
 import Projects from '@app/screens/Projects';
-import Redirector from '@app/screens/Redirector';
 import SettingsScreen from '@app/screens/SettingsScreen';
 import {BinaryAlert} from '@app/util/Alert';
 import {useMinderListParams} from '@app/util/UiUtil';
@@ -253,7 +253,7 @@ export function useGlobalActions() {
     icon: 'home',
     label: 'Home',
     key: 'h',
-    action: async () => nav.navTo(Redirector),
+    action: async () => nav.navTo(Minders),
   };
 
   const Settings: ActionItemWithShortcut = {

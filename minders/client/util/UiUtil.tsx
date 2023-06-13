@@ -7,7 +7,7 @@ export function useMinderListParams() {
   const params = route.params as any;
 
   const view = params?.view ?? 'focus';
-  const top = params?.top.replace('>', ':');
+  const top = params?.top?.replace('>', ':');
   const isProject = top && top.startsWith('project:');
 
   return {view, top, isProject};

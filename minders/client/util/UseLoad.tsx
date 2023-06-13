@@ -95,6 +95,7 @@ export function withLoad<Props>(Component: React.ComponentType<Props>) {
       />
     );
   };
+
   return ComponentWithLoad;
 }
 

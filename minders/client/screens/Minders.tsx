@@ -3,6 +3,7 @@ import {Text, View} from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {DataOp} from '@toolkit/data/DataCache';
 import {useListen} from '@toolkit/data/Subscribe';
+import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {
   Filters,
@@ -40,56 +41,28 @@ export function NoChildren(props: {
   );
 }
 
-/**
- * Reorder minders to match order in oldMinders, with newItems at the end.
- *
- * This ensures that UI updates that add / remove items don't move items around while
- * the user is watching, even if the order isn't the natural sort order.
- *
- * Example 1: New items end up at end of the list, instead of the top
- * (although we could put them on top)
- *
- * Example 2: When changing state, we don't reorder the list while you're looking,
- * even if the list is ordered by state. It will be reordered the next time you
- * come back to the screen.
- */
-function keepOrder(minders: Minder[], oldMinders: Minder[]) {
-  const ordered: Minder[] = [];
-
-  const newIds = minders.map(m => m.id);
-  for (const oldMinder of oldMinders) {
-    if (newIds.includes(oldMinder.id)) {
-      ordered.push(oldMinder);
-    }
-  }
-
-  const orderedIds = ordered.map(m => m.id);
-  for (const newMinder of minders) {
-    if (!orderedIds.includes(newMinder.id)) {
-      ordered.push(newMinder);
-    }
-  }
-
-  return ordered;
-}
-
 type Props = {
-  top: string;
-  view: MinderView;
+  top?: string;
+  view?: MinderView;
 };
 
 const Minders: Screen<Props> = withLoad(props => {
   const {view = 'focus', top} = props;
 
   React.useEffect(() => {
-    saveUiState();
+    if (top != null && view != null) {
+      saveUiState();
+    }
   }, [view, top]);
-  saveLatestUiState;
+
+  if (top == null || view == null) {
+    return <Redirector {...props} />;
+  }
 
   if (view === 'outline' || view === 'outlineall') {
-    return <MinderOutlineList {...props} />;
+    return <MinderOutlineList {...props} top={top} view={view} />;
   }
-  return <MinderList {...props} />;
+  return <MinderList {...props} top={top} view={view} />;
 
   async function saveUiState() {
     const uiState = await getSavedUiState();
@@ -99,7 +72,34 @@ const Minders: Screen<Props> = withLoad(props => {
   }
 });
 
-const MinderOutlineList: Screen<Props> = props => {
+/**
+ * Need to set top and view if not in URL params
+ */
+const Redirector = (props: Props) => {
+  const nav = useNav();
+  const minderStore = useMinderStore();
+  const {top, view} = useLoad(props, load);
+
+  React.useEffect(() => {
+    nav.setParams({top, view});
+  }, [top, view]);
+
+  async function load() {
+    let uiState = await getSavedUiState();
+    const view = uiState?.view ?? 'focus';
+    let top = uiState?.top;
+    if (top == null) {
+      const projects = await minderStore.getProjects();
+      top = projects[0].id;
+    }
+    top = top.replace(':', '>');
+    return {top, view};
+  }
+
+  return <View />;
+};
+
+const MinderOutlineList: Screen<Required<Props>> = props => {
   requireLoggedInUser();
   const {view, top: topId} = props;
   const filter = filterFor(view);
@@ -134,6 +134,7 @@ const MinderOutlineList: Screen<Props> = props => {
       ))}
     </View>
   );
+
   async function load() {
     const {project, top} = await minderStore.getAll(topId);
     return {project, top};
