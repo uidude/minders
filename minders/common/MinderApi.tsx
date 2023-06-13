@@ -253,13 +253,21 @@ export function useMinderStore(ctx?: MinderStoreContext) {
     if (filter) {
       where.push({field: 'state', op: 'in', value: STATE_VISIBILITY[filter]});
     }
+    if (filter === 'review') {
+      const monthInMillis = 30 * 24 * 60 * 60 * 1000;
+      const timeBack = 60 * 24 * 60 * 60 * 1000;
+      // Round to semi-stable earlier time to make requests cacheable
+      const cutoff =
+        Math.trunc((Date.now() - timeBack) / monthInMillis) * monthInMillis;
+      where.push({field: 'updatedAt', op: '>', value: cutoff});
+    }
 
     const [project, minders] = await Promise.all([
       projectStore.get(id),
       minderStore.query({
         where,
-        limit: {size: 5000},
-        order: [{field: 'updatedAt', dir: 'asc'}],
+        limit: {size: 500},
+        order: [{field: 'updatedAt', dir: 'desc'}],
       }),
     ]);
 
