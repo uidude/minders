@@ -99,6 +99,8 @@ export function useMinderActions(minder: Minder) {
     label: 'Snooze',
     action: actionHook(() => {
       const snoozeDialog = SnoozeDialog.get();
+      const unsnoozedState =
+        minder.state == 'waiting' ? minder.unsnoozedState : minder.state;
 
       return () => {
         snoozeDialog.show(async ({snoozeTil}) => {
@@ -108,7 +110,7 @@ export function useMinderActions(minder: Minder) {
               snoozeTil,
               state: 'waiting',
               checkVersion: minder.updatedAt,
-              unsnoozedState: minder.state,
+              unsnoozedState,
             },
             {optimistic: true},
           );
