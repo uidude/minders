@@ -11,10 +11,10 @@ import {
   ViewStyle,
 } from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
+import {useAction} from '@toolkit/core/client/Action';
 import {Opt} from '@toolkit/core/util/Types';
 import {useLoad} from '@toolkit/core/util/UseLoad';
 import {DataOp} from '@toolkit/data/DataCache';
-import {useDataStore} from '@toolkit/data/DataStore';
 import {useListen} from '@toolkit/data/Subscribe';
 import {Filters, MinderView, filterFor} from '@app/AppLayout';
 import {
@@ -30,7 +30,7 @@ import {
   useMinderStore,
 } from '@app/common/MinderApi';
 import {ActionMenu, VerticalDots} from '@app/components/ActionMenu';
-import {useMinderActions} from '@app/components/Actions';
+import {useGlobalActions, useMinderActions} from '@app/components/Actions';
 import {EditableStatus} from '@app/components/EditableStatus';
 import {MinderTextInput} from '@app/components/MinderTextInput';
 import {requestSelect} from '@app/model/TextSelect';
@@ -46,12 +46,12 @@ export function MinderList(props: Props) {
   const {view, top: topId} = props;
   const minderStore = useMinderStore();
   const filter = filterFor(view);
-  const minderStore2 = useDataStore(Minder);
   const {project, top, minders, setData} = useLoad(props, load);
   const {removeAnimation, animatedStyles} = useMinderRemoveAnimation();
   const setPageTitle = useSetPageTitle();
   const [itemHeight, setItemHeight] = React.useState(49);
-
+  const {Refresh} = useGlobalActions();
+  const [refresh, refreshing] = useAction(Refresh.action);
   useListen(Minder, '*', onMinderChange);
 
   setPageTitle(project.name);
@@ -80,6 +80,8 @@ export function MinderList(props: Props) {
       data={minders}
       initialNumToRender={100}
       getItemLayout={getItemLayout}
+      onRefresh={refresh}
+      refreshing={refreshing}
       renderItem={({item: minder, index}) => (
         <Animated.View
           onLayout={e => checkItemHeight(e, index)}
