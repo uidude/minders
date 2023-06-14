@@ -46,7 +46,7 @@ type Props = {
   view?: MinderView;
 };
 
-const Minders: Screen<Props> = withLoad(props => {
+const Minders: Screen<Props> = props => {
   const {view = 'focus', top} = props;
 
   React.useEffect(() => {
@@ -70,7 +70,7 @@ const Minders: Screen<Props> = withLoad(props => {
       await saveLatestUiState({top, view});
     }
   }
-});
+};
 
 /**
  * Need to set top and view if not in URL params

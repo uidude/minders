@@ -27,7 +27,7 @@ import {downloadOrShareJson, jsonDataUrl} from '@app/util/Useful';
 
 type Props = {};
 
-const Projects: Screen<Props> = withLoad(props => {
+const Projects: Screen<Props> = props => {
   const user = requireLoggedInUser();
   const {H2, Body, Button} = useComponents();
   const [projectId, setProjectId] = React.useState('');
@@ -144,7 +144,7 @@ const Projects: Screen<Props> = withLoad(props => {
 
     reload();
   }
-});
+};
 
 async function createProjectFromJson(
   ctx: MinderStoreContext,
