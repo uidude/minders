@@ -290,12 +290,15 @@ function MinderListHeader(props: LayoutProps) {
   const {
     location: {screen},
   } = useNavState();
-  const {Collapse, Expand, Home, Settings, Import, Up} = useGlobalActions();
+  const {Collapse, Expand, Home, Settings, Import, Up, Refresh} =
+    useGlobalActions();
+  const isOutline = view === 'outline' || view === 'outlineall';
 
   // TODO: Filter out up when at project level
-  const actionMenuItems = __DEV__
-    ? [Up, Expand, Collapse, Import, Settings, Home]
-    : [Settings, Import, Home];
+  const actionMenuItems =
+    __DEV__ && isOutline
+      ? [Refresh, Up, Expand, Collapse, Import, Settings, Home]
+      : [Home, Import, , Refresh, Settings];
   const showCount = screen === Minders;
 
   const viewMenuActions = enumActions(ViewMenuItems, value => {
