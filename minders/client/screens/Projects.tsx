@@ -219,6 +219,16 @@ async function createProjectFromLegacyJson(
   await createMindersFromLegacyJson(ctx, project, null, json.sub ?? []);
 }
 
+// Null values are treated as a delete, we need to remove them
+function removeNulls<T>(obj: any) {
+  for (const key in obj) {
+    if (obj[key] == null) {
+      delete obj[key];
+    }
+  }
+  return obj;
+}
+
 async function createMindersFromLegacyJson(
   ctx: MinderStoreContext,
   project: {id: string},
@@ -237,7 +247,7 @@ async function createMindersFromLegacyJson(
       snoozeTil: item.snoozeTil,
       unsnoozeState: item.snoozeState,
     };
-    const minder = await minderStore.create(fields);
+    const minder = await minderStore.create(removeNulls(fields));
 
     if (item.sub) {
       await createMindersFromLegacyJson(ctx, project, minder, item.sub);
