@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
+import {useLoad} from '@toolkit/core/util/UseLoad';
 import {DataOp} from '@toolkit/data/DataCache';
 import {useDataStore} from '@toolkit/data/DataStore';
 import {useListen} from '@toolkit/data/Subscribe';
@@ -33,7 +34,6 @@ import {useMinderActions} from '@app/components/Actions';
 import {EditableStatus} from '@app/components/EditableStatus';
 import {MinderTextInput} from '@app/components/MinderTextInput';
 import {requestSelect} from '@app/model/TextSelect';
-import {useLoad} from '@app/util/UseLoad';
 import {timelog, useSetPageTitle} from '@app/util/Useful';
 
 type Props = {

@@ -10,6 +10,7 @@ import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {useAction} from '@toolkit/core/client/Action';
 import {useReload} from '@toolkit/core/client/Reload';
 import {Opt} from '@toolkit/core/util/Types';
+import {useLoad, withLoad} from '@toolkit/core/util/UseLoad';
 import {Updater, useDataStore} from '@toolkit/data/DataStore';
 import {useTextInput} from '@toolkit/ui/UiHooks';
 import {useComponents} from '@toolkit/ui/components/Components';
@@ -22,7 +23,6 @@ import {
   useMinderStore,
 } from '@app/common/MinderApi';
 import {BinaryAlert} from '@app/util/Alert';
-import {useLoad, withLoad} from '@app/util/UseLoad';
 import {downloadOrShareJson, jsonDataUrl} from '@app/util/Useful';
 
 type Props = {};

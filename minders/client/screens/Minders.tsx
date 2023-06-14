@@ -1,6 +1,7 @@
 import React from 'react';
 import {Text, View} from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
+import {useLoad, withLoad} from '@toolkit/core/util/UseLoad';
 import {DataOp} from '@toolkit/data/DataCache';
 import {useListen} from '@toolkit/data/Subscribe';
 import {useNav} from '@toolkit/ui/screen/Nav';
@@ -23,7 +24,6 @@ import {NewItem} from '@app/components/Actions';
 import {MinderList} from '@app/components/MinderList';
 import MinderOutline from '@app/components/MinderOutline';
 import {requestSelect} from '@app/model/TextSelect';
-import {useLoad, withLoad} from '@app/util/UseLoad';
 
 export function NoChildren(props: {
   project: MinderProject;

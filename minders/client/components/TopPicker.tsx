@@ -10,9 +10,9 @@ import {
   TextStyle,
   TouchableHighlight,
 } from 'react-native';
+import {useLoad, withLoad} from '@toolkit/core/util/UseLoad';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {MinderProject, useMinderStore} from '@app/common/MinderApi';
-import {useLoad, withLoad} from '@app/util/UseLoad';
 import {useShortcut} from '../util/Shortcuts';
 import {Menu} from './AppComponents';
 
