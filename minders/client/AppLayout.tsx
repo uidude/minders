@@ -293,7 +293,9 @@ function MinderListHeader(props: LayoutProps) {
   const {Collapse, Expand, Home, Settings, Import, Up} = useGlobalActions();
 
   // TODO: Filter out up when at project level
-  const actionMenuItems = [Up, Expand, Collapse, Import, Settings, Home];
+  const actionMenuItems = __DEV__
+    ? [Up, Expand, Collapse, Import, Settings, Home]
+    : [Settings, Import, Home];
   const showCount = screen === Minders;
 
   const viewMenuActions = enumActions(ViewMenuItems, value => {
