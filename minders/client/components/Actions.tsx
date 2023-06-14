@@ -4,7 +4,9 @@
 
 import {ActionItem, actionHook} from '@toolkit/core/client/Action';
 import {useReload} from '@toolkit/core/client/Reload';
+import {use} from '@toolkit/core/providers/Providers';
 import {Opt} from '@toolkit/core/util/Types';
+import {CacheManagerKey} from '@toolkit/data/DataCache';
 import {FieldDelete, Updater} from '@toolkit/data/DataStore';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
 import {Minder, MinderProject, useMinderStore} from '@app/common/MinderApi';
@@ -198,6 +200,7 @@ export function useGlobalActions() {
   const {top: topId} = useMinderListParams();
   const nav = useNav();
   const {location} = useNavState();
+  const reload = useReload();
 
   const Up: ActionItemWithShortcut = {
     id: 'up',
@@ -272,5 +275,18 @@ export function useGlobalActions() {
     action: async () => nav.navTo(Projects),
   };
 
-  return {Collapse, Expand, Home, NewItem, Settings, Up, Import};
+  const Refresh: ActionItem = {
+    id: 'refresh',
+    icon: 'reload',
+    label: 'Refresh',
+    action: actionHook(() => {
+      const cacheManager = use(CacheManagerKey);
+      return async () => {
+        await cacheManager.clear();
+        reload();
+      };
+    }),
+  };
+
+  return {Collapse, Expand, Home, NewItem, Settings, Up, Import, Refresh};
 }

@@ -13,6 +13,7 @@ import {StatusContainer} from '@toolkit/core/client/Status';
 import {AppInfoKey} from '@toolkit/core/client/Theme';
 import {Scope} from '@toolkit/core/providers/Client';
 import {providesValue} from '@toolkit/core/providers/Providers';
+import {InMemoryCacheManager} from '@toolkit/data/DataCache';
 import {initializeFirebase} from '@toolkit/providers/firebase/Config';
 import {FirestoreDatastoreWithCaching} from '@toolkit/providers/firebase/FirestoreDatastore';
 import {initializeFirestore} from '@toolkit/providers/firebase/client/Firestore';
@@ -43,6 +44,7 @@ function AppConfig(props: Props) {
     LocalFlags,
     ConsoleLogger,
     FirestoreDatastoreWithCaching,
+    InMemoryCacheManager,
     APP_CONFIG,
     AppInfo,
     NOTIF_CHANNELS,
