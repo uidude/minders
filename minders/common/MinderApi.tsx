@@ -251,7 +251,11 @@ export function useMinderStore(ctx?: MinderStoreContext) {
   async function getProject(id: string, filter?: MinderFilter) {
     const where: Where[] = [{field: 'project', op: '==', value: id}];
     if (filter) {
-      where.push({field: 'state', op: 'in', value: STATE_VISIBILITY[filter]});
+      const states = [...STATE_VISIBILITY[filter]];
+      if (!states.includes('waiting')) {
+        states.push('waiting');
+      }
+      where.push({field: 'state', op: 'in', value: states});
     }
     if (filter === 'review') {
       const monthInMillis = 30 * 24 * 60 * 60 * 1000;
