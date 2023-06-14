@@ -255,6 +255,9 @@ export function useMinderStore(ctx?: MinderStoreContext) {
       if (!states.includes('waiting')) {
         states.push('waiting');
       }
+      if (!states.includes('new')) {
+        states.push('new');
+      }
       where.push({field: 'state', op: 'in', value: states});
     }
     if (filter === 'review') {
