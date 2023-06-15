@@ -275,10 +275,11 @@ export function useGlobalActions() {
     action: async () => nav.navTo(Projects),
   };
 
-  const Refresh: ActionItem = {
+  const Refresh: ActionItemWithShortcut = {
     id: 'refresh',
     icon: 'reload',
     label: 'Refresh',
+    key: 'u',
     action: actionHook(() => {
       const cacheManager = use(CacheManagerKey);
       return async () => {
