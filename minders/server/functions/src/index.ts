@@ -1,5 +1,5 @@
 import {APP_CONFIG, FIREBASE_CONFIG} from '@app/common/Config';
-import {FirestoreDatastore} from '@toolkit/providers/firebase/DataStore';
+import {FirestoreDatastore} from '@toolkit/providers/firebase/FirestoreDatastore';
 import {initFirebaseServer} from '@toolkit/providers/firebase/server/Config';
 import {
   AuthenticateMiddleware,

@@ -7,33 +7,24 @@ import {
 import {Profile} from '@app/common/DataTypes';
 import {User, UserRoles} from '@toolkit/core/api/User';
 import {CodedError} from '@toolkit/core/util/CodedError';
-import {Updater, getRequired} from '@toolkit/data/DataStore';
-import {firebaseStore} from '@toolkit/providers/firebase/DataStore';
+import {Updater, useDataStore} from '@toolkit/data/DataStore';
 import {
   requireAccountInfo,
   requireLoggedInUser,
   requireRole,
   setAccountToUserCallback,
 } from '@toolkit/providers/firebase/server/Auth';
-import {getFirebaseConfig} from '@toolkit/providers/firebase/server/Config';
-import {
-  getAdminDataStore,
-  getDataStore,
-} from '@toolkit/providers/firebase/server/Firestore';
 import {registerHandler} from '@toolkit/providers/firebase/server/Handler';
 import {getAllowlistMatchedRoles} from '@toolkit/providers/firebase/server/Roles';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import {AuthData} from 'firebase-functions/lib/common/providers/https';
-
 import {Minder, MinderProject, useMinderStore} from '@app/common/MinderApi';
 import 'firebase/functions';
 import {getFunction, toThrownError} from './lib';
 
 // Uncomment the next line to enable notifications
 // export * from './notifications'
-
-const firebaseConfig = getFirebaseConfig();
 
 function newProfileFor(user: Updater<User>): Updater<Profile> {
   const id = user.id!;
@@ -54,13 +45,13 @@ function addDerivedFields(user: User) {
  */
 async function accountToUser(auth: AuthData): Promise<User> {
   // TODO: Make `firestore` role-based (e.g. firestoreForRole('ACCOUNT_CREATOR'))
-  const users = await getDataStore(User);
-  const profiles = await getDataStore(Profile);
+  const userStore = useDataStore(User);
+  const profileStore = useDataStore(Profile);
   const userId = auth.uid;
 
   let [user, profile] = await Promise.all([
-    users.get(userId, {edges: [UserRoles]}),
-    profiles.get(userId),
+    userStore.get(userId, {edges: [UserRoles]}),
+    profileStore.get(userId),
   ]);
 
   const roles = await getAllowlistMatchedRoles(auth);
@@ -101,25 +92,23 @@ async function accountToUser(auth: AuthData): Promise<User> {
   // We have an example of doing these in a transaction (in server code)
   // but for simplicity, will make separate calls.
   if (user == null) {
-    user = await users.create(newUser);
+    user = await userStore.create(newUser);
     addDerivedFields(user);
   }
 
   if (profile == null) {
-    await profiles.create(newProfile);
+    await profileStore.create(newProfile);
   }
 
-  // TODO: Re-enable when we have a clean way of supporting transactions
-  // await admin.firestore().runTransaction(async (txn: any) => {
-  const userStoreInTxn = getAdminDataStore(User);
-  const profileStoreInTxn = getAdminDataStore(Profile);
-  const rolesStoreInTxn = getAdminDataStore(UserRoles);
+  // Todo: Give higher privileges to set roles
+  const roleStore = useDataStore(UserRoles);
 
-  userStoreInTxn.create({...newUser, roles: {id: newUser.id}});
-  profileStoreInTxn.create(newProfile);
-  rolesStoreInTxn.create({roles, id: newUser.id});
+  // TODO: Re-enable transactions when we have a clean way of supporting
+  await userStore.create({...newUser, roles: {id: newUser.id}});
+  await profileStore.create(newProfile);
+  await roleStore.create({roles, id: newUser.id});
 
-  const createdUser = await users.get(newUser.id, {edges: [UserRoles]});
+  const createdUser = await userStore.get(newUser.id, {edges: [UserRoles]});
   addDerivedFields(createdUser!);
   return createdUser!;
 }
@@ -127,8 +116,8 @@ setAccountToUserCallback(accountToUser);
 
 export const getUser = registerHandler(GetUser, async () => {
   const account = requireAccountInfo();
-  const store = await getDataStore(User);
-  const user = await getRequired(store, account.uid, {edges: [UserRoles]});
+  const userStore = useDataStore(User);
+  const user = await userStore.required(account.uid, {edges: [UserRoles]});
   addDerivedFields(user);
   return user;
 });
@@ -137,23 +126,19 @@ export const updateUser = registerHandler(
   UpdateUser,
   async (values: Updater<User>) => {
     const user = requireLoggedInUser();
+    const userStore = useDataStore(User);
+    const profileStore = useDataStore(Profile);
     // This should be also checked by firestore rules so could remove
     if (values.id != user.id) {
       // TODO: coded typed error
       throw new Error('Not allowed');
     }
-    const fs = admin.firestore();
-    await fs.runTransaction(async txn => {
-      // @ts-ignore: hack to pass in `transaction`
-      const userStoreInTxn = firebaseStore(User, fs, txn, firebaseConfig);
-      // @ts-ignore: ditto
-      const profileStoreInTxn = firebaseStore(Profile, fs, txn, firebaseConfig);
-      const profileValues = newProfileFor(values);
-      userStoreInTxn.update(values);
-      profileStoreInTxn.update(profileValues);
-    });
-    const store = await getDataStore(User);
-    const updatedUser = await store.get(values.id);
+    // TODO: Re-enable transaction
+    const profileValues = newProfileFor(values);
+    userStore.update(values);
+    profileStore.update(profileValues);
+
+    const updatedUser = await userStore.get(values.id);
     addDerivedFields(updatedUser!);
     return updatedUser!;
   },
@@ -220,8 +205,8 @@ export const exportJob = registerHandler(ExportJob, async () => {
 
   functions.logger.log('Running Exporter');
   // TODO: Use context based on the specific user
-  const minderStore = await getAdminDataStore(Minder);
-  const projectStore = await getAdminDataStore(MinderProject);
+  const minderStore = useDataStore(Minder);
+  const projectStore = useDataStore(MinderProject);
 
   // TODO: Iterate through all user IDs
   const userId = 'MmiLowCe0Ye221H7m2oqKLrfUjC2';
