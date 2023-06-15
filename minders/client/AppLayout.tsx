@@ -298,7 +298,7 @@ function MinderListHeader(props: LayoutProps) {
   const actionMenuItems =
     __DEV__ && isOutline
       ? [Refresh, Up, Expand, Collapse, Import, Settings, Home]
-      : [Home, Import, , Refresh, Settings];
+      : [Home, Import, Refresh, Settings];
   const showCount = screen === Minders;
 
   const viewMenuActions = enumActions(ViewMenuItems, value => {
@@ -381,7 +381,8 @@ const MinderCount = withLoad((props: MinderCountProps) => {
   );
 
   async function load(): Promise<{minderIds: string[]}> {
-    const {top} = await minderStore.getAll(topId, filter);
+    const limit = Platform.OS === 'android' ? 500 : null;
+    const {top} = await minderStore.getAll(topId, filter, limit);
     // TODO: More efficient logic
     const matching = flatList(top.children, filter);
 
