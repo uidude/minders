@@ -101,7 +101,8 @@ export function MinderList(props: Props) {
 
   async function load() {
     const t0 = Date.now();
-    const {project, top} = await minderStore.getAll(topId, filter);
+    const limit = Platform.OS === 'android' ? 500 : null;
+    const {project, top} = await minderStore.getAll(topId, filter, limit);
     top.children.sort(minderSort);
     const minders = flatList(top.children, filter).sort(minderSort);
     console.log('load', Date.now() - t0);

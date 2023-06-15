@@ -20,10 +20,7 @@ import {
   Where,
   useDataStore,
 } from '@toolkit/data/DataStore';
-import {
-  INITIAL_OUTLINE,
-  LegacyOutlineItem,
-} from '../client/model/InitialOutline';
+import {LegacyOutlineItem} from '../client/model/InitialOutline';
 
 function timelog(...args: any[]) {
   args.push((Date.now() % 100000) / 1000);
@@ -216,6 +213,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
   async function getAll(
     topId: string,
     filter?: MinderFilter,
+    limit?: Opt<number>,
   ): Promise<{top: Top; project: MinderProject}> {
     let project, minders, top: Top;
     topId = topId.replace('>', ':');
@@ -226,7 +224,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
         'Minder not found',
       );
 
-      project = (await getProject(minder.project!.id, filter))!;
+      project = (await getProject(minder.project!.id, filter, limit))!;
       minders = project!.minders!;
       const minderInProject: Minder = minders.find(m => m.id === topId)!;
       top = {
@@ -236,7 +234,10 @@ export function useMinderStore(ctx?: MinderStoreContext) {
         children: minderInProject.children!,
       };
     } else {
-      project = nonNull(await getProject(topId, filter), 'Project not found');
+      project = nonNull(
+        await getProject(topId, filter, limit),
+        'Project not found',
+      );
       top = {
         type: 'project',
         id: topId,
@@ -248,7 +249,11 @@ export function useMinderStore(ctx?: MinderStoreContext) {
     return {top, project};
   }
 
-  async function getProject(id: string, filter?: MinderFilter) {
+  async function getProject(
+    id: string,
+    filter?: MinderFilter,
+    limit?: Opt<number>,
+  ) {
     const where: Where[] = [{field: 'project', op: '==', value: id}];
     if (filter) {
       const states = [...STATE_VISIBILITY[filter]];
@@ -273,7 +278,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
       projectStore.get(id),
       minderStore.query({
         where,
-        limit: {size: 500},
+        limit: {size: limit ?? 10000},
         order: [{field: 'updatedAt', dir: 'desc'}],
       }),
     ]);
