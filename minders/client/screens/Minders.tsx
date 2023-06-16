@@ -1,8 +1,10 @@
 import React from 'react';
 import {Text, View} from 'react-native';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
+import {Opt} from '@toolkit/core/util/Types';
 import {useLoad, withLoad} from '@toolkit/core/util/UseLoad';
 import {DataOp} from '@toolkit/data/DataCache';
+import {useDataStore} from '@toolkit/data/DataStore';
 import {useListen} from '@toolkit/data/Subscribe';
 import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
@@ -78,6 +80,7 @@ const Minders: Screen<Props> = props => {
 const Redirector = (props: Props) => {
   const nav = useNav();
   const minderStore = useMinderStore();
+  const projectStore = useDataStore(MinderProject);
   const {top, view} = useLoad(props, load);
 
   React.useEffect(() => {
@@ -87,11 +90,22 @@ const Redirector = (props: Props) => {
   async function load() {
     let uiState = await getSavedUiState();
     const view = uiState?.view ?? 'focus';
-    let top = uiState?.top;
+    let top: Opt<string> = uiState?.top;
+
+    if (top != null) {
+      // Make sure the project exists
+      // This will cache the data so it ends up being same amount of time to load
+      const project = await projectStore.get(top);
+      if (project == null) {
+        top = null; // This will trigger logic to get first project ID
+      }
+    }
+
     if (top == null) {
       const projects = await minderStore.getProjects();
       top = projects[0].id;
     }
+
     top = top.replace(':', '>');
     return {top, view};
   }
