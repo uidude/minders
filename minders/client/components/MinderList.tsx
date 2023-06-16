@@ -16,6 +16,7 @@ import {Opt} from '@toolkit/core/util/Types';
 import {useLoad} from '@toolkit/core/util/UseLoad';
 import {DataOp} from '@toolkit/data/DataCache';
 import {useListen} from '@toolkit/data/Subscribe';
+import {useComponents} from '@toolkit/ui/components/Components';
 import {Filters, MinderView, filterFor} from '@app/AppLayout';
 import {
   Minder,
@@ -208,13 +209,15 @@ export function ParentPath(props: ParentPathProps) {
 
 function NoChildren(props: {project: MinderProject; filter: MinderFilter}) {
   const {project, filter} = props;
+  const {Body} = useComponents();
+  const filterName = Filters.get(filter)?.label;
+  const text = project.hasMinders
+    ? `No Minders are visible in ${filterName}`
+    : `No Minders are in "${project.name}".\n\nClick the plus button below to add the first!`;
 
   return (
     <View style={{margin: 30}}>
-      <Text>
-        {project.minders!.length} items in "{project.name}" project, but none of
-        them are visible in {Filters.get(filter)?.label}.
-      </Text>
+      <Body>{text}</Body>
     </View>
   );
 }

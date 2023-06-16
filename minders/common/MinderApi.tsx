@@ -79,6 +79,12 @@ export class MinderProject extends BaseModel {
 
   /** Minders in this project */
   @InverseField() minders?: Minder[];
+
+  /** Order for project for display to user */
+  @Field() order?: number;
+
+  /** Derived field for whether the project has any minders */
+  hasMinders?: boolean;
 }
 
 @Model({name: 'minder'})
@@ -198,7 +204,7 @@ export function useMinderStore(ctx?: MinderStoreContext) {
     let projects = await projectStore.query({
       where: [{field: 'owner', op: '==', value: user.id}],
     });
-    return projects;
+    return projects.sort((a, b) => a.order! - b.order!);
   }
 
   async function exportProject(projectId: string) {
@@ -245,6 +251,10 @@ export function useMinderStore(ctx?: MinderStoreContext) {
         children: project.minders!.filter(m => m.parentId == null),
       };
     }
+
+    const where: Where[] = [{field: 'project', op: '==', value: project.id}];
+    project.hasMinders =
+      (await minderStore.query({where, limit: {size: 1}})).length > 0;
 
     return {top, project};
   }
