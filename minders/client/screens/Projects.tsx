@@ -3,9 +3,20 @@
  */
 
 import * as React from 'react';
-import {Platform, ScrollView, StyleSheet, View} from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import * as DocumentPicker from 'expo-document-picker';
+import DraggableFlatList, {
+  DragEndParams,
+  ScaleDecorator,
+} from 'react-native-draggable-flatlist';
 import {requireLoggedInUser} from '@toolkit/core/api/User';
 import {useAction} from '@toolkit/core/client/Action';
 import {useReload} from '@toolkit/core/client/Reload';
@@ -14,6 +25,7 @@ import {useLoad, withLoad} from '@toolkit/core/util/UseLoad';
 import {Updater, useDataStore} from '@toolkit/data/DataStore';
 import {useTextInput} from '@toolkit/ui/UiHooks';
 import {useComponents} from '@toolkit/ui/components/Components';
+import {useNav} from '@toolkit/ui/screen/Nav';
 import {Screen} from '@toolkit/ui/screen/Screen';
 import {
   Minder,
@@ -22,94 +34,129 @@ import {
   OutlineItemState,
   useMinderStore,
 } from '@app/common/MinderApi';
+import {IconButton} from '@app/components/AppComponents';
 import {BinaryAlert} from '@app/util/Alert';
 import {downloadOrShareJson, jsonDataUrl} from '@app/util/Useful';
+import Minders from './Minders';
 
 type Props = {};
 
 const Projects: Screen<Props> = props => {
   const user = requireLoggedInUser();
   const {H2, Body, Button} = useComponents();
-  const [projectId, setProjectId] = React.useState('');
   const minderApi = useMinderStore();
   const minderStore = useDataStore(Minder);
   const projectStore = useDataStore(MinderProject);
-  const {projects} = useLoad(props, load);
+  const {projects, setData} = useLoad(props, load);
   const [ProjectTitleInput, projectTitle, setProjectTitle] = useTextInput('');
   const [onImport, importing] = useAction(importData);
   const [onDelete, deleting] = useAction(deleteProject);
   const reload = useReload();
+  const {navTo} = useNav();
 
-  const paddingStyle = Platform.OS === 'ios' ? {} : {padding: 16};
+  async function onNewProject() {
+    await projectStore.create({
+      name: projectTitle,
+      order: projects[projects.length - 1].order! + 1,
+      owner: user,
+    });
+    reload();
+  }
 
-  function onSelect(newId: string) {
-    setProjectId(newId);
+  async function onDrag({data, from, to}: DragEndParams<MinderProject>) {
+    setData({projects: data});
+    let order;
+    if (to === 0) {
+      order = projects[0].order! - 1;
+    } else if (to == projects.length - 1) {
+      order = projects[projects.length - 1].order! + 1;
+    } else {
+      order = (projects[to].order! + projects[to + 1].order!) / 2;
+    }
+    projects[from] = await projectStore.update({id: projects[from].id, order});
+  }
+
+  function goTo(projectId: string) {
+    navTo(Minders, {top: projectId.replace(':', '>'), view: 'focus'});
   }
 
   return (
     <ScrollView style={S.container} contentContainerStyle={S.content}>
-      <H2>Projects</H2>
+      <H2 style={S.h2}>Projects</H2>
 
-      <Picker
-        style={[S.picker, paddingStyle]}
-        selectedValue={projectId}
-        onValueChange={onSelect}
-        numberOfLines={2}
-        mode="dropdown">
-        <Picker.Item label="Choose" value="" />
-        {projects.map(p => (
-          <Picker.Item key={p.id} label={p.name} value={p.id} />
-        ))}
-      </Picker>
-      <View
-        style={{
-          marginTop: 10,
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-        }}>
-        <Button
-          loading={deleting}
-          onPress={promptDelete}
-          disabled={projectId == '' || deleting}>
-          Delete
-        </Button>
-        <View style={{width: 10}} />
-        <Button type="primary" onPress={exportIt} disabled={projectId == ''}>
-          Export
-        </Button>
-      </View>
+      <DraggableFlatList
+        data={projects}
+        onDragEnd={onDrag}
+        renderItem={({item, drag}) => (
+          <ScaleDecorator>
+            <TouchableOpacity onPress={() => goTo(item.id)} onLongPress={drag}>
+              <View style={S.listItem}>
+                <Text style={{fontSize: 18, flexGrow: 1, flexBasis: 200}}>
+                  {item.name}
+                </Text>
+                <IconButton
+                  icon="ion:close-circle-outline"
+                  size={28}
+                  style={{marginRight: -4}}
+                  onPress={() => promptDelete(item.id)}
+                />
+                <IconButton
+                  icon="ion:cloud-download-outline"
+                  size={24}
+                  onPress={() => onExport(item.id)}
+                />
+              </View>
+            </TouchableOpacity>
+          </ScaleDecorator>
+        )}
+        keyExtractor={p => p.id}
+      />
+      <Body style={{fontStyle: 'italic', textAlign: 'center'}}>
+        Long click/press to drag re-order
+      </Body>
 
       <View style={{height: 36}} />
-      <H2>New Project</H2>
-      <ProjectTitleInput
-        type="primary"
-        label="New project name"
-        style={S.titleInput}
-      />
+      <H2 style={S.h2}>Create Project</H2>
+      <View style={{marginHorizontal: 20}}>
+        <ProjectTitleInput type="primary" label="Project name" />
 
-      <View
-        style={{
-          marginTop: 10,
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-        }}>
-        <Button
-          type="primary"
-          onPress={onImport}
-          loading={importing}
-          disabled={projectTitle == '' || importing}>
-          Import
-        </Button>
+        <View style={S.buttonRow}>
+          <Button
+            type="secondary"
+            onPress={onImport}
+            loading={importing}
+            style={{marginRight: 10}}
+            disabled={projectTitle === '' || importing}>
+            Import Data
+          </Button>
+          <Button
+            type="primary"
+            onPress={onNewProject}
+            disabled={projectTitle === ''}>
+            Create New
+          </Button>
+        </View>
       </View>
     </ScrollView>
   );
 
   async function load() {
-    const projects = await minderApi.getProjects();
+    console.log('loading?');
+    let projects = await minderApi.getProjects();
+    // Ensure projects are ordered. If any aren't set, renumber all to be safe
+    if (projects.filter(p => p.order == null).length > 0) {
+      const updates = projects.map((p, idx) =>
+        projectStore.update({id: p.id, order: idx}),
+      );
+      projects = await Promise.all(updates);
+    }
+    projects = projects.sort((a, b) => (a.order! > b.order! ? 1 : -1));
+    console.log(projects);
+
     return {projects};
   }
 
-  async function exportIt() {
+  async function onExport(projectId: string) {
     const {name, json} = await minderApi.exportProject(projectId);
     return downloadOrShareJson(name, jsonDataUrl(json));
   }
@@ -128,19 +175,19 @@ const Projects: Screen<Props> = props => {
     reload();
   }
 
-  async function promptDelete() {
+  async function promptDelete(projectId: string) {
     BinaryAlert('Are you sure you want to delete this projec?', null, () =>
       onDelete(projectId),
     );
   }
 
   async function deleteProject(id: string) {
-    const projectWithData = await minderApi.getProject(projectId);
+    const projectWithData = await minderApi.getProject(id);
 
     await Promise.all(
       projectWithData!.minders!.map(m => minderStore.remove(m.id)),
     );
-    await projectStore.remove(projectId);
+    await projectStore.remove(id);
 
     reload();
   }
@@ -282,8 +329,27 @@ const S = StyleSheet.create({
     marginHorizontal: 20,
     lineHeight: 20,
   },
-  titleInput: {
+  h2: {
+    marginBottom: 20,
+  },
+  listItem: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    backgroundColor: '#F8F8FC',
+    paddingVertical: 2,
+    paddingLeft: 24,
+    paddingRight: 8,
     marginHorizontal: 20,
+    borderRadius: 40,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginVertical: 20,
   },
 });
 
