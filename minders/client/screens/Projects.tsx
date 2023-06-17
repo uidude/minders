@@ -65,14 +65,16 @@ const Projects: Screen<Props> = props => {
 
   async function onDrag({data, from, to}: DragEndParams<MinderProject>) {
     setData({projects: data});
+
     let order;
     if (to === 0) {
       order = projects[0].order! - 1;
     } else if (to == projects.length - 1) {
       order = projects[projects.length - 1].order! + 1;
     } else {
-      order = (projects[to].order! + projects[to + 1].order!) / 2;
+      order = (projects[to - 1].order! + projects[to].order!) / 2;
     }
+
     projects[from] = await projectStore.update({id: projects[from].id, order});
   }
 
@@ -141,7 +143,6 @@ const Projects: Screen<Props> = props => {
   );
 
   async function load() {
-    console.log('loading?');
     let projects = await minderApi.getProjects();
     // Ensure projects are ordered. If any aren't set, renumber all to be safe
     if (projects.filter(p => p.order == null).length > 0) {
@@ -151,8 +152,6 @@ const Projects: Screen<Props> = props => {
       projects = await Promise.all(updates);
     }
     projects = projects.sort((a, b) => (a.order! > b.order! ? 1 : -1));
-    console.log(projects);
-
     return {projects};
   }
 
