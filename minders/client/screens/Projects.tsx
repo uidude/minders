@@ -175,8 +175,11 @@ const Projects: Screen<Props> = props => {
   }
 
   async function promptDelete(projectId: string) {
-    BinaryAlert('Are you sure you want to delete this projec?', null, () =>
-      onDelete(projectId),
+    const project = projects.find(p => p.id === projectId);
+    BinaryAlert(
+      `Are you sure you want to delete project "${project!.name}"?`,
+      null,
+      () => onDelete(projectId),
     );
   }
 
