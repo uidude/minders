@@ -79,7 +79,7 @@ export function MinderList(props: Props) {
   return (
     <FlatList
       data={minders}
-      initialNumToRender={100}
+      initialNumToRender={40}
       getItemLayout={getItemLayout}
       onRefresh={refresh}
       refreshing={refreshing}
@@ -131,21 +131,25 @@ export function MinderList(props: Props) {
     }
     const newValue = await minderStore.get(id);
     let updated = minders;
+    // console.log(minders.length, minders, id, op);
 
     if (op === 'update' && newValue) {
       // Note that this doesn't cover project / top changes yet
       if (isVisible(newValue, filter)) {
         minders[minders.findIndex(m => m.id === id)] = newValue;
       } else {
+        //console.log('removing', id, newValue);
         removeMinder(id);
         return;
       }
     } else if (op === 'add' && newValue) {
       if (isVisible(newValue, filter) && !minders.find(m => m.id === id)) {
+        // console.log('adding', id, newValue);
         updated = [...minders, newValue];
         requestSelect(newValue.id, 'start');
       }
     }
+    // console.log(minders.length, minders);
     setData({minders: updated});
   }
 }
