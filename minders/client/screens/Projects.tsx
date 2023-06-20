@@ -11,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Picker} from '@react-native-picker/picker';
 import * as DocumentPicker from 'expo-document-picker';
 import DraggableFlatList, {
   DragEndParams,
@@ -83,17 +82,20 @@ const Projects: Screen<Props> = props => {
   }
 
   return (
-    <ScrollView style={S.container} contentContainerStyle={S.content}>
+    <ScrollView
+      style={S.container}
+      contentContainerStyle={S.content}
+      nestedScrollEnabled>
       <H2 style={S.h2}>Projects</H2>
 
       <DraggableFlatList
         data={projects}
         onDragEnd={onDrag}
         renderItem={({item, drag}) => (
-          <ScaleDecorator>
+          <ScaleDecorator activeScale={0.93}>
             <TouchableOpacity onPress={() => goTo(item.id)} onLongPress={drag}>
               <View style={S.listItem}>
-                <Text style={{fontSize: 18, flexGrow: 1, flexBasis: 200}}>
+                <Text style={S.project} numberOfLines={1}>
                   {item.name}
                 </Text>
                 <IconButton
@@ -119,7 +121,7 @@ const Projects: Screen<Props> = props => {
 
       <View style={{height: 36}} />
       <H2 style={S.h2}>Create Project</H2>
-      <View style={{marginHorizontal: 20}}>
+      <View>
         <ProjectTitleInput type="primary" label="Project name" />
 
         <View style={S.buttonRow}>
@@ -316,8 +318,6 @@ const S = StyleSheet.create({
   },
   content: {
     padding: 24,
-    flex: 1,
-    alignSelf: 'stretch',
     alignItems: 'stretch',
   },
   picker: {
@@ -341,12 +341,16 @@ const S = StyleSheet.create({
     paddingVertical: 2,
     paddingLeft: 24,
     paddingRight: 8,
-    marginHorizontal: 20,
     borderRadius: 40,
     marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  project: {
+    fontSize: 18,
+    flexGrow: 1,
+    flexBasis: 10,
   },
   buttonRow: {
     flexDirection: 'row',
