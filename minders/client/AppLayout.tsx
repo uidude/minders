@@ -13,6 +13,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
   useWindowDimensions,
 } from 'react-native';
@@ -22,11 +23,13 @@ import {Appbar} from 'react-native-paper';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {canLoggingInFix} from '@toolkit/core/api/Auth';
 import {ActionItem} from '@toolkit/core/client/Action';
-import TriState from '@toolkit/core/client/TriState';
+import {useReload, useReloadState} from '@toolkit/core/client/Reload';
+import TriState, {ErrorScreenProps} from '@toolkit/core/client/TriState';
 import {Opt} from '@toolkit/core/util/Types';
 import {useLoad, withLoad} from '@toolkit/core/util/UseLoad';
 import {DataOp} from '@toolkit/data/DataCache';
 import {useListen} from '@toolkit/data/Subscribe';
+import {useComponents} from '@toolkit/ui/components/Components';
 import {IconButton} from '@toolkit/ui/layout/LayoutBlocks';
 import {LayoutProps} from '@toolkit/ui/screen/Layout';
 import {useNav, useNavState} from '@toolkit/ui/screen/Nav';
@@ -148,10 +151,11 @@ export default function Layout(props: LayoutProps) {
   const nav = useNav();
   const navStyle = style?.nav ?? 'full';
   const navType = style?.type ?? 'std';
-  const key = route.key;
   const {width, height} = useWindowDimensions();
   const startingHeight = React.useRef(height);
   const insets = useSafeAreaInsets();
+  const reloadState = useReloadState();
+  const key = `${route.key}::${reloadState}`;
 
   const mainActionItem: Opt<ActionItem> =
     typeof mainAction === 'function' ? mainAction() : mainAction;
@@ -209,11 +213,48 @@ export default function Layout(props: LayoutProps) {
           </TriState>
         )}
         <View style={S.main}>
-          <TriState key={key} onError={onError} loadingView={loadingView}>
+          <TriState
+            errorView={ErrorView}
+            key={key}
+            onError={onError}
+            loadingView={loadingView}>
             <View style={{flex: 1}}>{children}</View>
           </TriState>
         </View>
       </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+function ErrorView(props: ErrorScreenProps) {
+  const {message, debug} = props;
+  const [showDebug, setShowDebug] = React.useState(false);
+  const {Body, Button} = useComponents();
+  const reload = useReload();
+  const dev = __DEV__; // TODO: Enable for dev users in prod
+
+  return (
+    <SafeAreaView style={{marginHorizontal: 10}}>
+      <ScrollView style={{paddingTop: 16}}>
+        <View>
+          <Body>{message}</Body>
+          <Button onPress={reload} style={{marginTop: 10, alignSelf: 'center'}}>
+            Reload
+          </Button>
+        </View>
+        {dev && (
+          <TouchableOpacity
+            style={{paddingTop: 20}}
+            onPress={() => setShowDebug(!showDebug)}>
+            <Body style={{textDecorationLine: 'underline'}}>Debug Info</Body>
+          </TouchableOpacity>
+        )}
+        {showDebug && debug != null && (
+          <View style={{paddingTop: 20}}>
+            <Body>{debug}</Body>
+          </View>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
