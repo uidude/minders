@@ -41,22 +41,26 @@ const LOGOUT_ACTION = {
   }),
 };
 
-const SETTINGS: Setting[] = [
+const SETTINGS_LIST: Setting[] = [
+  navToAction(NOTIF_SETTINGS),
   LOGOUT_ACTION,
-  navToAction(DEV_SETTINGS),
-  // Disabled until notifications are enabled
-  // navToAction(NOTIF_SETTINGS),
   navToAction(ABOUT),
   'LEGAL',
   ...LEGAL_LINKS.map((link: OpenLinkAction) => openUrlAction(link)),
 ];
 
+const DEV_SETTINGS_LIST = [navToAction(DEV_SETTINGS), ...SETTINGS_LIST];
+
 const SettingsScreen: Screen<{}> = () => {
-  requireLoggedInUser();
+  const user = requireLoggedInUser();
+  const roles = user.roles?.roles ?? [];
+  const isDev = __DEV__ ?? roles.includes('dev');
+
+  const settings = isDev ? DEV_SETTINGS_LIST : SETTINGS_LIST;
 
   return (
     <View style={{padding: 20}}>
-      <Settings settings={SETTINGS} />
+      <Settings settings={settings} />
     </View>
   );
 };

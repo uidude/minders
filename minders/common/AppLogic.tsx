@@ -1,6 +1,7 @@
 import {User} from '@toolkit/core/api/User';
 import {Opt} from '@toolkit/core/util/Types';
 import {useDataStore} from '@toolkit/data/DataStore';
+import {AllowlistEntry} from '@toolkit/tbd/Allowlist';
 import {Profile} from './DataTypes';
 
 function newProfileFor(user: User): Partial<Profile> {
@@ -12,12 +13,13 @@ function newProfileFor(user: User): Partial<Profile> {
   };
 }
 
-function addDerivedFields(user: User) {
+function addDerivedFields(user: User, allowlist?: AllowlistEntry) {
   user.canLogin = true;
   if (user.name === '') {
     user.canLogin = false;
     user.cantLoginReason = 'onboarding';
   }
+  user.roles = {id: user.id, roles: allowlist?.roles ?? []};
 }
 
 export type LoginUserInfo = {
@@ -35,17 +37,21 @@ export type LoginUserInfo = {
 export function useGetOrCreateUser() {
   const users = useDataStore(User);
   const profiles = useDataStore(Profile);
+  const allowlists = useDataStore(AllowlistEntry);
 
   return async (firebaseAccount: LoginUserInfo): Promise<User> => {
     const userId = firebaseAccount.uid;
 
-    let [user, profile] = await Promise.all([
+    let [user, profile, allowlist] = await Promise.all([
       users.get(userId),
       profiles.get(userId),
+      allowlists.query({
+        where: [{field: 'user', op: '==', value: userId}],
+      }),
     ]);
 
     if (user != null && profile != null) {
-      addDerivedFields(user);
+      addDerivedFields(user, allowlist[0]);
       return user;
     }
 
@@ -65,7 +71,7 @@ export function useGetOrCreateUser() {
     // but for simplicity, will make separate calls.
     if (user == null) {
       user = await users.create(newUser);
-      addDerivedFields(user);
+      addDerivedFields(user, allowlist[0]);
     }
 
     if (profile == null) {
@@ -88,6 +94,7 @@ export function useUpdateUserAndProfile() {
     profile: Partial<Profile>,
   ) {
     // Ensure user` has updated before updating profile
+    console.log('user', {...user, id});
     await userStore.update({...user, id});
 
     const userFieldsToCopy = {
@@ -95,6 +102,8 @@ export function useUpdateUserAndProfile() {
       ...(user.pic && {pic: user.pic}),
     };
     // TODO: Consider using transactions
+    console.log('profile', {...profile, ...userFieldsToCopy, id});
     await profileStore.update({...profile, ...userFieldsToCopy, id});
+    console.log('updato');
   };
 }
