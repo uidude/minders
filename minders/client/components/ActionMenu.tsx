@@ -1,9 +1,5 @@
-/**
- * @format
- */
-
 import * as React from 'react';
-import {StyleProp, ViewStyle} from 'react-native';
+import {Keyboard, StyleProp, ViewStyle} from 'react-native';
 import {ActionItem, useAction} from '@toolkit/core/client/Action';
 import {Shortcut, useShortcuts} from '@app/util/Shortcuts';
 import {ActionItemWithShortcut} from './Actions';
@@ -63,7 +59,10 @@ function ActionMenuImpl(props: {
     setMenuVisible(false);
   }
 
-  const show = () => setMenuVisible(true);
+  const show = () => {
+    Keyboard.dismiss();
+    setMenuVisible(true);
+  };
   const hide = () => setMenuVisible(false);
 
   const anchorEl = anchor(show);

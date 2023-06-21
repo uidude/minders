@@ -4,6 +4,7 @@
 
 import * as React from 'react';
 import {
+  Keyboard,
   StyleProp,
   StyleSheet,
   Text,
@@ -32,14 +33,17 @@ const TopPicker = (props: Props) => {
   useShortcut({key: 'ArrowRight', action: right});
   useShortcut({key: 'ArrowLeft', action: left});
 
+  function onPress() {
+    Keyboard.dismiss();
+    setMenuVisible(true);
+  }
+
   return (
     <Menu
       visible={menuVisible}
       onDismiss={() => setMenuVisible(false)}
       anchor={
-        <TouchableHighlight
-          style={S.touchable}
-          onPress={() => setMenuVisible(true)}>
+        <TouchableHighlight style={S.touchable} onPress={onPress}>
           <Text style={style} numberOfLines={1}>
             {title}
           </Text>
