@@ -79,6 +79,7 @@ const Minders: Screen<Props> = props => {
  */
 const Redirector = (props: Props) => {
   const nav = useNav();
+  const user = requireLoggedInUser();
   const minderStore = useMinderStore();
   const projectStore = useDataStore(MinderProject);
   const {top, view} = useLoad(props, load);
@@ -103,7 +104,16 @@ const Redirector = (props: Props) => {
 
     if (top == null) {
       const projects = await minderStore.getProjects();
-      top = projects[0].id;
+      if (projects.length === 0) {
+        const project = await projectStore.create({
+          name: 'First Project',
+          owner: {id: user.id},
+        });
+        project.minders = [];
+        top = project.id;
+      } else {
+        top = projects[0].id;
+      }
     }
 
     top = top.replace(':', '>');
