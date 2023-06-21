@@ -17,7 +17,8 @@ service cloud.firestore {
       "allowlist": {"*": []},
       "check_admin": {"*": ['admin']},
       "check_allowlist": {"*": ['public']},
-      "check_privacy": {"*": []}
+      "check_privacy": {"*": []},
+      "allowlist": {"read": ['owner']}
     }
   }
 
@@ -30,7 +31,8 @@ service cloud.firestore {
       "profile": "user",
       "project": "owner",
       "push_tokens": "user",
-      "notification_pref": "user"
+      "notification_pref": "user",
+      "allowlist": "user"
     }
   }
   
@@ -130,7 +132,8 @@ service cloud.firestore {
           let allowlisted = !enforceAllowlist() || 'allowlist' in roles;
           let adminAccess = globalAdminAccess() && 'admin' in roles;
           let ownerAccess = 'owner' in rule && isOwner(entity, res);
-          return allowlisted && (public || ownerAccess || adminAccess);
+          let isEmptyRead = method == 'read' && resource == null;
+          return allowlisted && (public || ownerAccess || adminAccess || isEmptyRead);
         }
 
         // Resource for the request
@@ -213,17 +216,11 @@ service cloud.firestore {
         // Allowlist is useful for granting a role *before* the user has
         // created an account.
         function allowlistRoles() {
-          let emails = getDocWithFallback('allowlist', 'emails', {"data": {}});
-          let phones = getDocWithFallback('allowlist', 'phones', {"data": {}});
+          let NO_ACCESS = {"data": {"roles": []}};
+          let emailEntry = getDocWithFallback('allowlist', 'allowlist:' + userEmail(), NO_ACCESS);
+          let phoneEntry = getDocWithFallback('allowlist', 'allowlist:' + userPhone(), NO_ACCESS);
           
-          // TODO: Figure out when it needs to be verified
-          let email = userEmail();
-          let phone = userPhone();
-          
-          let emailRoles = getOr(emails.data, email, []);
-          let phoneRoles = getOr(phones.data, phone, []);
-					
-          return emailRoles.concat(phoneRoles);
+          return emailEntry.data.roles.concat(phoneEntry.data.roles);					
         }
 
         // Is the user the logical "owner" of this data
