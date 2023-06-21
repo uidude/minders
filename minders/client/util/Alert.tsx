@@ -1,7 +1,3 @@
-/**
- * @format
- */
-
 import {Alert} from 'react-native';
 import {Opt} from '@toolkit/core/util/Types';
 
