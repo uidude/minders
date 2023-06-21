@@ -3,11 +3,7 @@ import {
   simpleLoginScreen,
 } from '@toolkit/screens/login/LoginScreen';
 import {Screen} from '@toolkit/ui/screen/Screen';
-
-const TOS =
-  "By continuing, you'll need to accept our " +
-  '[Terms of Service](https://media.istockphoto.com/id/482103289/photo/clown-laywer.jpg?s=612x612&w=0&k=20&c=aHoyN4YAeyzTd5yLyt0WBQskRce-G9rkepA_TX3_RHs=), ' +
-  "although they haven't quite been defined quite yet.";
+import {LOGIN_SCREEN_TOS} from '@app/common/Config';
 
 const LOGIN_SCREEN_CONFIG: SimpleLoginScreenConfig = {
   title: 'Welcome to Minders',
@@ -15,7 +11,7 @@ const LOGIN_SCREEN_CONFIG: SimpleLoginScreenConfig = {
   authTypes: ['google', 'phone'],
   home: 'Minders',
   onboarding: 'Onboarding',
-  tos: TOS,
+  tos: LOGIN_SCREEN_TOS,
 };
 
 const LoginScreen: Screen<{}> = simpleLoginScreen(LOGIN_SCREEN_CONFIG);

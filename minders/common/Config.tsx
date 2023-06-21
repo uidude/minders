@@ -57,14 +57,22 @@ export const GOOGLE_LOGIN_CONFIG = localConf['google-login'] ?? {
 
 export const CLIENT_FALLBACK_ENABLED = true;
 
-// Add legal links here for easy reference.
 export const LEGAL_LINKS = [
   {
     id: 'tos',
     label: 'Terms of Service',
-    url: 'https://facebookincubator.github.io/npe-toolkit/docs/release/tos.html',
+    url: 'https://app.termly.io/document/terms-of-service/477358a4-d5ec-4635-8eed-739005f7968b',
+  },
+  {
+    id: 'privacy-policy',
+    label: 'Privacy Policy',
+    url: 'https://app.termly.io/document/privacy-policy/158a201a-46b3-4c47-9434-e9a012757ea6',
   },
 ];
+
+export const LOGIN_SCREEN_TOS =
+  'By continuing, you accept our [Terms of Service](https://app.termly.io/document/terms-of-service/477358a4-d5ec-4635-8eed-739005f7968b) ' +
+  'and [Privacy Policy](https://app.termly.io/document/privacy-policy/158a201a-46b3-4c47-9434-e9a012757ea6).';
 
 export const MIXPANEL_TOKEN = null;
 
