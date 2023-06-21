@@ -14,6 +14,7 @@ const LOGIN_SCREEN_CONFIG: SimpleLoginScreenConfig = {
   subtitle: 'Keep focused!',
   authTypes: ['google', 'phone'],
   home: 'Minders',
+  onboarding: 'Onboarding',
   tos: TOS,
 };
 
