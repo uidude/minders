@@ -5,8 +5,10 @@
 import * as React from 'react';
 import {
   ActivityIndicator,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -147,7 +149,8 @@ export default function Layout(props: LayoutProps) {
   const navStyle = style?.nav ?? 'full';
   const navType = style?.type ?? 'std';
   const key = route.key;
-  const {width, height: maxHeight} = useWindowDimensions();
+  const {width, height} = useWindowDimensions();
+  const startingHeight = React.useRef(height);
   const insets = useSafeAreaInsets();
 
   const mainActionItem: Opt<ActionItem> =
@@ -166,6 +169,9 @@ export default function Layout(props: LayoutProps) {
     isMobile() || width < 800
       ? {borderRadius: 0, borderWidth: 0}
       : {borderRadius: 24, borderWidth: 1};
+
+  const maxHeight =
+    Platform.OS === 'web' && isMobile() ? startingHeight.current : height;
 
   if (navType === 'modal') {
     // Modal views are just the content: No SafeAreaView, Header, or Tabs
@@ -228,9 +234,9 @@ function Header(props: LayoutProps) {
       : StandardHeader;
 
   return (
-    <View style={S.topBar}>
+    <Pressable style={S.topBar} onPress={() => Keyboard.dismiss()}>
       <HeaderToShow {...props} />
-    </View>
+    </Pressable>
   );
 }
 
