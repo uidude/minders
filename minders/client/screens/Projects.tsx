@@ -4,7 +4,6 @@
 
 import * as React from 'react';
 import {
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -35,6 +34,7 @@ import {
 } from '@app/common/MinderApi';
 import {IconButton} from '@app/components/AppComponents';
 import {BinaryAlert} from '@app/util/Alert';
+import {usePrompt} from '@app/util/Prompt';
 import {downloadOrShareJson, jsonDataUrl} from '@app/util/Useful';
 import Minders from './Minders';
 
@@ -52,6 +52,7 @@ const Projects: Screen<Props> = props => {
   const [onDelete, deleting] = useAction(deleteProject);
   const reload = useReload();
   const {navTo} = useNav();
+  const [promptText, PromptComponent] = usePrompt();
 
   async function onNewProject() {
     await projectStore.create({
@@ -87,6 +88,7 @@ const Projects: Screen<Props> = props => {
       contentContainerStyle={S.content}
       nestedScrollEnabled>
       <H2 style={S.h2}>Projects</H2>
+      <PromptComponent />
 
       <DraggableFlatList
         data={projects}
@@ -107,7 +109,13 @@ const Projects: Screen<Props> = props => {
                 <IconButton
                   icon="ion:cloud-download-outline"
                   size={24}
+                  style={{marginRight: -4}}
                   onPress={() => onExport(item.id)}
+                />
+                <IconButton
+                  icon="pencil-outline"
+                  size={24}
+                  onPress={() => onEdit(item.id)}
                 />
               </View>
             </TouchableOpacity>
@@ -162,6 +170,18 @@ const Projects: Screen<Props> = props => {
     return downloadOrShareJson(name, jsonDataUrl(json));
   }
 
+  async function onEdit(projectId: string) {
+    const project = projects.find(p => p.id === projectId);
+    const newName = await promptText('Project name', project!.name);
+    if (newName != null) {
+      reload();
+      await projectStore.update(
+        {id: projectId, name: newName},
+        {optimistic: true},
+      );
+    }
+  }
+
   async function importData() {
     const doc = await DocumentPicker.getDocumentAsync({
       type: 'application/json',
@@ -192,7 +212,6 @@ const Projects: Screen<Props> = props => {
       projectWithData!.minders!.map(m => minderStore.remove(m.id)),
     );
     await projectStore.remove(id);
-
     reload();
   }
 };
