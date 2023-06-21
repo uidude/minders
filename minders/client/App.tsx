@@ -8,7 +8,7 @@ import {
 } from '@toolkit/providers/navigation/ReactNavigation';
 import PhoneInput from '@toolkit/screens/login/PhoneInput';
 import PhoneVerification from '@toolkit/screens/login/PhoneVerification';
-import {NotificationSettingsScreen} from '@toolkit/screens/settings/NotificationSettings';
+import {NotificationSettings} from '@toolkit/screens/settings/NotificationSettings';
 import {Routes} from '@toolkit/ui/screen/Nav';
 import WebViewScreen from '@toolkit/ui/screen/WebScreen';
 import AppLayout from '@app/AppLayout';
@@ -68,7 +68,7 @@ const ROUTES: Routes = {
   PhoneVerification,
   WebViewScreen,
   AboutScreen,
-  NotificationSettingsScreen,
+  NotificationSettings,
   Minders,
   DevSettings,
   Onboarding,
