@@ -6,26 +6,38 @@
       "ios": {
         "simulator": true
       },
-      "channel": "dev"
+      "channel": "dev",
+      "env": {
+        "BUILD_TYPE": "dev"
+      }
     },
     "dev": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "dev"
+      "channel": "dev",
+      "env": {
+        "BUILD_TYPE": "dev"
+      }
     },
-    "preprod": {
+    "alpha": {
       "distribution": "internal",
-      "channel": "preprod"
+      "channel": "alpha",
+      "env": {
+        "BUILD_TYPE": "alpha"
+      }
     },
     "prod": {
       "channel": "prod",
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "BUILD_TYPE": "prod"
+      }
     }
   },
   "submit": {
     "prod": {
       "ios": {
-        "appName": "Minders: Keep your focus"
+        "appName": "Minders"
       }
     }
   }
