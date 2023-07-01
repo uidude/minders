@@ -397,22 +397,21 @@ const MinderCount = withLoad((props: MinderCountProps) => {
   const {view, topId} = props;
   const minderStore = useMinderStore();
   const filter = filterFor(view);
-  const {minderIds} = useLoad(props, load);
-  const [ids, setIds] = React.useState<string[]>(minderIds);
+  const {minderIds, setData} = useLoad(props, load);
 
   useListen(Minder, '*', async (id: string, op: DataOp) => {
-    const exists = ids.indexOf(id) !== -1;
+    const exists = minderIds.indexOf(id) !== -1;
     const newMinder = op === 'remove' ? null : await minderStore.get(id);
     const showIt = newMinder != null && isVisible(newMinder, filter);
 
     if (showIt && !exists) {
-      setIds([...ids, id]);
+      setData({minderIds: [...minderIds, id]});
     } else if (!showIt && exists) {
-      setIds(ids => ids.filter(i => i !== id));
+      setData({minderIds: minderIds.filter(i => i !== id)});
     }
   });
 
-  const count = ids.length;
+  const count = minderIds.length;
   const fontSize = count > 1000 ? 11 : 14;
   let marginTop = count > 1000 ? 2 : 0;
   if (Platform.OS === 'android') {
@@ -431,6 +430,7 @@ const MinderCount = withLoad((props: MinderCountProps) => {
     const limit = Platform.OS === 'android' ? 500 : null;
     const {top} = await minderStore.getAll(topId, filter, limit);
     // TODO: More efficient logic
+    console.log('load?', filter, view);
     const matching = flatList(top.children, filter);
 
     return {minderIds: matching.map(m => m.id)};
