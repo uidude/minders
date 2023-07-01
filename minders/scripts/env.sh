@@ -4,4 +4,4 @@
 # Currenly just sets the window title :)
 
 PROJECT=minders
-echo -ne "\033]0;$PROJECT\007"
+echo -ne "\033]2;$PROJECT\007"
