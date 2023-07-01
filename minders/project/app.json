@@ -19,7 +19,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.uidude.minders",
       "config": {
         "googleSignIn": {
@@ -57,6 +57,15 @@
             "targetSdkVersion": 31,
             "buildToolsVersion": "31.0.0"
           }
+        }
+      ],
+      [
+        "expo-apple-authentication"
+      ],
+      [
+        "expo-facebook",
+        {
+          "userTrackingPermission": false
         }
       ]
     ],
