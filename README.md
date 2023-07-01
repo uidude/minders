@@ -1,8 +1,11 @@
-Minders is a web-based UI on top of a Google spreadsheet to track todos.
-
-The system is built using Angular on the client and Node.js on the server, and can be
-easily run from a local workstation or on AppEngine.
-
-Happy tasking!
-
-Note: This is not an officially supported Google product.
+Minders is the simplest, most relaxed way to track what **you** need to do. Minders are like a todo list, but better!
+* **Keeps you focused**
+  Default view shows only what you're working on
+* **Create without losing context**
+  Type or say just a few words to add to the future list
+* **Snooze it**
+  Hides Minders while you're waiting for other people or need to follow up in a few days
+* **Junk drawer**
+  Stale Minders go in a pile that you can revisit but mostly ignore
+  
+Minders is built on top of the [NPE Toolkit](https://github.com/npe-toolkit/npe-toolkit).
