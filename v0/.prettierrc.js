@@ -2,7 +2,7 @@ module.exports = {
   arrowParens: 'avoid',
   bracketSameLine: true,
   bracketSpacing: false,
-  requirePragma: false,
+  requirePragma: true,
   singleQuote: true,
   trailingComma: 'all',
   overrides: [
@@ -16,12 +16,14 @@ module.exports = {
       files: ['**/*.graphql'],
       options: {
         parser: 'graphql',
+        requirePragma: false,
       },
     },
     {
       files: ['**/*.json'],
       options: {
         parser: 'json-stringify',
+        requirePragma: false,
       },
     },
     {
@@ -29,18 +31,13 @@ module.exports = {
       options: {
         parser: 'markdown',
         proseWrap: 'always',
+        requirePragma: false,
       },
     },
     {
       files: ['**/*.{ts,tsx}'],
       options: {
         parser: 'typescript',
-      },
-    },
-    {
-      files: ['**/*.d.ts'],
-      options: {
-        requirePragma: true,
       },
     },
   ],
