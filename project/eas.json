@@ -1,0 +1,44 @@
+{
+  "build": {
+    "sim": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      },
+      "channel": "dev",
+      "env": {
+        "BUILD_TYPE": "dev"
+      }
+    },
+    "dev": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "dev",
+      "env": {
+        "BUILD_TYPE": "dev"
+      }
+    },
+    "alpha": {
+      "distribution": "internal",
+      "channel": "alpha",
+      "env": {
+        "BUILD_TYPE": "alpha"
+      }
+    },
+    "prod": {
+      "channel": "prod",
+      "autoIncrement": true,
+      "env": {
+        "BUILD_TYPE": "prod"
+      }
+    }
+  },
+  "submit": {
+    "prod": {
+      "ios": {
+        "appName": "Minders"
+      }
+    }
+  }
+}

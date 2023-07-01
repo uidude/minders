@@ -1,0 +1,22 @@
+{
+  "name": "minders",
+  "version": "1.0.0",
+  "scripts": {
+    "web": "cd project && yarn web",
+    "build:web": "cd project && yarn build:web",
+    "go:ios": "cd project && yarn go:ios",
+    "start:ios": "cd project && yarn start:ios",
+    "build:ios": "cd project && yarn build:ios",
+    "go:android": "cd project && yarn go:android",
+    "start:android": "cd project && yarn start:android",
+    "build:android": "cd project && yarn build:android",
+    "postinstall": "cd project && ./setup.sh"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.5",
+    "prettier": "^2.5.1",
+    "@ianvs/prettier-plugin-sort-imports": "^3.7.1",
+    "@types/react-native": "~0.69.1"
+  },
+  "private": true
+}

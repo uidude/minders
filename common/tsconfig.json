@@ -1,0 +1,26 @@
+{
+  "include": [
+    ".",
+    "../project/types",
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@toolkit/*": [
+        "../../npe-toolkit/lib/*"
+      ],
+      "@app/common/*": [
+        "../common/*"
+      ],
+      "@app/*": [
+        "./*"
+      ],
+      "*": [
+        "*",
+        "../project/node_modules/*",
+        "../project/node_modules/@types/*",
+      ]
+    }
+  },
+  "extends": "../../npe-toolkit/deps/v47/tsconfig"
+}

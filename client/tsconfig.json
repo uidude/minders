@@ -1,26 +1,29 @@
 {
-  "compileOnSave": false,
+  "include": [
+    ".",
+    "../project/types",
+  ],
   "compilerOptions": {
-    "baseUrl": "./",
-    "outDir": "./dist/out-tsc",
-    "sourceMap": true,
-    "declaration": false,
-    "downlevelIteration": true,
-    "experimentalDecorators": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "target": "es2015",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2018",
-      "dom"
-    ]
+    "baseUrl": ".",
+    "paths": {
+      "@toolkit/*": [
+        "../../npe-toolkit/lib/*"
+      ],
+      "@app/common/*": [
+        "../common/*"
+      ],
+      "@app/*": [
+        "./*"
+      ],
+      "*": [
+        "*",
+        "../project/node_modules/*",
+        "../project/node_modules/@types/*",
+        // Temporary until we separate out server datastore deps in core datatore API
+        // TODO: Remove once API is cleaned up
+        "../server/functions/node_modules/*"
+      ]
+    }
   },
-  "angularCompilerOptions": {
-    "fullTemplateTypeCheck": true,
-    "strictInjectionParameters": true
-  }
+  "extends": "../../npe-toolkit/deps/v47/tsconfig"
 }

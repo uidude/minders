@@ -1,0 +1,76 @@
+{
+  "expo": {
+    "name": "Minders",
+    "slug": "minders",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "../project/assets/icon.png",
+    "scheme": "minders",
+    "splash": {
+      "image": "../project/assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/2f07f39a-d4fd-449f-ab0e-96b438be599d"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.uidude.minders",
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.729397867154-o7pdcviop9n916p65ptf8j37v1kd9tl9"
+        },
+        "usesNonExemptEncryption": false
+      },
+      "buildNumber": "3"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "../project/assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.uidude.minders"
+    },
+    "web": {
+      "favicon": "../project/assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2f07f39a-d4fd-449f-ab0e-96b438be599d"
+      }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static",
+            "deploymentTarget": "13.0"
+          },
+          "android": {
+            "compileSdkVersion": 31,
+            "targetSdkVersion": 31,
+            "buildToolsVersion": "31.0.0"
+          }
+        }
+      ],
+      [
+        "expo-apple-authentication"
+      ],
+      [
+        "expo-facebook",
+        {
+          "userTrackingPermission": false
+        }
+      ]
+    ],
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    }
+  }
+}
