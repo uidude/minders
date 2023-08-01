@@ -55,7 +55,7 @@ export const GOOGLE_LOGIN_CONFIG = localConf['google-login'] ?? {
   expoId: '@uidude/minders',
 };
 
-export const CLIENT_FALLBACK_ENABLED = true;
+export const PREFER_CLIENT_APIS = true;
 
 export const LEGAL_LINKS = [
   {
