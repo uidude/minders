@@ -258,7 +258,7 @@ export function useGlobalActions() {
     icon: 'home',
     label: 'Home',
     key: 'h',
-    action: async () => nav.navTo(Minders),
+    action: async () => nav.reset(Minders),
   };
 
   const Settings: ActionItemWithShortcut = {
