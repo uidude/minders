@@ -621,9 +621,8 @@ export function isVisible(minder: Minder, filter: MinderFilter) {
   if (minder.state === 'new') {
     const created = minder.createdAt ?? 0;
     const minutesBack = (now - created) / (1000 * 60);
-    console.log('c', (created % 1000000) / 1000);
-    console.log('n', (now % 1000000) / 1000);
-    if (minutesBack < 0.3) {
+
+    if (minutesBack < 5) {
       return true;
     }
   }
