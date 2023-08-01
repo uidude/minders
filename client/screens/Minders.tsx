@@ -94,9 +94,10 @@ const Redirector = (props: Props) => {
     let top: Opt<string> = uiState?.top;
 
     if (top != null) {
+      const projectId = top.replace('>', ':');
       // Make sure the project exists
       // This will cache the data so it ends up being same amount of time to load
-      const project = await projectStore.get(top);
+      const project = await projectStore.get(projectId);
       if (project == null) {
         top = null; // This will trigger logic to get first project ID
       }
