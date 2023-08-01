@@ -3,8 +3,8 @@ import icon from '@assets/icon.png';
 import {Ionicons, MaterialCommunityIcons} from '@expo/vector-icons';
 import {Provider as PaperProvider} from 'react-native-paper';
 import {
-  setClientFallbackEnabled,
   setDefaultServerApi,
+  setPreferClientApis,
 } from '@toolkit/core/api/DataApi';
 import {LocalFlags} from '@toolkit/core/api/Flags';
 import {ConsoleLogger} from '@toolkit/core/api/Log';
@@ -25,9 +25,9 @@ import {Icon, registerIconPack} from '@toolkit/ui/components/Icon';
 import {usePaperComponents} from '@toolkit/ui/components/Paper';
 import {
   APP_CONFIG,
-  CLIENT_FALLBACK_ENABLED,
   FIREBASE_CONFIG,
   GOOGLE_LOGIN_CONFIG,
+  PREFER_CLIENT_APIS,
 } from '@app/common/Config';
 import {NOTIF_CHANNELS} from '@app/common/NotifChannels';
 import AuthConfig from './AuthConfig';
@@ -60,7 +60,7 @@ function AppConfig(props: Props) {
   usePaperComponents();
 
   setDefaultServerApi(firebaseFn);
-  setClientFallbackEnabled(CLIENT_FALLBACK_ENABLED);
+  setPreferClientApis(PREFER_CLIENT_APIS);
 
   return (
     <Scope providers={providers}>
