@@ -39,6 +39,13 @@ module.exports = async function (env, argv) {
   WebpackUtils.unoptimize(config);
   WebpackUtils.quitAfterBuild(config); // Expo CLI wasn't terminating after builds
 
+  // Pass E2E_TEST env var to client code for disabling Firebase reCAPTCHA in tests
+  config.plugins.push(
+    new webpack.DefinePlugin({
+      'process.env.E2E_TEST': JSON.stringify(process.env.E2E_TEST || 'false'),
+    })
+  );
+
   config.resolve.alias['react-native-webview'] = 'react-native-web-webview';
 
   // expo-firebase-recaptcha uses firebase v9 APIs in v8 interop mode
