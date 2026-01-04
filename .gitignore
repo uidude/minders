@@ -72,7 +72,7 @@ web-build/
 
 # @end expo-cli
 
-settings.json
+# settings.json  # commented out to allow .claude/settings.json to be checked in
 
 # Local configuration
 .localconf.json
@@ -145,3 +145,6 @@ build/Release
 # Firebase runtime config
 .runtimeconfig.json
 .runtimeconfig_checksum
+
+# Playwright MCP screenshots
+.playwright-mcp/

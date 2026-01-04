@@ -2,14 +2,18 @@
   "name": "minders",
   "version": "1.0.0",
   "scripts": {
+    "dev": "cd project && NODE_OPTIONS=--openssl-legacy-provider yarn web",
     "web": "cd project && yarn web",
+    "admin": "cd project && yarn admin",
     "build:web": "cd project && yarn build:web",
+    "build:admin": "cd project && yarn build:admin",
     "go:ios": "cd project && yarn go:ios",
     "start:ios": "cd project && yarn start:ios",
     "build:ios": "cd project && yarn build:ios",
     "go:android": "cd project && yarn go:android",
     "start:android": "cd project && yarn start:android",
     "build:android": "cd project && yarn build:android",
+    "setup": "cd project && ./setup.sh",
     "postinstall": "cd project && ./setup.sh"
   },
   "devDependencies": {
