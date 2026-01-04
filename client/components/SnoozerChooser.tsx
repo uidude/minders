@@ -3,7 +3,7 @@
  */
 
 import * as React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Platform, StyleSheet, TextInput, View} from 'react-native';
 import {Button, Dialog, Portal} from 'react-native-paper';
 import {Opt} from '@toolkit/core/util/Types';
 import {useShortcut} from '../util/Shortcuts';
@@ -18,6 +18,7 @@ const SnoozeDialogComponent = () => {
   const [{callback}, setCallback] = React.useState<CallbackHolder>({
     callback: null,
   });
+  const [selectedDate, setSelectedDate] = React.useState<string>('');
   const waitDialog = SnoozeDialog.get();
   const visible = callback != null;
 
@@ -28,10 +29,13 @@ const SnoozeDialogComponent = () => {
 
   waitDialog.handler = newCallback => {
     setCallback({callback: newCallback});
+    // Reset date when dialog opens
+    setSelectedDate('');
   };
 
   function dismiss() {
     setCallback({callback: null});
+    setSelectedDate('');
   }
 
   const UNIT_TO_MS = {
@@ -69,6 +73,17 @@ const SnoozeDialogComponent = () => {
     // Tomorrow will flip to active at 4am
     await snoozeTil(tomorrowMorning());
   }
+
+  async function snoozeTilDate() {
+    if (!selectedDate) return;
+    const timestamp = morningOfDate(selectedDate);
+    await snoozeTil(timestamp);
+  }
+
+  // Get minimum date (tomorrow) for the date picker
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split('T')[0];
 
   return (
     <View>
@@ -111,6 +126,38 @@ const SnoozeDialogComponent = () => {
                 </Button>
               </View>
             </View>
+            <View style={S.datePickerContainer}>
+              {Platform.OS === 'web' ? (
+                <input
+                  type="date"
+                  value={selectedDate}
+                  min={minDate}
+                  onChange={e => setSelectedDate(e.target.value)}
+                  style={{
+                    padding: 8,
+                    fontSize: 16,
+                    borderRadius: 4,
+                    border: '1px solid #ccc',
+                    marginRight: 8,
+                    flex: 1,
+                  }}
+                />
+              ) : (
+                <TextInput
+                  style={S.dateInput}
+                  placeholder="YYYY-MM-DD"
+                  value={selectedDate}
+                  onChangeText={setSelectedDate}
+                />
+              )}
+              <Button
+                mode="contained"
+                onPress={snoozeTilDate}
+                disabled={!selectedDate}
+                style={S.dateButton}>
+                Snooze to Date
+              </Button>
+            </View>
           </Dialog.Content>
           <Dialog.Actions>
             <Button style={S.cancel} mode="contained" onPress={dismiss}>
@@ -148,6 +195,19 @@ function thisEvening() {
   return date.getTime();
 }
 
+/**
+ * Returns timestamp for 4am on the given date string (YYYY-MM-DD format).
+ * Uses the same logic as tomorrowMorning() - snooze expires at 4am.
+ */
+function morningOfDate(dateString: string): number {
+  // Parse the date string as local date
+  const [year, month, day] = dateString.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  // Set to 4am (same as tomorrowMorning logic)
+  date.setHours(4, 0, 0, 0);
+  return date.getTime();
+}
+
 export class SnoozeDialog {
   handler: (callback?: Callback) => void;
 
@@ -181,5 +241,23 @@ const S = StyleSheet.create({
     marginTop: 12,
     marginLeft: 6,
     marginRight: 6,
+  },
+  datePickerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+    paddingHorizontal: 6,
+  },
+  dateInput: {
+    flex: 1,
+    padding: 8,
+    fontSize: 16,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginRight: 8,
+  },
+  dateButton: {
+    marginLeft: 8,
   },
 });
